@@ -1,0 +1,68 @@
+body
+{
+    font-family: Arial;
+}
+
+#towers
+{
+    text-align: center;
+    width: 100%;
+}
+
+.base
+{
+    border: 1px solid black;
+    width: 100%;
+}
+
+.disk
+{
+    border: 1px solid black;
+    border-bottom-width: 0px;
+    height: 20px;
+    color: white;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    font-weight: bold;
+    overflow: hidden;
+    margin: auto;
+}
+
+.disks ol
+{
+    margin: 0;
+    padding: 0;
+}
+
+.peg
+{
+    border: 1px solid black;
+    width: 8%;
+    height: 75%;
+    margin: auto;
+    position: absolute;
+    bottom: 21px;
+    left: 46%;
+    z-index: -1;
+}
+
+.popped
+{
+    border-bottom-width: 1px;
+    margin-bottom: 40px;
+}
+
+.stacked
+{
+    list-style-type: none;
+}
+
+.tower
+{
+    float: left;
+    width: 30%;
+    position: relative;
+}
