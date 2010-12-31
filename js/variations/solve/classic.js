@@ -1,4 +1,4 @@
-if (!main.shuffle)
+if (!main.random && !main.shuffle)
 {
     var solution = 0;
     var func = classic.three.rec;

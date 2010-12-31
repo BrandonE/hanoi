@@ -1,8 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>The Towers of Hanoi and Variations</title>
-<meta name="description" content="A site providing several variations on the
+<meta name="description" content="A page providing several variations on the
 classic Towers of Hanoi puzzle and a graphic solver." />
 <meta name="keywords" content="the, towers, of, hanoi, puzzle, classic,
 variations, disk, disks, multistack, solver" />
@@ -43,7 +44,7 @@ variations, disk, disks, multistack, solver" />
 </div>
 <h1>The Towers of Hanoi and Variations</h1>
 <h3>
-    A site containing several variations on the classic Towers of Hanoi puzzle
+    A page containing several variations on the classic Towers of Hanoi puzzle
     and a graphic solver.
 </h3>
 <p>
@@ -51,7 +52,7 @@ variations, disk, disks, multistack, solver" />
     Tower of Hanoi</a> is a mathematical puzzle that has become a popular
     example of the concept <a
     href="http://en.wikipedia.org/wiki/Recursion_(computer_science)"
-    target="_blank">recursion</a>. On this site, we have provided several
+    target="_blank">recursion</a>. On this page, we have provided several
     variations of the puzzle, plus solution algorithms for many of them. I made
     this program to educate, entertain, and strive for the best solutions to
     these variations. Please <a href="mailto:admin@brandonevans.org">contact
@@ -545,7 +546,7 @@ variations, disk, disks, multistack, solver" />
 </div>
 <div class="noscript">
     <p style="text-align: center">
-        <strong>In order to use this site, you must enable Javascript.</strong>
+        <strong>In order to use this page, you must enable Javascript.</strong>
     </p>
 </div>
 <p style="text-align: center">
@@ -553,7 +554,7 @@ variations, disk, disks, multistack, solver" />
     Evans</a>. All Rights Reserved.
 </p>
 <p>
-    Special thanks to Fred Lunnon for the program I based this site on and its
+    Special thanks to Fred Lunnon for the program I based this page on and its
     documentation, Victor Mascolo for inventing the original Multistack Hanoi
     puzzle and models (U.S. patent number 7,566,057), Paul Stockmeyer and Steve
     Minsker for their papers on several variations as well as other

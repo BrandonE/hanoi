@@ -1,4 +1,4 @@
-if (!main.shuffle)
+if (!main.random && !main.shuffle)
 {
     if (main.count.per == 3)
     {
