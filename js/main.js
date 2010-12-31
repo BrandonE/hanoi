@@ -28,6 +28,7 @@ var main = {
     },
     'popped': null,
     'redo': [],
+    'random': false,
     'running': false,
     'shuffle': false,
     'steps': [],
@@ -906,7 +907,7 @@ main.setup = function()
     // Calculate the minimum moves for the this variation.
     main.minimum = 'N/A';
     var i;
-    if (!main.shuffle)
+    if (!main.random && !main.shuffle)
     {
         if (main.variation == 'Classic')
         {
@@ -1071,14 +1072,14 @@ main.setup = function()
     $('#undo').css('visibility', 'hidden');
     // Show additional information if necessary.
     $('#multi').hide();
-    $('#shuffling').hide();
+    $('#placing').hide();
     if (main.count.stacks > 1 && main.variation != 'Antwerp')
     {
         $('#multi').show();
     }
-    if (main.shuffle)
+    if (main.random || main.shuffle)
     {
-        $('#shuffling').show();
+        $('#placing').show();
     }
     var color;
     var denom = main.count.per - 1;
@@ -1169,13 +1170,11 @@ main.setup = function()
     for (i = 0; i < stacks.length; i++)
     {
         var stack = stacks[i];
-        var shuffle = [];
-        /*
-        Allow all of the towers in the range to initially be shuffled to.
-        */
+        var random = [];
+        // Initially allow disks to be randomly placed on all towers.
         for (j = stack; j < stack + main.count.per; j++)
         {
-            shuffle.push({'tower': j});
+            random.push({'tower': j});
         }
         var tower;
         // If the variation is a Domino variation or a Lundon variation
@@ -1191,8 +1190,8 @@ main.setup = function()
         )
         {
             // Force a tower to be empty.
-            tower = Math.floor(Math.random() * shuffle.length);
-            shuffle.splice(tower, 1);
+            tower = Math.floor(Math.random() * random.length);
+            random.splice(tower, 1);
         }
         // If the variation is a Lundon variation
         if (
@@ -1204,8 +1203,8 @@ main.setup = function()
         )
         {
             // Force a tower to contain one disk at maximum.
-            tower = Math.floor(Math.random() * shuffle.length);
-            shuffle[tower].limit = 1;
+            tower = Math.floor(Math.random() * random.length);
+            random[tower].limit = 1;
         }
         for (j = 0; j < main.count.disks; j++)
         {
@@ -1263,9 +1262,8 @@ main.setup = function()
             tower = stack;
             var index = null;
             /*
-            If the disks should be shuffled, place the disks in such a way
-            that the tower of the disks are randomized, yet the puzzle
-            isn't automatically solved.
+            If the disks should be randomly placed on the towers, do so without
+            automatically solving the puzzle.
             */
             do
             {
@@ -1273,10 +1271,10 @@ main.setup = function()
                 {
                     main.towers[tower].disks.pop();
                 }
-                if (main.shuffle)
+                if (main.random)
                 {
-                    index = Math.floor(Math.random() * shuffle.length);
-                    tower = main.cycle(shuffle[index].tower);
+                    index = Math.floor(Math.random() * random.length);
+                    tower = main.cycle(random[index].tower);
                 }
                 // Add the disk.
                 main.towers[tower].disks.push({
@@ -1286,36 +1284,39 @@ main.setup = function()
                     'tower': tower
                 });
             }
-            while (main.solved() && main.count.disks == 1);
+            while (
+                main.solved() &&
+                (
+                    main.count.disks == 1 ||
+                    !main.shuffle
+                )
+            );
             /*
-            If the disks should be shuffled and this tower already contains
-            the amount of disks it's allowed to, remove it from the towers
-            it can be shuffled to.
+            If this tower already contains the amount of disks it's allowed to,
+            remove it from the towers it can be randomly placed on.
             */
             if (
-                main.shuffle &&
-                main.towers[tower].disks.length == shuffle[index].limit
+                main.random &&
+                main.towers[tower].disks.length == random[index].limit
             )
             {
-                shuffle.splice(index, 1);
+                random.splice(index, 1);
             }
         }
         /*
-        If the disks should be shuffled, shuffle on all of the towers in the
-        cycle in such a way that the order of the disks are randomized, yet the
-        puzzle isn't automatically solved.
+        If the disks should be shuffled, do so without automatically solving
+        the puzzle.
         */
         if (main.shuffle)
         {
-            for (j = stack; j < stack + main.count.per; j++)
+            do
             {
-                tower = main.cycle(j);
-                do
+                for (j = stack; j < stack + main.count.per; j++)
                 {
-                    main.towers[tower].disks.shuffle();
+                    main.towers[main.cycle(j)].disks.shuffle();
                 }
-                while (main.solved() && main.count.disks > 1);
             }
+            while (main.solved());            
         }
     }
     if (
@@ -1387,10 +1388,10 @@ main.setup = function()
     var scale = 10;
     var stackable = main.count.disks;
     /*
-    As all of the stacks can be on the same tower when the disks are shuffled
-    and in the Antwerp variation, count all of the disks in either case.
+    As all of the stacks can be on the same tower when the disks are randomly
+    placed and in the Antwerp variation, count all of the disks in either case.
     */
-    if (main.shuffle || main.variation == 'Antwerp')
+    if (main.random || main.variation == 'Antwerp')
     {
         stackable *= main.count.stacks;
     }
@@ -1886,6 +1887,13 @@ $(document).ready(
                 {
                     main.mode = value;
                 }
+            }
+        );
+        $('#random').change(
+            function()
+            {
+                main.random = ($('#random:checked').length);
+                main.setup();
             }
         );
         $('#redo').click(
