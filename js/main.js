@@ -784,7 +784,7 @@ main.run = function(restarting)
     ``restarting``
         bool - Whether or not the solver is restarting.
     */
-    // Assume the generator's done running.
+    // Assume the generator is done running.
     main.running = false;
     // If the solver has not been stopped
     if (!main.stopped)

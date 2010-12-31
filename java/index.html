@@ -1,0 +1,1640 @@
+<HTML> <! HanoiDoc.html user guide to HanoiVar.java > 
+<TITLE> Tower of Hanoi Variations (HanoiVar 16), W.F.Lunnon </TITLE> 
+<TITLE> Comments, Corrections and Modifications (01/09/05) (31/05/06) (24/08/07) (04/06/08) (05/06/10) (29/08/10) 24/09/10 
+  Maintain last update at end! 
+  Colours of discs are specified: if changed in HanoiVar, must reconcile !! 
+    [maybe just say "light" and "dark"] ?! 
+  Define suboptimal solution as asymptotically same order of time as optimal. 
+  Rainbow: no recursions; D(n) for DDD(n) etc? 11 -> complete 18 functions ?? 
+   [was "Tricolour", "length" for "time" in hanoi1/2.tex.] See HanoiVar.txt 
+  Antwerp: Case n = 1 in pseudocode? Generalise to m stacks on m pins? 
+  Checkers: complete function list? 
+  Domino: consider DBF,DAF,EAB,EAD(n) [complete, via PKS]? 
+  Arbitrary initial/final configs. (Hinz), graph method. 
+  Turtle: optimality proof m = 2; smallest-disc recursion ?? 
+  Mention Stockmeyer's 4-pin Cyclic, Adjacent puzzles. 
+  Sub-headings ?? Tables of times ?? 
+  Mention bases uncoloured in demo, apart from Classic_P ?? 
+  Reversi_B := proc (n) 
+    if n mod 2 = 1 then 4*3^((n-1)/2) - 2 else 2*3^(n/2) - 2 fi end; 
+</TITLE> 
+<BODY> 
+<FONT SIZE=4> <! Force 18pt for math expr: ignored by Int.Exp ?? > 
+
+<H1> The Tower of Hanoi and Variations </H1> 
+
+    <UL>
+    <LI> <B> <A HREF = "#Classic Hanoi"> Classic Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Cyclic Hanoi"> Cyclic Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Rainbow Hanoi"> Rainbow Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Towers of Antwerp"> Towers of Antwerp </A> </B> 
+    <LI> <B> <A HREF = "#Reves Puzzle & Many-Pin Hanoi"> Reves Puzzle & Many-Pin Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Turtle & Multi-Stack Hanoi"> Turtle & Multi-Stack Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Domino & Adjacent Hanoi"> Domino & Adjacent Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Four-Star Hanoi"> Four-Star Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Tower of Lundon"> Tower of Lundon </A> </B> 
+    <LI> <B> <A HREF = "#Checkers Hanoi"> Checkers Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Reversi Hanoi"> Reversi Hanoi </A> </B> 
+    <LI> <B> <A HREF = "#Demo Variation Programming"> Demo Variation Programming </A> </B> 
+    <LI> <B> <A HREF = "#Demo Installation"> Demo Installation </A> </B> 
+    <LI> <B> <A HREF = "#Demo User Guide"> Demo User Guide </A> </B> 
+    <LI> <B> <A HREF = "#References"> References </A> </B> 
+    </UL> <P> 
+
+<H2> <A NAME = "Classic Hanoi">  Classic Hanoi </A> </H2> 
+
+According to Rouse Ball, the original puzzle was invented by the French 
+mathematician Lucas, in a paper published in 1883. 
+Equipped since with an entirely bogus "ancient oriental" provenance, it has 
+sporadically been sold as a children's puzzle under the name Tower of Bramah. 
+It comprises a base plate on which is mounted a row of <I>m</I> vertical 
+pins, and a stack of <I>n</I> perforated discs of graduated diameters. 
+Initially the stack is placed on the left-most pin in decreasing order 
+of size, and the Classic problem is to transfer all <I>n</I> discs 
+in the minimum time (number of moves) using <I>m = 3</I> pins :--- 
+    <UL>
+    <LI> Only one disc shall be moved at a time; 
+    <LI> No disc may be placed on top of a smaller one. 
+    </UL> 
+<P> 
+For an illustration, run the HanoiVar demonstration program 
+and select the (default) option <I>Classic<!(Three_Pin)></I>. 
+There is a considerable quantity of other programs on the Web which implement 
+this version of the puzzle: some of the better ones are listed in M. Kolar's 
+directory. 
+<P>
+The standard approach to solving the Classic puzzle is via recursion from the 
+largest disc down. 
+    <UL> 
+    <LI> To transfer <I>n > 0</I> discs from pin <I>X</I> via pin <I>Y</I> 
+to pin <I>Z</I>: 
+         <UL>
+         <LI> (1) transfer <I>n-1</I> discs from <I>X</I> via <I>Z</I> 
+to <I>Y</I>; 
+         <LI> (2) move largest disc from <I>X</I> to <I>Z</I>; 
+         <LI> (3) transfer <I>n-1</I> discs from <I>Y</I> via <I>X</I> 
+to <I>Z</I>. 
+         </UL> 
+    </UL> 
+<P>
+<TITLE> [See the Java method 
+<I>tranC(Disc disc, Pin X, Pin Y, Pin Z)</I> in class <I>ClassicDefn</I>.] </TITLE> 
+This algorithm is easily seen to be optimal by induction - for the largest disc 
+to move, it is plainly necessary that all smaller discs are on the third pin. 
+Similarly, it is unique: there is no choice about which disc may be moved 
+at a given time. 
+Also by induction we find the optimal time <I>T(n)</I> to transfer <I>n</I> discs: 
+since <I>T(n) = T(n-1) + 1 + T(n-1)</I> for <I>n > 0</I> and <I>T(0) = 0</I>, 
+and the unique solution to these equations is <I>T(n) = 2<SUP>n</SUP> - 1</I>. 
+<P>
+Though very directly implementable on computer via any modern programming 
+language, recursion by largest disc is far from being a man-friendly technique. 
+However, watching the motion of individual discs suggests a completely 
+different algorithm: approaching the problem from the small end as it were, 
+it may be shown that 
+    <UL>
+    <LI> The smallest disc moves alternately; 
+    <LI> For each other move there is (at most) one legal choice; 
+    <LI> The smallest disc moves always in the same cyclic direction. 
+    </UL> 
+The smallest disc motion is "clockwise" <I>X</I> to <I>Y</I> to <I>Z</I> to 
+<I>X</I> ... for <I>n</I> even, "anticlockwise" <I>X</I> to <I>Z</I> to 
+<I>Y</I> to <I>X</I> ... for <I>n</I> odd; in general, discs cycle in alternate 
+directions, from the largest (anticlockwise) upwards. 
+<P>
+This property leads to a slightly more involved algorithm
+<TITLE> [method <I>tranC(Pin X, Pin Y, Pin Z)</I> in class <I>ClassicDefn</I>] 
+</TITLE>  
+with period 3 moves, which is entirely iterative; 
+the elimination of the recursion renders it sufficiently man-friendly to execute 
+manually, to the amazement of your friends [the more nerdy, maybe]: 
+    <UL> 
+    <LI> To transfer <I>n > 0</I> discs from <I>X</I> via <I>Y</I> to <I>Z</I>: 
+         <UL>
+         <LI> Set clock <I>t = 0</I> initially; 
+         <LI> At time <I>t</I> move smaller disc between pins shown below. 
+             <UL>
+             <LI> For <I>n</I> odd: 
+             <LI> <I>t</I> mod 3 = 0: <I>X, Z;</I> 
+             <LI> <I>t</I> mod 3 = 1: <I>Y, X;</I> 
+             <LI> <I>t</I> mod 3 = 2: <I>Z, Y;</I> 
+             </UL> 
+             <UL>
+             <LI> For <I>n</I> even: 
+             <LI> <I>t</I> mod 3 = 0: <I>X, Y;</I> 
+             <LI> <I>t</I> mod 3 = 1: <I>Z, X;</I> 
+             <LI> <I>t</I> mod 3 = 2: <I>Y, Z;</I> 
+             </UL> 
+         <LI> Increment <I>t</I> and repeat until entire stack on <I>Z</I> . 
+         </UL> 
+    </UL> 
+[The smallest disc moves when <I>t</I> mod 2 = 0.] 
+Alternatively, select HanoiVar option <I>Classic_P</I> --- inevitably, this is 
+indistinguishable from <I>Classic</I> by the uniqueness of the solution path, 
+although inspection of the program reveals that the algorithms are quite distinct. 
+<P>
+We may think of the discs in the Classic puzzle as coloured alternately green 
+and red from the top of the stack downwards; indeed, we may even continue 
+the colour scheme to include the bases of the pins, so that if (say) <I>n</I> 
+is even then the largest disc will be coloured red, the left-hand base green, 
+the middle red and the right-hand green. This colour-scheme emphasises the
+rather surprising fact that, throughout the solution :--- 
+    <UL>
+    <LI> The colours of all discs and bases on each pin alternate. 
+    </UL>
+<P>
+It can be shown that this property characterises the configurations along 
+the optimal solution, from which we can deduce another man-friendly 
+"bichromatic" algorithm: 
+    <UL>
+    <LI> After each move, the next move avoids reversing the previous move. 
+    </UL>
+[There is only one such colour-consistent move; initially, there is only one 
+possible move; finally, there is no possible move other than reversing.] 
+In addition, it is now easy to tell whether a given configuration lies on the 
+optimal solution path: when the colours don't alternate, you've gone wrong! 
+<I>Classic</I> leaves the bases uncoloured, but <I>Classic_P</I> colours them 
+in order to emphasise this behaviour. 
+<P>
+These two nontrivial characterisations of the Classic solution --- 
+via cyclic direction, or via disc colour --- inspire a number of intriguing 
+variations on the original puzzle, in the form of extra restrictions on the 
+moves permitted. These vary from the trivial (Adjacent), through the 
+elegant (Cyclic) and vicious (Domino), to unproven (Reves) and unconjectured 
+(Reversi). 
+<P>
+
+<H2> <A NAME = "Cyclic Hanoi">  Cyclic Hanoi </A> </H2> 
+
+We mentioned that in the classical solution, discs shift cyclically in 
+alternate directions (left for largest colour, right for the other); 
+Knuth suggested introducing the additional constraint that 
+    <UL>
+    <LI> Every disc shall move in the same cyclic direction. 
+    </UL>
+[say clockwise, from left to middle to right]; as before, the problem is 
+to transfer the stack from left pin to right, or cyclically "leftwards", 
+in the minimum possible time [which will now surely increase]. 
+Quite obviously, we could have posed a distinct problem by demanding instead 
+that all discs move anticlockwise; a little reflection reveals that this new 
+problem is equivalent to transferring the pile from left pin to middle, 
+or cyclically "rightwards", using clockwise moves. 
+<P>
+Illustrations of the solutions to both problems are provided by selecting the 
+<I>Cyclic<! (Cyclic_L)></I> and <I>Cyclic_R</I> options in HanoiVar. Atkinson 
+published a short analysis of the solution, which essentially as follows. 
+Using recursion by largest disc as before, we find that now discover that the 
+the two problems are mutually interdependent: transferring rightwards is much 
+the same as before, except that it involves transferring the smaller stack 
+leftwards; but transferring leftwards is slightly more complicated :--- 
+    <UL> 
+    <LI> To transfer_right <I>n > 0</I> discs from pin <I>X</I> via pin <I>Y</I> 
+to pin <I>Z</I>, 
+         <UL>
+         <LI> (1) transfer_left <I>n-1</I> discs from <I>X</I> via <I>Z</I> 
+to <I>Y</I>; 
+         <LI> (2) move largest disc from <I>X</I> to <I>Z</I>; 
+         <LI> (3) transfer_left <I>n-1</I> discs from <I>Y</I> via <I>X</I> 
+to <I>Z</I>. 
+         </UL> 
+    <LI> To transfer_left <I>n > 0</I> discs from pin <I>X</I> via pin <I>Y</I> 
+to pin <I>Z</I>, 
+         <UL>
+         <LI> (1) transfer_left <I>n-1</I> discs from <I>X</I> via <I>Y</I> 
+to <I>Z</I>; 
+         <LI> (2) move largest disc from <I>X</I> to <I>Y</I>; 
+         <LI> (3) transfer_right <I>n-1</I> discs from <I>Z</I> via <I>Y</I> 
+to <I>X</I>; 
+         <LI> (4) move largest disc from <I>Y</I> to <I>Z</I>; 
+         <LI> (5) transfer_left <I>n-1</I> discs from <I>X</I> via <I>Y</I> 
+to <I>Z</I>. 
+         </UL> 
+    </UL> 
+As before, the solutions are unique and optimal. 
+<P>
+Let <I>A(n)</I> and <I>C(n)</I> denote the times for leftwards and 
+rightwards Hanoi with <I>n</I> discs. Then immediately from the above algorithm, 
+    <DL>
+    <DD> <I>A(n) = A(n-1) + 1 + C(n-1) + 1 + A(n-1), 
+    <DD> C(n) = A(n-1) + 1 + A(n-1), 
+    <DD> A(0) = C(0) = 0. </I>
+    </DL> 
+<P>
+It is an easy exercise in elementary algebra to verify the following 
+recurrence in <I>A(n)</I> alone 
+    <DL>
+    <DD> <I>A(n+3) = 3A(n+2) - 2A(n), 
+    <DD> A(0) = 0,  A(1) = 2,  A(2) = 7; </I>
+    <DD> 
+    </DL> 
+the explicit formula for <I>A(n)</I> 
+    <DL>
+    <DD> <I>A(n) = (x<SUP>n+2</SUP> - y<SUP>n+2</SUP>)/4(3<SUP>1/2</SUP>) - 1, </I>
+    <DD> where <I>x = 1+3<SUP>1/2</SUP> = 2.7320... </I>
+    <DD> and <I>y = 1-3<SUP>1/2</SUP> = -0.7320... </I>
+    <DD> and <I>3<SUP>1/2</SUP></I> denotes the square root of 3; 
+    </DL> 
+with similar formulae for <I>C(n) = 2A(n-1) + 1</I>. 
+<P>
+For <I>Cyclic_L</I> and <I>Cyclic_R</I> puzzles, the bases and discs are 
+shaded in a curious fashion: initially the entire stack is orange, but as a 
+discs move it may change to blue, or back again --- think of them as flat, 
+flipping over to show their reverse side. Adjacent colours need not alternate. 
+To complete our definitions, we also assign a colour to the bases, 
+considered just larger than the largest disc: orange for leftward transfer, 
+blue for rightward. 
+<P>
+In detail, the colour-changing rule is that :--- 
+    <UL>
+    <LI> A disc colour flips as it moves, just when the next larger disc is orange; 
+    </UL>
+It can be shown that, throughout the solution :---  
+    <UL>
+    <LI> No two discs of consecutive size are both blue; 
+    </UL>
+and that this property characterises configurations along the optimal solution. 
+The resulting man-friendly "coloured" algorithm is :--- 
+    <UL>
+    <LI> Alternately, move the smallest disc (once or twice) until it is orange; 
+    <LI> For each other move there is just one legal choice; 
+    <LI> Stop when the entire stack has been transferred. 
+    </UL> 
+<P>
+Finally an attactive exercise in elementary Markov chains is to show that, 
+throughout the configurations of a cyclic solution for large <I>n</I>, 
+on average approximately 
+    <UL>
+    <LI> the number of blue discs is <I>(2 - 3<SUP>1/2</SUP>) n 
+= (0.2680...) n </I>. 
+    </UL>
+<P>
+<H2> <A NAME = "Rainbow Hanoi"> Rainbow Hanoi </A> </H2> 
+We mentioned that in the Classic solution, discs coloured alternately 
+with two colours remain coloured alternately. 
+R. Neale suggested instead colouring the discs cyclically with three colours 
+--- Hanoivar employs green, blue, red, ... from the smallest down -- then
+obeying the analogous additional restriction, in the form 
+    <UL>
+    <LI> No disc may be placed on another of the same colour (red, green or blue). 
+    </UL> 
+<P>
+The bases in the given problem are uncoloured, but immediately we attempt to 
+construct a solution via recursion, we have to consider a number of subsidiary 
+problems in which some or all of the bases are also coloured. 
+This new complication prompts us to develop a systematic notation for such 
+problems and the time taken to solve them. 
+The colours of the larger discs depend of course on the remainder of <I>n</I> 
+modulo 3 ; we denote these lower colours simply <I>A, B, C, ...,</I> 
+from the largest disc <I>A</I> upwards, with <I>D</I> denoting uncoloured. 
+<P>
+Then <I>PQR(n)</I> denotes the (optimal) 
+time taken to transfer all <I>n</I> discs from the left pin via the middle to 
+the right, under the Rainbow rule, with the bases coloured <I>P, Q, R</I> 
+respectively [where <I>P, Q, R</I> denote any of <I>A, B, C, D</I>]. 
+For example, <I>DDD(n)</I> denotes the problem with all bases uncoloured; 
+<I>BAC(n)</I> the problem where the left, middle, right bases are coloured 
+<I>B, A, C</I>. Both solutions are illustrated by HanoiVar, 
+under <I>Rainbow<! (Rainbow_D)>, Rainbow_C.</I> 
+<P>
+We shall just sketch the argument from this point on: detailed proofs have 
+been prepared in particular by Lunnon and by Minsker. Potentially, we have 
+64 separate functions to consider, but these can be reduced by 
+discarding reflections such as <I>CAB(n) = BAC(n)</I> [the moves of one being 
+the moves of the other reversed, and in the reverse order], 
+insoluble problems such as <I>BBC(n)</I> [not immediately obvious!], 
+and those such as <I>BAD(n)</I> which in practice fail to occur in the course 
+of the recursion [as it descends from all bases uncoloured to all coloured.] 
+Each of the distinct 11 remaining problems has to be broken down recursively 
+into two or three problems involving only <I>n-1</I> discs, as for transfer_right 
+and transfer_left in <I>Cyclic.</I> In this form the solution can be 
+programmed as 17 mutually recursive procedures. 
+<P>
+To evaluate the time functions, it's advisable to recast the recursions 
+formally as a <I>Markov chain</I> (Feller chap.15), that is as 
+simultaneous first-order linear recurrences in one variable with constant 
+coefficients. These may be expressed concisely by the vector equation 
+    <DL>
+    <DD> <B>s</B><I>(1) = (1,1,1,1,1,1,1,1,1,1,1,1),</I> 
+    <DD> <B>s</B><I>(n+1) =  </I><B>M s</B><I>(n).</I> 
+    </DL> 
+where the vector <B>s</B> and matrix <B>M</B> are defined by
+    <DL>
+    <DD> <B>s</B><I> = (DDD,CDD,CBD,CAD,BCD,BDC,CDC,CBC,BAC,CAC,BCB,  1),</I> 
+    <DD> <B>M</B><I> = </I> 
+<PRE>
+            | 0,2,0,0,0,0,0,0,0,0,0,1 |
+            | 0,1,1,0,0,0,0,0,0,0,0,1 |
+            | 0,0,0,1,1,0,0,0,1,0,0,2 |
+            | 0,0,0,0,0,0,1,1,0,0,0,1 |
+            | 0,0,0,0,0,1,0,0,1,0,0,1 |
+            | 0,0,1,1,0,0,0,0,0,0,0,1 |.
+            | 0,0,2,0,0,0,0,0,0,0,0,1 |
+            | 0,0,0,0,0,0,0,0,2,0,1,2 |
+            | 0,0,0,0,0,0,0,1,0,1,0,1 |
+            | 0,0,0,0,0,0,0,2,0,0,0,1 |
+            | 0,0,0,0,0,0,0,0,2,0,0,1 |
+            | 0,0,0,0,0,0,0,0,0,0,0,1 |
+</PRE>
+    </DL> 
+<P>
+To solve such equations, compute the characteristic polynomial of the matrix, 
+which comes out as (discarding an irrelevant factor -<B>E</B>) :--- 
+    <DL>
+    <DD> <B>E</B><SUP>10</SUP> - <B>E</B><SUP>9</SUP> - 2<B>E</B><SUP>8</SUP> - 
+7<B>E</B><SUP>7</SUP> + 5<B>E</B><SUP>6</SUP> + 8<B>E</B><SUP>5</SUP> + 
+14<B>E</B><SUP>4</SUP> - 2<B>E</B><SUP>3</SUP> - 4<B>E</B><SUP>2</SUP> - 
+4<B>E</B> - 8 
+    <DD> = (<B>E</B> - 1)(<B>E</B><SUP>5</SUP> - 3<B>E</B><SUP>2</SUP> - 2)
+(<B>E</B><SUP>4</SUP> - 2<B>E</B><SUP>2</SUP> - 6<B>E</B> - 4). 
+    </DL> 
+Interpreting <B>E</B> as the shift operator taking <I>n -> n+1</I>, 
+the coefficients of this polynomial give an order 10 linear recurrence 
+satisfied by <I>DDD(n)</I> (as well as by the other 10 functions); 
+and its maximal (quartic) root <I> x = 2.3117...</I> gives the asymptotic 
+complexity of the time :--- 
+    <DL>
+    <DD> <I>DDD(n) ~ 0.6576 (2.3117...)<SUP>n</SUP>.</I> 
+    </DL> 
+<P>
+We're still not quite out of the wood, because we have been concealing an 
+embarrassing fact: 3 of the above problems (<I>DDD, CDD, CDC</I>) could 
+in principle be broken down recursively into either two or three sub-problems. 
+It's a pretty reasonable bet that using two rather than three is going to be 
+faster, but that doesn't constitute a proof;   
+indeed in one instance, the alternatives are equally fast: 
+    <DL>
+    <DD> <I>CDC(3) = 11 = 2 CBD(2) + 2 = 3 BDC(2) + 3 .</I> 
+    </DL> 
+To dispose of this apparently minor formality turns out to require careful 
+analysis of the relevant recurrences. 
+To begin with, notice that a sequence generated by a recurrence such as 
+    <DL>
+    <DD> <B>E</B> - 1, or 
+<B>E</B><SUP>5</SUP> - 3<B>E</B><SUP>2</SUP> - 2</I>, or 
+<B>E</B><SUP>4</SUP> - 2<B>E</B><SUP>2</SUP> - 6<B>E</B> - 4,</I> 
+    </DL> 
+where each term is a positive combination of those preceding, must have only 
+terms which are non-negative, provided sufficiently many (here 5 or 4) of its 
+initial terms are. 
+The order 10 recurrence above is not of this form; however all its factors are, 
+which permits any sequence it generates to be decomposed into a series of auxiliary 
+sequences, each of which does possess the property. By inspecting the initial 
+terms of each of these, we in turn show that each is non-negative. Carrying out 
+this program for the sequence of <I>differences</I> between three- and two-
+subproblem solution times, it may be shown that that the former is never shorter. 
+[A similar argument is needed to show that any combination of the two solutions 
+must produce a time intermediate between them.]
+Finally, there are some irritatingly trivial possibilities to be eliminated for 
+<I>n</I><4, where a subproblem impossible for larger <I>n</I> happens to offer a 
+feasible alternative: <I>CDC(3)</I> is a case in point. 
+<P>
+
+<H2> <A NAME = "Towers of Antwerp"> Towers of Antwerp </A> </H2> 
+
+This variation is credited by Minsker to Derick Wood. 
+Initially there are not one but three stacks of <I>n</I> discs, one on 
+each of the <I>m = 3</I> pins, coloured all red, all white, all blue 
+respectively. The problem is to simultaneously transfer all three stacks 
+cyclically, so that finally they will be all blue, white, red. 
+[For this purpose, a disc may be placed on top of a larger or equally large one, 
+of any colour.] As usual, we are interested in (if possible) an optimal 
+solution. 
+<P>
+Largest-disc induction suggests something along the following lines: 
+    <UL> 
+    <LI> <I>T33(n,X,Y,Z)</I>: To permute <I>3n > 0</I> discs cyclically around pins 
+<I>X -> Y -> Z -> X</I>: 
+         <UL>
+         <LI> <I>T31(n-1,X,Y,Z)</I>: Collect smaller discs from pins 
+<I>X,Y,Z</I> to <I>Z;</I> 
+         <LI> Until the large discs are in place, alternately 
+           <UL>        
+           <LI> <I>move(X,Y)</I>: move a large disc, e.g. red from 
+<I>X</I> to <I>Y;</I> 
+           <LI> <I>T11(n-1,Z,X,Y)</I>: Transfer smaller discs, e.g. from <I>Z</I> to <I>Y;</I> 
+           </UL> 
+         <LI> <I>T13(n-1,X,Y,Z)</I>: Redistribute smaller discs from 
+pin <I>Z</I> to <I>X,Y,Z.</I> 
+         </UL> 
+    </UL> 
+<P>
+With all the subsidiary operations defined (recursively) as simply as possible, 
+this algorithm would certainly be optimal, and (modulo a few permutations) 
+unique, if it solved the problem; in particular for <I>n = 1</I> it costs 
+just 5 moves to permute the 3 lone discs, which is easily seen to be optimal. 
+<P>
+Unhappily, it then turns sullen: for <I>n = 2,</I> no amount of juggling 
+with the order of collection and redistribution can persuade it to do 
+other than either transpose only two or leave all unchanged at smaller levels. 
+At this point Minsker's solution performs an mysterious detour: for <I>n > 1,</I> 
+he deliberately moves two largest discs consecutively between the same two 
+pins, thereby "wasting" a move, which unexpectedly contrives to induce all 
+subsequent discs to assume their correct positions at no further cost. 
+Since a single extra move is plainly incapable of further improvement, 
+the algorithm must be optimal. 
+<P>
+The modified, optimal algorithm now reads 
+    <UL> 
+    <LI> <I>T33(n,X,Y,Z)</I>: To permute <I>3n > 3</I> discs cyclically around 
+pins <I>X -> Y -> Z -> X</I>: 
+         <UL>
+         <LI> <I>T31(n-1,X,Z,Y)</I>: Collect smaller discs from <I>Y,X,Z</I> to <I>Y;</I> 
+         <LI> <I>move(X,Z)</I>: move large disc from <I>X</I> to <I>Z;</I> 
+         <LI> <I>T11(n-1,Y,X,Z)</I>: Transfer smaller discs from <I>Y</I> to <I>Z;</I> 
+         <LI> <I>move(Y,X)</I>: move large disc from <I>Y</I> to <I>X;</I> 
+         <LI> <I>T11(n-1,Z,Y,X)</I>: Transfer smaller discs from <I>Z</I> to <I>X;</I> 
+         <LI> <I>move(Z,Y), move(Z,Y)</I>: move large disc from <I>Z</I> to <I>Y</I> twice; 
+         <LI> <I>T11(n-1,X,Z,Y)</I>: Transfer smaller discs from <I>X</I> to <I>Y;</I> 
+         <LI> <I>move(X,Z)</I>: move large disc from <I>X</I> to <I>Z;</I> 
+         <LI> <I>T11(n-1,Y,X,Z)</I>: Transfer smaller discs from <I>Y</I> to <I>Z;</I> 
+         <LI> <I>move(Y,X)</I>: move large disc from <I>Y</I> to <I>X;</I> 
+         <LI> <I>T13(n-1,Z,Y,X)</I>: Distribute smaller discs from <I>Z</I> to <I>Z,Y,X.</I> 
+         </UL> 
+    </UL> 
+<P>
+Individual subsidiary operations required above are as follows: 
+    <UL> 
+    <LI> <I>T31(n,X,Y,Z)</I>: Collect <I>3n > 0</I> discs from pins <I>Z,X,Y</I> to <I>Z;</I> 
+         <UL>
+         <LI> <I>T31(n-1,X,Z,Y)</I>: Collect smaller discs from <I>Y,X,Z</I> to <I>Y;</I> 
+         <LI> <I>move(X,Z)</I>: move large disc from <I>X</I> to <I>Z;</I> 
+         <LI> <I>T11(n-1,Y,Z,X)</I>: Transfer smaller discs from <I>Y</I> to <I>X;</I> 
+         <LI> <I>move(Y,Z)</I>: move large disc from <I>Y</I> to <I>Z</I>; 
+         <LI> <I>T11(n-1,X,Y,Z)</I>: Transfer smaller discs from <I>X</I> to <I>Z;</I> 
+         </UL> 
+    </UL> 
+<P> 
+    <UL> 
+    <LI> <I>T13(n,X,Y,Z)</I>: Distribute <I>3n > 0</I> discs from pin <I>X</I> to <I>X,Y,Z.</I> 
+         <UL>
+         <LI> <I>T11(n-1,X,Z,Y)</I>: Transfer smaller discs from <I>X</I> to <I>Y;</I> 
+         <LI> <I>move(X,Z)</I>: move large disc from <I>X</I> to <I>Z</I>; 
+         <LI> <I>T11(n-1,Y,X,Z)</I>: Transfer smaller discs from <I>Y</I> to <I>Z;</I> 
+         <LI> <I>move(X,Y)</I>: move large disc from <I>X</I> to <I>Y;</I> 
+         <LI> <I>T13(n-1,Z,Y,X)</I>: Distribute smaller discs from <I>Z</I> to <I>Z,Y,X.</I> 
+         </UL> 
+    </UL> 
+<P> 
+    <UL> 
+    <LI> <I>T11(n,X,Y,Z)</I>: Transfer <I>3n > 0</I> discs from pin <I>X</I> to <I>Z;</I> 
+         <UL>
+         <LI> <I>T11(n-1,X,Z,Y)</I>: Transfer smaller discs from <I>X</I> to <I>Y;</I> 
+         <LI> <I>move(X,Z), move(X,Z), move(X,Z)</I>: move large discs from <I>X</I> to <I>Z</I>; 
+         <LI> <I>T11(n-1,Y,X,Z)</I>: Transfer smaller discs from <I>Y</I> to <I>Z;</I> 
+         </UL> 
+    </UL> 
+<P> 
+[Notice that in the Java program, the corresponding transfer methods <I>tran33()</I> etc take <I>Disc</I> rather than <I>Pin</I> arguments, 
+which may cause confusion in human readers!] 
+<P>
+Expressing the recursions for <I>n > 1</I> as a matrix recurrence equation, 
+    <DL>
+    <DD> <B>s</B><I>(1) = (6,2,2,3,1),</I> 
+    <DD> <B>s</B><I>(n+1) =  </I><B>M s</B><I>(n).</I> 
+    </DL> 
+where --- introducing the extra constant function <I>1</I> to account for 
+individual disc moves --- 
+    <DL>
+    <DD> <B>s</B><I> = (T33, T31, T13, T11, 1),</I> 
+    <DD> <B>M</B><I> = </I> 
+<PRE>
+            | 0,2,0,4,6 |
+            | 0,1,0,2,2 |
+            | 0,0,1,2,2 |.
+            | 0,0,0,2,3 |
+            | 0,0,0,0,1 |
+</PRE>
+    </DL> 
+By solving the resulting recurrence explicitly, the time can be shown to be 
+    <DL> 
+    <DD> <I>12 (2<SUP>n</SUP>) - 8 n - 10</I> moves for <I>n > 1;</I> 
+    <DD> <I>0, 5</I> moves for <I>n = 0, 1.</I> 
+    </DL> 
+<P>
+In the demonstration <I>Antwerp</I>, the Discs field contains the number 
+<I>n</I> of discs per stack. It would plainly also be feasible to consider 
+the generalised problem involving <I>m > 2</I> stacks, but as far as we are 
+aware this remains unexplored. 
+
+<H2> <A NAME = "Reves Puzzle & Many-Pin Hanoi"> Reves Puzzle & Many-Pin Hanoi </A> </H2> 
+
+The generalisation of the Classic puzzle to <I>m = 4</I> pins is discussed 
+in a number of existing places: Stockmeyer's survey is a good starting point. 
+Here we just summarise the facts, without any attempt at proof. 
+Strictly speaking, the problem of finding the optimal solution remains 
+unsolved, since the standard development relies on assuming that 
+some optimal solution exists which satisfies the Frame hypothesis :--- 
+    <UL>
+    <LI> Whenever the largest disc moves, the other discs form consecutive 
+sub-stacks on the other <I>m - 2</I> pins. 
+    </UL> 
+This reasonable and apparently innocuous assumption is not infrequently 
+completely overlooked by intending solvers, despite which Knuth has observed 
+that it is in reality very hard; a little light on the reason for this will 
+later be cast on examining another variation, Reversi. 
+<P>
+Selecting <I>Reves<! (Four_Pin)></I> illustrates this standard solution, which proceeds by 
+induction on both <I>n</I> and <I>m</I>, for <I>m = 4</I>. 
+Given <I>n</I> discs initially on 
+pin <I>W</I> to be transferred via <I>X</I> and <I>Y</I> to <I>Z</I>, having 
+carefully chosen some small <I>k</I> between 1 and <I>n</I>, split the 
+stack into the bottom (largest) <I>k</I> discs and the top <I>n-k</I>. 
+Now transfer the top recursively to an intermediate pin, say <I>X</I>, for 
+which task all 4 pins are available. <I>X</I> is now unavailable to the bottom, 
+so transfer these from <I>W</I> via <I>Y</I> to <I>Z</I> using 3 pins only. 
+Finally, transfer the top from <I>X</I> to <I>Z</I> using all 4 pins again. 
+<P>
+To understand the optimal choice of <I>k</I>, it's helpful to watch what 
+happens in the special case when <I>n</I> is the <I>k</I>-th "triangular" number, 
+<I>n = 1 + 2 + ... + (k-1) + k = k(k+1)/2</I>: first the bottom <I>k</I> 
+are split off, then the next <I>k-1</I>, and so on down to 1. For such <I>n</I> 
+this is the only possible choice for <I>k</I> in the Frame algorithm; 
+but for <I>k(k+1)/2 < n < (k+1)(k+2)/2</I>, <I>k+1</I> may be used instead. 
+As a result, Frame-type solutions are not unique. 
+<P>
+The time to transfer <I>n</I> discs by this method is :--- 
+    <UL>
+    <LI> <I>(n - k(k-1)/2 - 1) 2<SUP>k</SUP> + 1</I> moves. 
+    </UL> 
+Since <I>k</I> is close to the square root of <I>2n</I>, this grows very 
+roughly as (<I>2<SUP>2<SUP>1/2</SUP></SUP></I> = 2.6651) raised to the power 
+<I>n<SUP>1/2</SUP></I>, which is sub-exponential; so no nice linear 
+recurrence may be expected for this function. 
+<P>
+[It is noteworthy that when n is triangular, the smallest disc moves only at 
+times divisible by 4. This phenomenon has been analysed by Stockmeyer (private 
+communication), via decomposition of the solution into transfers of "superdiscs" or substacks of size k.] 
+<P>
+Once this solution is understood for <I>m = 4</I> pins, 
+it may be generalised straightforwardly to arbitrary <I>m</I>. 
+Instead of triangular numbers we use binomial coefficents 
+<I><SUB>n</SUB>C<SUB>m</SUB> = n!/m!(n-m)!</I> ; 
+now assuming <I>m > 2, n > 0,</I> 
+    <UL> 
+    <LI> Find <I>s</I> such that <I><SUB>s+m-3</SUB>C<SUB>m-2</SUB> = n<SUB>0</SUB> <= n < 
+n<SUB>1</SUB> = <SUB>s+m-2</SUB>C<SUB>m-2</SUB></I> ; 
+    <LI> Set <I>k<SUB>0</SUB> = <SUB>s+m-4</SUB>C<SUB>m-3</SUB>, 
+k<SUB>1</SUB> = <SUB>s+m-3</SUB>C<SUB>m-3</SUB></I> ; 
+    <LI> Choose any <I>k</I> in the range 
+max<I>(k<SUB>0</SUB>, k<SUB>1</SUB>-n<SUB>1</SUB>+n) <= k <= </I>min<I>(k<SUB>1</SUB>, k<SUB>0</SUB>-n<SUB>0</SUB>+n)</I>  
+    </UL> 
+giving the size <I>k = k(m,n)</I> of the bottom sub-stack 
+[method <I>k_mn(m,n)</I> in class <I>ClassicDefn</I> of <I>HanoiLib.java</I>]. 
+<P>
+If <I>n = 0</I> the transfer is nugatory; otherwise, if <I>m = 2</I> we should 
+find <I>n = 1</I>, and the transfer just moves the disc; otherwise, we have the 
+following solution algorithm, recursive in both <I>m,n</I>. The set <I>P</I> 
+initially comprises all pins except the first and last; the function
+<I>k(m,n)</I> is defined in terms of the current <I>m,n</I> as above. 
+    <UL> 
+    <LI> <I>TM(m,n,X,P,Z)</I>: To transfer a stack of <I>n > 0</I> discs 
+from pin <I>X</I> to pin <I>Z</I>, via set <I>P</I> of <I>m-2</I> other pins: 
+         <UL>
+         <LI> <I>set k = k(m,n)</I>: Compute an optimal partition <I>k,n-k</I> 
+of the stack; 
+         <LI> <I>set Y = member(P)</I>: Choose new pin <I>Y</I> bearing no disc 
+smaller than the largest stack disc; 
+         <LI> <I>TM(m,n-k,X,P,Y)</I>: Transfer <I>n-k</I> discs from 
+<I>X</I> to <I>Y</I>, using all <I>m</I> pins; 
+         <LI> <I>TM(m-1,k,X,P-Y,Z)</I>: Transfer <I>k</I> discs from <I>X</I> 
+to <I>Z</I>, using <I>m-1</I> pins omitting <I>Y</I>; 
+         <LI> <I>TM(m,n-k,Y,P,Z)</I>: Transfer <I>n-k</I> discs from <I>Y</I> 
+to <I>Z</I>, using all <I>m</I> pins. 
+         </UL> 
+    </UL> 
+<P>
+An expression for the time in the special case where 
+<I>n = n<SUB>0</SUB> = <SUB>s+m-3</SUB>C<SUB>m-2</SUB></I>, 
+and the only possibility is 
+<I>k = <SUB>s+m-4</SUB>C<SUB>m-3</SUB></I>, 
+follows from noticing that in any Frame-type solution the largest disc makes 
+1 move, the next <I>(m-2)</I> make 2, 
+the next <I><SUB>m-1</SUB>C<SUB>2</SUB> </I> make 4, etc, 
+down to the smallest <I>k</I> making <I>2<SUP>s-1</SUP></I>. 
+For general <I>n</I> there are a further <I>n-n<SUB>0</SUB></I> small discs 
+making <I>2<SUP>s</SUP></I>, giving total time 
+    <UL>
+    <LI><I>(n - n<SUB>0</SUB>) 2<SUP>s</SUP> + 
+</I>[ SUM<I><SUB>i=0</SUB><SUP>i=s-1</SUP> 2<SUP>i</SUP> 
+<SUB>i+m-3</SUB>C<SUB>m-3</SUB></I> ] 
+    <LI> = <I>(-1)<SUP>m</SUP> + [ (n - n<SUB>0</SUB>) + 
+</I>SUM<I><SUB>j=0</SUB><SUP>j=m-3</SUP> (-2)<SUP>j</SUP> 
+<SUB>s+m-3</SUB>C<SUB>m-3-j</SUB> ] 2<SUP>s</SUP></I> 
+    </UL> 
+The first expression has <I>s</I> terms; 
+binomial series summation gives the second expression with <I>m</I> terms, 
+more illuminating when <I>m << n</I> (many discs, few pins). 
+To evaluate <I>s</I> numerically, notice that it is roughly the 
+<I>(m-2)</I>-th root of <I>n(m-2)!</I>, from which the exact value can be 
+located by trial-and-error adjustment. 
+<P>
+An illustrative snapshot of the solution in operation is provided by 
+the special case <I>n = <SUB>s+m-3</SUB>C<SUB>m-2</SUB></I> above 
+at exactly half-time, when pin <I>1</I> is empty and for <I>0 <= i <= m-2</I> 
+the sub-stack on pin <I>m-i</I> comprises the next 
+<I><SUB>s-2+i</SUB>C<SUB>s-2</SUB></I> discs in descending order of size.
+For instance, taking <I>m = 6</I> pins, <I>s = 4</I>, 
+<I>n = <SUB>7</SUB>C<SUB>4</SUB> = 35</I> discs, 
+the time equals 
+<I>2<SUP>0</SUP> <SUB>3</SUB>C<SUB>3</SUB> + 
+2<SUP>1</SUP> <SUB>4</SUB>C<SUB>3</SUB> + 
+2<SUP>2</SUP> <SUB>5</SUB>C<SUB>3</SUB> + 
+2<SUP>3</SUP> <SUB>6</SUB>C<SUB>3</SUB></I> = 1+8+40+160 = 209; 
+after move 105 there are 
+    <UL> 
+    <LI> 1 disc of size 35 on pin 6, 
+    <LI> 3 discs of sizes 34 to 32 on pin 5, 
+    <LI> 6 discs of sizes 31 to 26 on pin 4, 
+    <LI> 10 discs of sizes 25 to 16 on pin 3, 
+    <LI> 15 discs of sizes 15 to 1 on pin 2, 
+    <LI> none on pin 1. 
+    </UL> 
+<P>
+The <I>Many_Pin</I> option will illustrate this algorithm  perfectly happily 
+for say <I>n = 1000, m = 100</I> --- though it must be admitted that for 
+this selection of parameters, the display might be considered a trifle enigmatic. 
+<P>
+
+<H2> <A NAME = "Turtle & Multi-Stack Hanoi"> Turtle & Multi-Stack Hanoi </A> </H2> 
+
+The multiple coloured stacks of the Antwerp problem are further constrained by 
+forbidding any disc to move onto another of equal diameter. 
+This in turn demands the introduction of extra pins, which are also coloured 
+so that only discs of matching colour are permitted to utilise them. 
+This variation is credited to Victor Mascolo. 
+<P>
+The simplest version is illustrated by demonstration <I>Turtle</I>. 
+There are 2 stacks of <I>n</I> discs, coloured respectively green and orange; 
+initially, the green stack occupies pin 0, the orange stack pin 2; 
+finally, the positions of the stacks will be reversed; 
+there are 4 pins, pin 1 reserved for green discs and pin 3 for orange, 
+emphasised by shading these pins appropriately. 
+<P>
+The problem may be generalised to <I>l</I> stacks on <I>m</I> = 2<I>l</I> pins: 
+initially stacks occupy alternate (even) pins, finally they transfer to the 
+next even pin in cyclic order; (odd) pins in between accept only the colour 
+initially to their left, whilst even pins accept both initial and final colours. 
+Although <I>Turtle</I> is a special case of this <I>Multi_Stack</I> problem, 
+the away pin of each stack turns out to collide inconveniently with the home 
+pin of the other, causing the solution to cost an anomalously long time: 
+we therefore implicitly assume <I>l</I> > 2. 
+<P>
+Rephrasing the constraints, stack <I>i</I> has access to three adjacent pins: 
+<DL>
+<DD> its <I>Home</I> pin 2<I>i</I>, which it occupies initially, 
+and is shared with discs from stack <I>i</I>-1; 
+<DD> its <I>Ride</I> pin 2<I>i</I>+1, initially empty, and exclusive to discs 
+from stack <I>i</I>; 
+<DD> its <I>Away</I> pin 2<I>i</I>+2, which it will occupy finally, 
+and is shared with discs from stack <I>i</I>+1; 
+</DL>
+here <I>i</I> = 0,...,<I>l</I>-1, and <I>i</I>+1, <I>i</I>-1 implicitly signify 
+remainders modulo <I>l</I>. 
+<P>
+The demonstration <I>Multi_Stack</I> colours the discs and ride pins of each 
+stack individually, at any rate for small <I>l</I>. 
+The <I>Pins</I> field must be loaded with twice the number of stacks 2<I>l</I>, 
+and the <I>Discs</I> field with the number <I>n</I> of discs per stack. 
+<P>
+The recursive solution involves a quartet of subsidiary problems, each of 
+which transfers <I>k</I> (consecutive) discs of stack 0 between a specified 
+pair of pins, while in parallel transferring <I>k</I> discs 
+of every other stack between another (distinct but fixed) pair of pins. 
+Each initial-final pair is denoted by two letters from the set 
+{<I>H</I>,<I>R</I>,<I>A</I>}: 
+for example, <I>HAHR</I>(<I>n</I>) denotes the transfer of stack 0 from its 
+home to away pin, while simultaneously the remaining stacks transfer from their 
+home to their ride pins. With this notation, the functions required are 
+<DL>
+<DD> <I>HAHR</I>(<I>k</I>), <I>HRHA</I>(<I>k</I>), 
+<I>HARA</I>(<I>k</I>), <I>RAHA</I>(<I>k</I>). 
+</DL>
+<P>
+The solution also involves the classical 3-pin problem, transferring the 
+<I>k</I> discs of the singleton <I>i</I>-th stack between specified pins: 
+in a similar fashion, these are denoted 
+<DL>
+<DD> <I>HR</I>(<I>k</I>,<I>i</I>), <I>RH</I>(<I>k</I>,<I>i</I>), 
+<I>AH</I>(<I>k</I>,<I>i</I>), <I>HA</I>(<I>k</I>,<I>i</I>), 
+<I>RA</I>(<I>k</I>,<I>i</I>), <I>AR</I>(<I>k</I>,<I>i</I>); 
+</DL>
+if <I>k</I> = 1, a single disc moves; if <I>k</I> = 0, nothing moves.  
+[The iterative solution to the classical problem is suitable for implemention 
+in this context, since it simply ignores discs of diameter exceeding <I>k</I>.] 
+<P>
+The subsidiary solutions may now be expressed recursively as follows: 
+for <I>n</I> = 0, nugatory; for <I>n</I> > 0, 
+<DL>
+<DD> <I>HAHR</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HRHA</I>(<I>n</I>-1); 
+  <DD> &nbsp&nbsp&nbsp&nbsp { <I>HR</I>(1, <I>i</I>); <I>AR</I>(<I>n</I>-1, <I>i</I>) } 
+for <I>i</I> = 1, ..., <I>l</I>-1; 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HA</I>(1, 0); <I>RA</I>(<I>n</I>-1, 0) }; 
+</DL>
+<DL>
+<DD> <I>HRHA</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HAHR</I>(<I>n</I>-1); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HR</I>(1, 0); <I>AR</I>(<I>n</I>-1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp { <I>HA</I>(1, <I>i</I>); <I>RA</I>(<I>n</I>-1, <I>i</I>) } 
+for <I>i</I> = <I>l</I>-1, ..., 1 }; 
+</DL>
+<DL>
+<DD> <I>HARA</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HR</I>(<I>n</I>-1, 0); <I>HA</I>(1, 0);  
+  <DD> &nbsp&nbsp&nbsp&nbsp { <I>RH</I>(<I>n</I>-1, <I>i</I>); <I>RA</I>(1, <I>i</I>) } 
+for <I>i</I> = 1, ..., <I>l</I>-1; 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>RAHA</I>(<I>n</I>-1) }; 
+</DL>
+<DL>
+<DD> <I>RAHA</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp { <I>HR</I>(<I>n</I>-1, <I>i</I>); <I>HA</I>(1, <I>i</I>) } 
+for <I>i</I> = <I>l</I>-1, ..., 1; 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>RH</I>(<I>n</I>-1, 0); <I>RA</I>(1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HARA</I>(<I>n</I>-1) }; 
+</DL>
+<P>
+In terms of these, the original problem <I>HAHA</I>(<I>n</I>) 
+breaks down into nugatory cases <I>l</I> < 2; the special case <I>l</I> = 2; 
+and the general case <I>l</I> > 2: 
+<P>
+<DL>
+<DD> <I>HAHA</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HAHR</I>(<I>n</I>-1); <I>HR</I>(1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>AR</I>(<I>n</I>-1, 0); <I>HA</I>(1, 1); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>RH</I>(<I>n</I>-1, 0); <I>RA</I>(1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HARA</I>(<I>n</I>-1) } if <I>l</I> = 2; 
+</DL>
+<DL>
+<DD> <I>HAHA</I>(<I>n</I>) = { 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HAHR</I>(<I>n</I>-1); <I>HR</I>(1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HA</I>(1, <I>i</I>) for <I>i</I> = <I>l</I>-1, ..., 2; 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>AH</I>(<I>n</I>-1, 0); <I>HA</I>(1, 1); <I>RA</I>(1, 0); 
+  <DD> &nbsp&nbsp&nbsp&nbsp <I>HARA</I>(<I>n</I>-1) } if <I>l</I> > 2; 
+</DL>
+<P>
+<TITLE>
+To evaluate the timing function, we proceed as before to derive the matrix 
+recurrence for the vector <B>s</B>(<I>n</I>+1) from the recursion above: 
+    <DL>
+    <DD> <B>s</B>(1) = (<I>l</I>,<I>l</I>,<I>l</I>,<I>l</I>,1,1), 
+    <DD> <B>s</B>(<I>n</I>+1) = <B>M s</B>(<I>n</I>). 
+    </DL> 
+where vector <B>s</B> and matrix <B>M</B> are defined by
+    <DL>
+    <DD> <B>s</B> = (<I>HAHR</I>, <I>HRHA</I>, <I>HARA</I>, <I>RAHA</I>, 
+2<SUP><I>n</I></SUP>-1, 1), 
+    <DD> <B>M</B> = 
+<PRE>
+            | 0,1,0,0,<I>l</I>,<I>l</I> |
+            | 1,0,0,0,<I>l</I>,<I>l</I> |
+            | 0,0,0,1,<I>l</I>,<I>l</I> |
+            | 0,0,1,0,<I>l</I>,<I>l</I> |
+            | 0,0,0,0,2,1 |
+            | 0,0,0,0,0,1 |
+</PRE>
+    </DL> 
+giving the as characteristic polynomial the recurrence 
+    <DL>
+    <LI> (<B>E</B> - 1)<SUP>3</SUP>(<B>E</B> + 1)<SUP>2</SUP>(<B>E</B> - 2). 
+    </DL>
+<P>
+Solving and substituting into the top-level recursions gives finally the timings 
+    <DL>
+    <DD> <I>HAHA</I>(<I>n</I>, 2) = 3 (2<SUP><I>n</I></SUP> - 1); </I> 
+    <DD> <I>HAHA</I>(<I>n</I>, <I>l</I>) = 
+<I>l</I> (2<SUP><I>n</I></SUP> - 1) + (1/2) 2<SUP><I>n</I>. </I> 
+    </DL>
+</TITLE>
+<P>
+The timing function may be derived as in earlier problems via the Markov process 
+method; but a more direct argument is as follows. Define 
+    <DL>
+    <DD> <I>I</I>(<I>n</I>) = 1 = timing for a single move; 
+    <DD> <I>T</I>(<I>n</I>) = 2<SUP><I>n</I></SUP> - 1 = 
+timing for the classical problem; 
+    <DD> <I>R</I>(<I>n</I>) = timing for the subsidiary problems 
+<I>HAHR</I>(<I>n</I>) etc; 
+    <DD> <I>P</I>(<I>n</I>) = timing for the top-level problem 
+<I>HAHA</I>(<I>n</I>). 
+    </DL>
+By inspection of the pseudocode above it may be seen that <I>R</I>(<I>n</I>) 
+is independent of which sub-problem is chosen; also 
+    <DL>
+    <DD> <I>R</I>(1) = <I>l</I>; &nbsp&nbsp and for <I>n</I> > 1, 
+    <DD> <I>R</I>(<I>n</I>) = <I>R</I>(<I>n</I>-1) + <I>l</I> <I>T</I>(<I>n</I>-1) + <I>l</I> <I>I</I>(<I>n</I>-1); 
+    <DD> <I>P</I>(<I>n</I>) = 2 <I>R</I>(<I>n</I>-1) + <I>T</I>(<I>n</I>-1) + 
+(<I>l</I> + 1) <I>I</I>(<I>n</I>-1) if <I>l</I> > 2; 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp = 2 <I>R</I>(<I>n</I>-1) + 
+2 <I>T</I>(<I>n</I>-1) + 3 <I>I</I>(<I>n</I>-1) if <I>l</I> = 2. 
+    </DL>
+Solving the recurrence and substituting, 
+    <DL>
+    <DD> <I>R</I>(<I>n</I>) = <I>l</I> <I>T</I>(<I>n</I>) = 
+<I>l</I> (2<SUP><I>n</I></SUP> - 1); 
+    <DD> <I>P</I>(<I>n</I>) = 0 &nbsp&nbsp if <I>n</I> = 0 or <I>l</I> < 2; 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp = 
+<I>l</I> <I>T</I>(<I>n</I>) + <I>T</I>(<I>n</I>-1) + 1 = 
+<I>l</I> (2<SUP><I>n</I></SUP> - 1) + (1/2) 2<SUP><I>n</I></SUP> 
+&nbsp&nbsp if <I>l</I> > 2; 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp = 
+3 <I>T</I>(<I>n</I>) = 3 (2<SUP><I>n</I></SUP> - 1) &nbsp&nbsp if <I>l</I> = 2. 
+    </DL>
+<P>
+<TITLE>
+Closer examination of the algorithmic strategy suggests that, 
+apart from the arbitrary choice of which pin shall be labelled 0, 
+similar variations in the move order of the smallest discs, 
+and obviously time-wasting discursions, 
+there is virtually no choice about which move must be made next. 
+So as in the classic case, the solution appears to be essentially unique; 
+and the times given above therefore presumably optimal. 
+<P>
+An approach to formally proving this is suggested by viewing <I>Multi_Stack</I> 
+for larger parameters, say <I>l</I> = <I>n</I> = 10 (i.e. 100 discs on 20 pins) 
+with delay set to 125 msec. It becomes obvious that the solution mostly 
+comprises identical classic problems proceeding in parallel on different stacks, 
+complicated only by the manner in which stack 0 fails to conform, 
+and loosely synchronised in order that a sufficiently large disc of 
+one colour is available to accept smaller discs of the adjacent colour. 
+It is however less obvious how to convert this observation into a precisely 
+specified algorithm. 
+<P>
+</TITLE>
+Is this algorithm optimal? Since <I>l</I> stacks each with <I>n</I> discs 
+are to be transferred, a lower bound on the time is evidently <I>l</I> 
+<I>T</I>(<I>n</I>); a bound actually attained by the quartet of sub-problems. The main problem takes longer because one largest disc (say on home pin 0) must 
+move to its ride pin before the other largest discs can move to their away pins;
+furthermore before it can do so, the stack of smaller discs above must 
+transfer (to their away pin). This costs <I>T</I>(<I>n</I>-1) + 1 extra moves, 
+giving a total at least equal to <I>P</I>(<I>n</I>); this is attained by the 
+algorithm above for <I>l</I> > 2, which is therefore optimal in general. 
+According to Stockmeyer, the twin-stack case requires more delicate analysis, 
+assisted to some extent however by the fact that when <I>l</I> = 2 the move sequence is essentially unique. 
+<P>
+<TITLE>
+See if you can shoot down this proof of optimality for m = 2 stacks :--- 
+
+(1) Initially, both smallest discs must move before any larger disc begins 
+moving; easily by inspection. 
+
+(2) There must be (at least) one move of a smallest disc between each pair 
+of moves of larger discs; this follows in the same way as for classical Hanoi. 
+
+(3) Finally, both smallest discs must move after every larger disc has finished 
+moving; by reversing the reasoning of (1). 
+
+Now let f(n) denote the optimum time for n discs. By (1), (2), (3) 
+  f(n) >= f(n-1) + f(n-1) -1 + 4 = 2 f(n-1) + 3;   also f(1) = 3. 
+Hence f(n) >= 3 (2^n - 1); and since we have a solution for which the time 
+equals this value, it must be optimal. 
+
+[But does this reasoning involve an assumption that removing the smallest disc 
+moves from an optimal sequence must result in an optimal sequence, which fails 
+for Antwerp?!] 
+
+Now then, if we could only tell which of the two smallest discs is to move, 
+using just local information (e.g. which disc moved last, which discs are at 
+the tops of the pins, etc) then we'd have a beautiful man-friendly 
+smallest-disc recursion ... 
+
+Each classic phase [during which just one stack moves] terminates when 
+  (a) the stack comprises (at most) two substacks; 
+  (b) some top disc diameter exceeds that of the third available pin. 
+  The next phase involves the stack occupying that third pin. ?? 
+Or maybe the transfer phase terminates when the next move is impossible, 
+  and the subsequent phase involves the stack on the pin which would have 
+  been moved to, had the existing top been sufficiently large. ?? 
+
+2 stacks n discs: discs from same stack move in phase j, where 0 <= j <= 2 n; 
+stack g(j) moves h(j) times consecutively, where for n > 0, 
+  h(0) = 1; h(n) = 1; 
+  h(j) = 3.2^(j-1) for 0 < j < n; 
+  h(j) = h(2n-j); 
+  g(j) = (j+n+1)mod 2; 
+
+l stacks n discs: p = p(l,n) = number of phases = 2(l-1)(n-1) + 2 for l > 2; 
+  h(0) = 1; h((l-1)k) = 3.2^(k-1) for 0 < k < n-1; 
+  h((l-1)k + i) = 2^k for 0 < i < l-1; 
+  h((l-1)(n-1)) = 2^(n-2) + 1; h((l-1)(n-1) + i) = 1; h((l-1)n) = 1; 
+  h(j) = h(p-j) for j > (l-1)n. 
+  g(j) = (j+1)mod l for j mod 2(l-1) = 0, 1, ..., l-1 when n even; 
+       = -(j+1)mod l for j mod 2(l-1) = l-1, l, ..., 0 when n even, j < (l-1)n; 
+  g(j) = (-j)mod l for j mod 2(l-1) = 0, 1, ..., l-1 when n odd; 
+       = (j+2)mod l for j mod 2(l-1) = l-1, l, ..., 0 when n odd, j < (l-1)n; 
+  g((l-1)n) = 0; 
+  g(j) = -g(p-j)mod l, for j > (l-1)n. 
+
+<P>
+</TITLE>
+The constraints could plainly be relaxed by permitting any disc access to any 
+pin: Stockmeyer considers this variation. 
+A further variation --- which we have not so far investigated --- introduces a 
+single extra <I>star</I> pin, accepting discs from every stack. 
+<P>
+
+<H2> <A NAME = "Domino & Adjacent Hanoi"> Domino & Adjacent Hanoi </A> </H2> 
+
+An alternative variation based on the Classic colouring scheme 
+is to retain just two disc colours (pink and cyan in HanoiVar), 
+but to introduce colour flipping (seen earlier under Cyclic) :--- 
+    <UL>
+    <LI> Every disc shall flip as it moves to a new pin; 
+    <LI> No disc may be placed on a disc of a different colour. 
+    </UL>
+It follows that initially the whole stack must be coloured the same (pink). 
+<P>
+In many respects this puzzle is a somewhat gnarlier companion to Rainbow, 
+involving as before a raft of subsidiary problems with coloured bases. 
+To notate these we need <I>A, B</I> for the colour of the initial stack 
+and the other colour, and also <I>D, E, F</I> for various uncoloured bases. 
+Formerly we could assume that the destination pin was fixed on the right, 
+but we now have to consider the possibilities that the final stack may be 
+    <UL>
+    <LI> (1) on the right, with the colour flipped --- <I>DDE(n)</I>; 
+    <LI> (2) on the right, with the colour unchanged --- <I>DDF(n)</I>; 
+    <LI> (3) back on the left, with the colour flipped --- <I>EDD(n)</I>. 
+    </UL>
+Optimal solutions to all three puzzles are illustrated by HanoiVar under 
+<I>Domino_E, Domino_F, Domino<!, (Domino_D)></I> respectively. 
+<P>
+At this point as for Rainbow, we survey the subsidiary functions 
+encountered as we follow the recursion down to all bases coloured. 
+This is not an appealing prospect: in the first place, at a rough count 
+there are potentially up to 81 functions involved; in the second, 
+a recursion may in principle break down into 2,3 or even 4 (in the case of 
+<I>EDD(n)</I>) smaller problems; and finally, beyond that variation 
+lies the further possibility of varying the colours of the intermediate 
+stacks, giving in the worst case 14 possible recursions for a single function. 
+<P>
+To simplify things, we just assume the optimal recursion breaks the function 
+into as few sub-functions as possible; and further more that a (sub)function 
+that breaks down into 3 will always be greater than one that breaks down into 2, 
+etc. In this way, and by discarding symmetries etc as previously, we arrive at a 
+manageable set of 10 functions and recursions, programmable as 
+20 mutually recursive methods :---  
+    <DL><I>
+    <DD>DDE(n) = ADE(n-1) + 1 + DDA(n-1) 
+    <DD>DDF(n) = ADE(n-1) + 1 + DAE(n-1) + 1 + DDA(n-1) 
+    <DD>EDD(n) = ADE(n-1) + 1 + DAE(n-1) + 1 + DAE(n-1) + 1 + DDA(n-1) 
+    <DD>
+    <DD>ADE(n) = ADE(n-1) + 1 + DBA(n-1), DDB(n) = ADE(n) 
+    <DD>ADF(n) = ADE(n-1) + 1 + DAB(n-1) + 1 + ADA(n-1), DDA(n) = ADF(n) 
+    <DD>DBE(n) = ABE(n),  DAE(n) = DBE(n) 
+    <DD>
+    <DD>ADB(n) = ABE(n-1) + 1 + DBA(n-1) 
+    <DD>ABE(n) = ADB(n-1) + 1 + ABA(n-1), DAB(n) = ABE(n) 
+    <DD>ABF(n) = ABE(n-1) + 1 + DAB(n-1) + 1 + ABA(n-1), DBA(n) = ABF(n) 
+    <DD>ADA(n) = ABA(n) 
+    <DD>DBB(n) = ABB(n), AAE(n) = DBB(n) 
+    <DD>
+    <DD>ABB(n) = ABB(n-1) + 1 + ABA(n-1), AAB(n) = ABB(n) 
+    <DD>ABA(n) = ABA(n-1) + 1 + ABA(n-1) + 1 + ABA(n-1) 
+    </I></DL>
+Fortunately, by this stage only one instance remains outstanding where it is 
+unclear which of two possible break-downs to use: 
+<I>ADE(n) = ADE(n-1) + 1 + DBA(n-1)</I> appears in practice to be preferable to 
+the alternative <I>ADE(n) = ADF(n-1) + 1 + DAB(n-1)</I>, although we have not 
+currently taken the trouble to prove it. [Note that not all possible functions 
+appear in the above list: for instance <I>DBF(n), DAF(n)</I> are viable 
+problems --- the latter remarkable for its time --- which are unused by our 
+solution.] 
+It has been verified by exhaustive search that this algorithm gives optimum 
+solutions for <I>n <= 12.</I> 
+<P>
+Analysing the Markov chain as before, we find the vector equation 
+    <DL>
+    <DD> <B>s</B><I>(1) = (1,2,3,1,2,1,2,1,1,2,1,2,1),</I> 
+    <DD> <B>s</B><I>(n+1) =  </I><B>M s</B><I>(n),</I> 
+    </DL> 
+where 
+    <DL>
+    <DD> <B>s</B><I> = (DDE,DDF,EDD,ADE,ADF,ADB,ABE,ABF,AAB,ABA,  1),</I> 
+    <DD> <B>M</B><I> = </I> 
+<PRE>
+            | 0,0,0,1,1,0,0,0,0,0,1 |
+            | 0,0,0,1,1,0,1,0,0,0,2 |
+            | 0,0,0,1,1,0,2,0,0,0,3 |
+            | 0,0,0,1,0,0,0,1,0,0,1 |
+            | 0,0,0,1,0,0,1,0,0,1,2 |
+            | 0,0,0,0,0,0,1,1,0,0,1 |;
+            | 0,0,0,0,0,1,0,0,0,1,1 |
+            | 0,0,0,0,0,0,2,0,0,1,2 |
+            | 0,0,0,0,0,0,0,0,1,1,1 |
+            | 0,0,0,0,0,0,0,0,0,3,2 |
+            | 0,0,0,0,0,0,0,0,0,0,1 |
+</PRE>
+    </DL> 
+<P>
+the recurrence 
+    <DL>
+    <DD> <B>E</B><SUP>6</SUP> - 5<B>E</B><SUP>5</SUP> + 6<B>E</B><SUP>4</SUP> + 3<B>E</B><SUP>2</SUP> - 11<B>E</B> + 6  
+    <DD> = (<B>E</B> - 3)(<B>E</B><SUP>3</SUP> - <B>E</B> - 2)(<B>E</B> - 1)<SUP>2</SUP>; 
+    </DL> 
+and the asymptotic orders of magnitude of the uncoloured functions 
+    <DL>
+    <DD> <I>DDE(n), DDF(n), EDD(n) ~ 2, 3, 4 (5/33) 3<SUP>n</SUP></I>. 
+    </DL>
+<P>
+Two bottom-level problems are illustrated. <I>Adjacent<! (Domino_A)></I>
+implements <I>ABA(n)</I>, whose base colours always force a disc to move 
+to an adjacent pin; and its time is exactly <I>A(n) = 3<SUP>n</SUP> - 1</I>. 
+If for a moment we simply ignore the colours, the solution path passes through 
+every possible configuration of <I>n</I> discs on 3 pins; so this is the 
+slowest possible puzzle using 3 pins. This already rather tedious puzzle 
+is worked to death under <I>Adjacent_P</I>, which implements (indistinguishably) 
+the obvious period 6 algorithm. Finally <I>Domino_B</I> implements 
+<I>AAB(n),</I> essentially the only other fully-coloured problem: 
+its time is <I>(3<SUP>n</SUP> - 1)/2</I> for <I>n > 1</I>. 
+<P>
+
+<H2> <A NAME = "Four-Star Hanoi"> Four-Star Hanoi </A> </H2> 
+This variation due to Stockmeyer also generalises Adjacent Hanoi, but in a 
+different direction: there are now four pins, the "star" of which is 
+distinguished in that every move must involve that pin, either as origin or 
+as destination. The illustration <I>Four_Star</I> colours the star pin white. 
+<P>
+The analysis proceeds in a manner very similar to that of the Reve's, 
+except that the subsidiary problem is now Adjacent Hanoi with a time of 
+3<SUP><I>n</I></SUP> - 1, rather than Classic with a time of 
+2<SUP><I>n</I></SUP> - 1. 
+The algorithm is recursive, and --- subject as before to the Frame hypothesis 
+--- is optimal. Given <I>n</I> discs initially on pin <I>X</I> to be 
+transferred via <I>Y</I> and star <I>S</I> to <I>Z</I>: 
+transfer the top <I>n-k</I> discs recursively to pin <I>Y</I>, using 4 pins; 
+transfer the bottom <I>k</I> from <I>X</I> via <I>S</I> to <I>Z</I>, using 
+3 pins with the Adjacent algorithm; 
+finally transfer the top recursively from <I>Y</I> to <I>Z</I>, using 4 pins. 
+<P>
+To select the optimum value for <I>k</I>, first sort the integers 
+2<SUP><I>i</I></SUP> 3<SUP><I>j</I></SUP> into ascending order of magnitude, 
+where <I>i</I>, <I>j</I> = 0,1,...; and define <I>a<SUB>n</SUB></I> to be 
+the <I>n</I>-th number in this sequence for <I>n</I> > 0. Now choose <I>k</I> 
+such that 
+    <DL>
+    <DD> 3<SUP><I>k</I>-1</SUP> &nbsp <= &nbsp <I>a<SUB>n</SUB></I> 
+&nbsp < &nbsp 3<SUP><I>k</I></SUP>; 
+    </DL>
+that is,
+    <DL>
+    <DD> <I>k</I> = 1 + [log(<I>a<SUB>n</SUB></I>)/log3] 
+    <DD> &nbsp&nbsp ~ [(2<I>n</I> log2/log3)<SUP>1/2</SUP> + 0.1809] for large <I>n</I>; 
+    </DL>
+remarkably, the approximation is exact for <I>n</I> < 1737. 
+[Here and elsewhere, square brackets <I>[...]</I> in formulae denote integer 
+part, or "floor" function.] 
+<!  
+   n = 570, k = 26, appr = 26.99992159; n = 1737, k = 47, appr = 46.99809731. 
+> 
+The number of moves may then be shown optimal, with exact value 
+    <DL>
+    <DD> 2(<I>a</I><SUB>1</SUB> + ... + <I>a<SUB>n</SUB></I>); 
+    </DL>
+to which a reasonably good approximation appears to be 
+    <DL>
+    <DD> (2<I>n</I> log2/log3)<SUP>1/2</SUP> exp((2<I>n</I> log2 log3)<SUP>1/2</SUP>). 
+    </DL>
+<P>
+Notice that <I>Reversi_G</I> also provides a solution to this problem, albeit 
+a rather slow one taking twice as long as <I>Classical</I>. 
+For more detailed discussion of the algorithm, and other related variations, 
+see Stockmeyer's paper. 
+The obvious further generalisation, to <I>m</I> pins with a starred subset of 
+size <I>l</I>, does not appear to have been investigated. 
+<! For general m with l = 1, 
+  replace a_n = {2,3,4,6,8,9,...} by {2,3,...3,4,...,4,...}, 
+  where m-2 repetitions of each value? 
+Case l = m-2 excluding origin & destination is Many_Pin. > 
+<P>
+
+<H2> <A NAME = "Tower of Lundon"> Tower of Lundon </A> </H2> 
+
+This confection was engineered by Lunnon in the course of a (deliberate 
+but unsuccessful) attempt to humiliate a fellow enthusiast who had earlier 
+incautiously described his HanoiVar implementation as "convoluted". 
+    <UL>
+    <LI> Three pins in a row, a single stack of discs; 
+    <LI> Each disc may coloured any of three colours <I>A,B,C</I>; 
+    <LI> Each time a disc moves, its colour flips to the next in cyclic order; 
+    <LI> A disc may move only onto a larger disc of the same colour; 
+    <LI> Initially, all discs stacked on the lefthand pin, coloured <I>A</I>; 
+    <LI> Finally, all discs to be stacked on the righthand pin, coloured <I>A</I>. 
+    </UL>
+A feature is the possibility of impasses arising: for example, should the 
+two smaller top discs become coloured <I>B</I>, while the other remains 
+<I>A</I>, further advance (or retreat) becomes impossible. 
+The illustration <I>Lundon</I> colours the discs green, white, orange. 
+<P>
+The algorithm is essentially a disguised and somewhat contorted variation 
+of <I>Cyclic</I>: if the algorithm for <I>Cyclic_L</I> is applied to the 
+initial stack, it is easily seen that all moves are legal, and the final 
+stack will be coloured <I>B</I> (see <I>Lundon_B</I>); on the other hand, 
+applying <I>Cyclic_R</I> with the direction reversed produces a final stack 
+coloured <I>C</I> (see <I>Lundon_C</I>). 
+<P>
+Maintaining the same colour <I>A</I> requires a little more ingenuity
+(the Tower of <I>Lundon</I>): 
+    <UL>
+    <LI> Via <I>Cyclic_R</I>, transfer all but largest disc from pin <I>X</I> 
+to <I>Y</I>, colour <I>B</I>; 
+    <LI> Move largest disc from <I>X</I> to <I>Z</I> to <I>X</I> to <I>Z</I>; 
+    <LI> Via <I>Cyclic_L</I> reversed, transfer all but largest disc from 
+<I>Y</I> to <I>Z</I>. 
+    </UL>
+<P>
+Alternatively, the subsidiary transfers can be interchanged 
+(the <I>Brandonbug</I> variation): 
+    <UL>
+    <LI> Via <I>Cyclic_L</I> reversed, transfer all but largest disc from 
+<I>X</I> to <I>Y</I>, colour <I>C</I>; 
+    <LI> Move largest disc from <I>X</I> to <I>Z</I> to <I>X</I> to <I>Z</I>; 
+    <LI> Via <I>Cyclic_R</I>, transfer all but largest disc from pin <I>Y</I> 
+to <I>Z</I>. 
+    </UL>
+<P>
+The (optimal) time for either is easily computed from that for <I>Cyclic</I>: 
+for <I>n</I> discs, <I>A(n-1) + C(n-1) + 3</I> moves. 
+
+<H2> <A NAME = "Checkers Hanoi"> Checkers Hanoi </A> </H2> 
+
+It's noticeable that in the Reves solution the two colours again tend to 
+alternate, though careful observation will detect occasional lapses: 
+these are easily seen to be unavoidable in a Frame-type optimal solution when 
+<I>n</I> is a (not too small) triangular number. 
+Somewhat diffidently then, we propose as a distinct variation for <I>m = 4</I> 
+pins (to be going on with) the rule :--- 
+    <UL>
+    <LI> Each disc has one of two fixed colours; 
+    <LI> The colours of all discs on each pin alternate. 
+    </UL>
+Optimal solutions, common to both Checkers and Reves, and of Frame type, 
+exist for all <I>n < 27</I> except <I>n = 15,21</I>. 
+At <I>n = 15</I> the optimal Checkers solution, though still Frame-type, 
+costs time 137 moves against 129 for Reves. At <I>n = 21</I>, the fastest 
+Frame-type solution costs 337 against 321 --- we do not know whether the 
+former is optimal, though according to Korf the latter is. 
+<P>
+An Frame-type algorithm may be developed for this problem by combining 
+the solution given earlier for Reves with the coloured-base approach 
+developed for Rainbow and Domino, and is illustrated under the option 
+<I>Checkers.</I> There are 9 recursive procedures involved, corresponding to 
+the 6 distinct functions (in notation analogous to Domino) 
+<I>DDDD(n), DDDB(n), BADD(n), DDBB(n), BDDB(n), BABB(n).</I> 
+All of these functions are slower than Reves by at worst a fraction <I>1/k</I> 
+or so, and at best equal it. Each of them is a slightly modified version 
+of the Reves/Frame algorithm described earlier, which we recall chooses 
+<I>k</I> so that <I>n</I> lies between the <I>k</I>-th and <I>k+1</I>-th 
+triangular numbers, then temporarily stacks the <I>n-k</I> smaller discs 
+on the third pin while Classical <I>BAB(k)</I> transfers the <I>k</I> largest. 
+We recall also that it was permissible to substitute <I>k+1</I> for <I>k</I> 
+unless <I>n</I> happened to be triangular. 
+<P>
+The first complication here is that once most pins are occupied by larger 
+discs, inspection reveals that the algorithm must force <I>k</I> to have even 
+parity, in order to respect the base colours. This restriction implies that 
+our Checkers/Frame algorithm will be slower than Reves unless <I>n</I> is 
+nearly midway between triangular numbers, when subsequent recursive levels 
+can also avoid triangular numbers, at any rate until almost at bottom level. 
+<P>
+To make this precise, we utilise along with 
+    <UL>
+    <LI> the triangular numbers <I>T<SUB>k</SUB> = k(k+1)/2</I>, 
+    <LI> the semi-square numbers <I>S<SUB>k</SUB> = [(k+1)<SUP>2</SUP>/2]</I>; 
+    </UL>
+if <I>T<SUB>k</SUB> <= n < T<SUB>k+1</SUB></I>, then 
+<I>S<SUB>k</SUB></I> is the nearest semisquare to <I>n</I>. 
+Now define the "persistance" <I>p = p(n)</I> to be 
+the offset of <I>n</I> from the nearest semisquare, that is 
+    <UL>
+    <LI> <I>n = S<SUB>k</SUB> + p</I> 
+where <I>-[(k+1)/2] < p < [(k+2)/2]</I> unless <I>n</I> is triangular; 
+    </UL>
+large <I>n</I> with small <I>p</I> are distant from triangular numbers. 
+For example, centred on <I>S<SUB>4</SUB> = 12</I> midway between 
+<I>T<SUB>4</SUB> = 10, T<SUB>5</SUB> = 15</I> 
+is the 5-tuple <I>n = 10,11,12,13,14</I> for which <I>p = -2,-1,0,+1,+2;</I> 
+by inspection, <I>DDDD(n) = Reves(n)</I> for all these. 
+<P>
+We can show that our algorithm is as fast as Reves (and therefore almost 
+certainly optimal) just when the persistance is small :--- 
+    <UL>
+    <LI> <I>DDDD(n) = Reves(n)</I> just when |<I> p(n) </I>| <I><= 2.</I> 
+    </UL>
+For suppose we follow the execution of a Reves/Frame style algorithm 
+for some argument <I>n</I> with small <I>p,</I> 
+always employing whichever of <I>k,k+1</I> happens to be even. 
+Then at the next recursive level down --- where the new argument is 
+<I>n' = n-k, n-k-1</I> as <I>k </I> is even, odd --- a simple computation 
+shows that the persistance does just that: <I>p(n') = p(n).</I> 
+Suppose initially <I>n</I> lies in one of the 5-tuples |<I>p(n)</I>| <I><= 2;</I> 
+by induction (downwards) on <I>k,</I> we shall eventually descend to the 
+5-tuple around <I>n = 12,</I> and the algorithm will execute as fast as Reves. 
+For all other <I>n</I> we shall eventually strike some <I>T<SUB>i</SUB> >= 15,</I> 
+and be forced eventually to decrement it by some amount non-optimal for Reves. 
+<P>
+The second complication is more subtle: at higher levels, when only some pins 
+are occupied by larger discs, the algorithm must distinguish between <I>k</I> 
+odd and even; but the choice between decrementing by <I>k</I> or <I>k+1</I> 
+becomes significant. Paradoxically, it appears that 
+the correct decrement is that corresponding to the triangular 
+number nearest <I>n,</I> given by 
+    <UL>
+    <LI> <I>j = [(2n+1/4)<SUP>1/2</SUP>],</I> 
+for which |<I>n - T<SUB>j</SUB></I>|<I> < j/2.</I> 
+    </UL>
+<P>
+To motivate this rule, consider the bottom-level functions <I>BABB(n), 
+BAAB(n),</I> illustrated under <I>Checkers_B, Checkers_C.</I> 
+Experimentation suggests (idleness currently precluding proof) that :--- 
+    <UL>
+    <LI> When <I>j</I> is even, odd then <I>BABB(n) <=, >= BAAB(n)</I> 
+respectively; 
+    </UL>
+In the same way as earlier we can show that <I>BADB(n) = 
+</I>min<I>(BAAB(n),BABB(n)) = DDDD(n)</I> for 4 of any 5-tuple of <I>n</I> with 
+|<I>p(n)</I>| <I><= 2.</I> 
+<P>
+A curiosity is the man-friendly periodic algorithm <I>Checkers_P,</I> 
+costing exponential time and so very far from optimal, which is actually 
+identical to the optimal solution <I>Reversi_P</I> of a different problem 
+described subsequently.
+<P>
+
+<H2> <A NAME = "Reversi Hanoi"> Reversi Hanoi </A> </H2> 
+
+This on the face of it appears a more natural variation on the 
+Classic colouring scheme than Domino introduced earlier --- 
+to introduce colour flipping, but keep the alternating colours 
+(yellow and magenta in HanoiVar): 
+    <UL>
+    <LI> Every disc shall flip as it moves to a new pin; 
+    <LI> No disc may be placed on a disc of the same colour. 
+    </UL>
+It follows that initially the whole stack must alternate. 
+The lurking complication is that <I>m = 3</I> pins turns out 
+overly economical: at least <I>m = 4</I> pins are required for 
+a solution to be possible. 
+<P>
+The generation of subproblems and our notation for describing them 
+are essentially the same as for Domino: at the top level with no 
+bases coloured, the final stack may be 
+    <UL>
+    <LI> (1) on the right, with the colour unchanged --- <I>DDDF(n)</I>; 
+    <LI> (2) on the right, with the colour flipped --- <I>DDDE(n)</I>; 
+    <LI> (3) back on the left, with the colour flipped --- <I>EDDD(n)</I>. 
+    </UL>
+Solutions to all three puzzles are illustrated by HanoiVar under 
+<I>Reversi_F, Reversi_E, Reversi<! (Reversi_D)></I> respectively. We should 
+of course like to be able to claim that these are optimal, or at 
+least conjecture that they are; but the new complication which defeats 
+us is the unwelcome discovery that Frame's hypothesis fails: 
+    <UL>
+    <LI>  For Reversi there are in general no optimal solutions with 
+intermediate consecutive stacks. 
+    </UL>
+At this moment an efficient provably optimal algorithm remains apparently 
+feasible, but it will certainly require consideration of a more general 
+class of configurations than those employed earlier. 
+Our current solutions, based on the same strategy outlined for Domino, 
+are necessarily of Frame type and therefore suboptimal, 
+falling short of the best by a time factor which we might reasonably 
+conjecture is not too far above unity. 
+While it is possible to provide times for these suboptimal algorithms, 
+in the same manner as for Rainbow or Domino, 
+we have little incentive to do so: the matrix involved has order 27. 
+<P>
+Instead, it is more enlightening to examine some special sub-problems. 
+<I>Reversi_G</I> implements a rather dismal <I>DDDF(n)</I> algorithm, 
+whose only discernable merit is to show that the puzzle is easily (but slowly) 
+solvable with 4 pins: to transfer the stack from left pin to right, 
+start with the Classic 3-pin solution, and replace every move from 
+(say) <I>X</I> to <I>Y</I> by a pair of moves from <I>X</I> to <I>W</I> 
+and <I>W</I> to <I>Y,</I> where <I>W</I> denotes the fourth pin. 
+[In different guise, this algorithm provides a solution to the Four-Star 
+variation introduced earlier, with <I>W</I> the distinguished pin.] 
+Notice that <I>W</I> only ever holds at most one disc, and that the 
+time is <I>2(2<SUP>n</SUP> - 1)</I>. Even allowing for the one-disc 
+restriction, this is suboptimal: <I>Reversi_H</I> improves on it with 
+<I>[(4/3)(2<SUP>n</SUP>-1/2)]</I> moves. <! see BBBD(n) etc. > 
+<P>
+Three bottom-level problems are illustrated: options <I>Reversi_A,B,C,</I> 
+implementing <I>BABA(n), BABB(n), BAAB(n).</I> <I>Reversi_B</I> is the most 
+interesting, since the others, along with all functions in our doomed attempt 
+to construct an optimal uncoloured solution, can be made to depend on it. 
+It is an optimal solution to the coloured problem (a formal proof of this 
+depends on analysing the recursive structure of the associated move-graph); 
+remarkably, it possesses a periodic algorithm [unlike the others] <I>Reversi_P,</I> with period 4,8 moves for <I>n</I> even,odd: 
+    <UL> 
+    <LI> To transfer <I>n > 0</I> discs from <I>W</I> via <I>X,Y</I> 
+to <I>Z</I>, with bases coloured BABB: 
+         <UL>
+         <LI> Set <I>t = 0</I> initially; 
+         <LI> At move <I>t</I>, move one disc from pin <I>P</I> to <I>Q</I> where 
+             <UL>
+             <LI> For <I>n</I> even: 
+             <LI> <I>t</I> mod 4 = 1: <I>P = W; Q = X;</I> 
+             <LI> <I>t</I> mod 4 = 2: <I>P = X; Q = Z;</I> 
+             <LI> <I>t</I> mod 4 = 0: <I>P = Y; Q = W;</I> 
+             <LI> <I>t</I> mod 4 = 3: <I>P = Z; Q = Y;</I> 
+             </UL> 
+             <UL>
+             <LI> For <I>n</I>  odd: 
+             <LI> <I>t</I> mod 8 = 0, 3: <I>P = W; Q = X;</I> 
+             <LI> <I>t</I> mod 8 = 1, 6: <I>P = X; Q = Z;</I> 
+             <LI> <I>t</I> mod 8 = 2, 5: <I>P = Y; Q = W;</I> 
+             <LI> <I>t</I> mod 8 = 4, 7: <I>P = Z; Q = Y;</I>} 
+             </UL> 
+         <LI> Increment <I>t</I> and repeat until the entire stack is on <I>Z</I> . 
+         </UL> 
+    </UL> 
+[The smallest disc moves when <I>t</I> mod 3 = 0 (<I>n</I> even), 
+<I>t</I> mod 8 = 0,1,4,5 (<I>n</I> odd). 
+In the guise of <I>Checkers_P</I> this same algorithm also supplies a (very 
+inefficient) solution to a completely different problem.] 
+<P>
+The times for <I>Reversi_A,B,C,</I> respectively are 
+    <DL>
+    <DD> <I>BABA(n) = (2)3<SUP>n/2</SUP> - 2</I> for <I>n</I> even, 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+        <I>(3)3<SUP>[n/2]</SUP> - 2</I> for <I>n</I> odd; 
+    <DD> <I>BABB(n) = (2)3<SUP>n/2</SUP> - 2</I> for <I>n</I> even, 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+        <I>(4)3<SUP>[n/2]</SUP> - 2</I> for <I>n</I> odd; 
+    <DD> <I>BAAB(n) = [(8/3)3<SUP>n/2</SUP> - 2]</I> for <I>n</I> even, 
+    <DD> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp 
+        <I>(4)3<SUP>[n/2]</SUP> - 2</I> for <I>n</I> odd; 
+    </DL>
+<P>
+We should like to be able to claim that, in some sense, any optimal algorithm 
+must spend most of its time with all the bases covered by large discs which 
+move only rarely. Under this assumption, we can see that the optimal 
+uncoloured time must in the limit be within a constant factor of the optimal 
+coloured time, which we already know to be roughly (3<SUP>1/2</SUP>)<SUP><I>n</I></SUP>. 
+Thus we should know the "complexity" of the harder problem, even though we 
+presently lack an optimal algorithm. 
+<P>
+Sadly, although the assumption seems intuitively plausible, we presently know 
+of no decently precise formulation, let alone proof. Some idea of its 
+elusiveness is provided by the (presumptive) optimal algorithm for Reve's, 
+where for all but a fraction <I>1/k</I> of the time, 
+the <I>k</I> largest discs remain stacked neatly on a single pin! 
+
+<H2> <A NAME = "Demo Variation Programming"> Demo Variation Programming </A> </H2> 
+
+The sytem has been deliberately designed so that new variations may be 
+easily implemented by a programmer with the most elementary knowledge of 
+Java. 
+A reasonably accessible example is the source code for <I>Cyclic</I> and its 
+variations, mostly developed in the super-class <I>CyclicDefn</I>, 
+and currently located at lines 263--321 of the source file <I>HanoiLib.java</I>. 
+The intending implementer is advised to study this with a view to hacking it to 
+his own specification. 
+<P>
+Briefly, the program code comprises a class (with your own fresh identifier, 
+please!), which must be instantiated in the array <I>HanoiLib.list[ ]</I> 
+in order to appear for selection in the variation menu of the property 
+window. The new class must extend the abstract class <I>HanoiDefn</I> 
+[or an existing subclass, see below] and override the methods: 
+<DL>
+<DD> <I>name( )</I> with the name of the variation; 
+<DD> <I>tran(tower)</I> invoking the algorithm transferring the stack; 
+<DD> <I>check(X, Y)</I> validating the move of a disc from pin <I>X</I> 
+to pin <I>Y</I>; 
+<DD> <I>reshade(disc)</I> changing the disc colour when it moves; 
+<DD> <I>init(m,n,defn)</I> initialising the tower with appropriate stack(s); 
+<DD> <I>fin(tower)</I> checking the tower for the correct final stack(s); 
+</DL>
+while variables 
+<DL>
+<DD> <I>l, m, n</I> provide for the number of stacks, pins, discs per stack. 
+</DL>
+<P>
+<I>tran(m, n)</I> is just a shell which calls a (usually recursive) method 
+designed by the user to solve the problem, 
+such as <I>tranR(disc, X, Y, Z)</I> in <I>CyclicDefn</I>. 
+In the course of writing bodies for these methods, the programmer may avail 
+of system features including the following: 
+<DL>
+<DD> <I>move(X, Y)</I> moving the topmost disc from pin <I>X</I> to 
+pin <I>Y</I>; 
+<DT> <I>Disc( )</I> with properties  
+<DD> <I>shade</I> the current colour (specified as an index in <I>Colour.table[ ]</I>); 
+<DD> <I>above, below</I> those discs currently above and beneath; 
+<DD> <I>diam</I> the diameter (between <I>n+1, 0</I>); 
+<DD> <I>alti</I> the height above the pin base (between <I>0, n+1</I>); 
+<DT> <I>Pin( )</I> with properties  
+<DD> <I>shaft, base</I> specifying the (pseudo) Discs acting as pin 
+(diam = <I>0</I>, above top disc) and base (diam = <I>n+1</I>, below bottom disc); 
+<DT> <I>Tower( )</I> with properties:  
+<DD> <I>m, n, l</I> the current number of pins, discs, max disc diameter 
+(usually <I>l = n</I> ) ; 
+<DD> <I>pins[ ]</I> the array of <I>Pin</I>s in the tower. 
+</DL>
+<P>
+Instead of extending <I>HanoiDefn</I> directly, it is possible to provide 
+a new solution to an existing variation by extending the appropriate 
+existing class: for instance, <I>Checkers</I> extends <I>Classic</I>, 
+inheriting <I>reshade( ), init(), fin()</I> from that class, but over-riding 
+by a more elaborate <I>check( ).</I> 
+Notice that <I>check(X, Y)</I> does not test for disc on pin <I>X</I> 
+larger than on <I>Y</I>, nor for <I>X = Y</I>, nor for <I>X</I> empty; 
+all of which are rejected elsewhere by <I>move( )</I>. 
+<P>
+The (trace) and (move) toggles are provided to assist in debugging. 
+The trace must be invoked by a call such as <I>tower.trace(name, disc);</I> or 
+<I>trace(name, disc, W, X, Y, Z);</I> in the programmer's transfer method(s). 
+If an erroneous move is detected, it is printed and the simulation halts; 
+if an erroneous final configuration is found, a "Failure" message is printed. 
+<P>
+
+<H2> <A NAME = "Demo Installation"> Demo Installation </A> </H2> 
+
+The demonstration program was originally intended to run as an "applet"  
+called from a web browser, but in practice this is unlikely to be 
+successful. 
+[There appear to be a number of factors militating against this empyrean 
+vision, including: 
+path settings missing from the web server; 
+high-level security settings in the browser; 
+differences in Java system libraries between compiler and user; 
+dodgy scheduling in earlier versions of Java; 
+accidental incompatibilities between Java interpreters; 
+inadequate linkage between browser and local operating system.] 
+<P>
+The intending user is therefore advised to instal a Java development system 
+[such as JDK, available from http://java.sun.com/j2se/1.4/ ] and perhaps an 
+application programming environment [such as RealJ]; download the source files 
+<DL>
+<DD> <A HREF = "HanoiVar.java"> HanoiVar.java </A>
+<DD> <A HREF = "HanoiLib.java"> HanoiLib.java </A>
+</DL>
+into a separate directory on his local system; 
+then compile and run the demonstration either via the environment, 
+or by opening a command window and executing: 
+<DL> 
+<DD> javac HanoiVar.java 
+<DD> java HanoiVar 
+</DL>
+The program should run under any environment system from JDK 1.1 onwards, 
+but clunky user interaction is a hazard under versions earlier than 1.4. 
+<P>
+Known bugs include the display window occasionally freezing, along with all 
+user interaction, particularly after a demonstration has run for many 
+minutes with a large resized display, and the move delay set short (<100 msec) 
+in the property window. 
+The program may be killed from a command window by executing 
+<DL> 
+<DD> kill -9 1234 
+</DL>
+where for 1234 is substituted the run number printed when the program was 
+started; or similar but more user-friendly action taken via the programming 
+environment. 
+<P>
+On starting the program an intermittent non-fatal error message may appear, along the lines of 
+<DL> 
+<DD> ... _initWithWindowNumber: error creating graphics ctxt object ... 
+</DL>
+This results from the author's chronic inability to master the Java process 
+communication model, and may safely be ignored. 
+<P>
+Queries, comments (constructive or otherwise), bug reports, and suggestions 
+for enhancements may be addressed to 
+<ADDRESS> W.F.Lunnon (Fred.Lunnon@may.ie)</ADDRESS>
+[on a good day, they might even receive a reply ...]. 
+<P>
+
+<H2> <A NAME = "Demo User Guide"> Demo User Guide </A> </H2> 
+
+The program opens two windows, both of which should be re-sizable by the user, 
+by clicking and dragging the corner or edge of the frame as usual. 
+[These features can malfunction when the program is run from within a browser.] 
+<TITLE><HR> 
+<APPLET CODE = "HanoiVar.class" WIDTH = 800 HEIGHT = 300 
+<! Reconcile; check not too big for page or too small for properties !! > 
+<! Int.Exp. runs as standalone, ignoring init() and parameters ?? > 
+ALT = "Browser understands &lt;APPLET&gt; tag but won't run the applet."> 
+Browser ignores &lt;APPLET&gt; tag! 
+<PARAM NAME = "Variation" VALUE = "1"> 
+<PARAM NAME = "Discs" VALUE = "6">
+<PARAM NAME = "Pins" VALUE = "3"> 
+<PARAM NAME = "Firing" VALUE = "Increase"> 
+<PARAM NAME = "Delay" VALUE = "500">
+</APPLET>
+<HR></TITLE> 
+<P>
+The main display shows the pins and discs of the tower as the solution is 
+simulated automatically. The program may be terminated by clicking on the 
+exit button of the display frame. The current run may be re-initialised at 
+any time by choosing a variation from the menu, or by resetting the numbers 
+of discs or pins. 
+To single-step a simulation, set delay to least 333 msec, then toggle Run 
+stop/start. 
+<P>
+In manual mode with the Run toggle started (green), a top disc may be moved by 
+left-clicking on its old pin, whence it will disappear; then left-clicking on 
+its new pin, whither it will reappear. 
+No subsequent interaction with the automatic solution is possible: 
+on exit from manual mode, the tower is re-initialised. 
+If an invalid move is made, the Run toggle stops (red), and further 
+moves are prevented until it is clicked to start (green). 
+<P> 
+The properties window may be hidden by clicking on the exit button of its frame, 
+and called up again by mouse clicking within the display frame. 
+The window comprises the following features, each activated by clicking there. 
+To enter a number into a field, delete it with the backspace key or by 
+highlighting with the mouse, type in the new value and press RETURN. 
+<DL> 
+<DT> The <I>Variation</I> menu (scrolling),
+<DD> selecting any of Classic, Cyclic, Rainbow, Antwerp, Domino, Checkers, 
+Reversi, Reves, Many_Pin, Turtle, Multi_Stack, Four_Star, 
+<DD> or a subsequent selection of individual variations; 
+<DT> The <I>Mode</I> menu,
+<DD> allowing on completion to Wait, Repeat the same, Increase <I>n</I>; 
+<DD> or (immediately) await user moves in Manual mode; 
+<DT> The <I>Discs</I> field,
+<DD> setting the number <I>n</I> of the discs (per stack); 
+<DT> The <I>Pins</I> field,
+<DD> setting the number <I>m</I> of pins (where applicable); 
+<DT> The <I>Time</I> field,
+<DD> how many moves have occurred so far in the current run; 
+<DT> The <I>Delay</I> field,
+<DD> slowing down the rate at which moves are displayed; 
+<DT> The <I>Trace</I> and <I>Print</I> toggles,
+<DD> recording the functions called and moves made in the command window; 
+<DT> The <I>Status</I> field,
+<DD> signalling the current simulation state: Running, Waiting, Manual input, Success (manual or auto), Failure (auto), Invalid move; 
+<DT> The <I>Draw</I> stop/start toggle,
+<DD> suspending or reinstating display (slowing the simulation considerably); 
+<DT> The <I>Run</I> stop/start toggle,
+<DD> interrupting the simulation to wait, or continuing to run it. 
+</DL> <P> 
+
+A substantial amount of detailed information about the recursive and 
+iterative algorithms used in the solutions is expressed in the transfer 
+functions of the variation classes supplied, and there seems little point 
+in repeating most of this (less precisely, if more succinctly) in this text. 
+Readers who want to understand the algorithms in more detail are 
+urged to: watch the demonstrations; inspect the program code; and study 
+the tracing and moves. 
+<P> 
+
+<H2> <A NAME = "References">  References </A> </H2> 
+
+    <UL>
+    <LI> <A HREF = 
+"http://java.sun.com/"> 
+Sun Microsystems' Java JDK download.</A> 
+    <LI> <A HREF = 
+"http://www.realj.com/"> 
+RealJ Java application development environment.</A> 
+    <LI> <A HREF = 
+"http://mathworld.wolfram.com/TowersofHanoi.html"> 
+M. Kolar's <I>Directory of Hanoi Programs</I>.</A> 
+    <LI> <A HREF = 
+"http://hanoitower.mkolar.org/HTonWebE.html"> 
+Eric Weisstein's <I>Treasure Trove of Mathematics</I>.</A> 
+    <LI> <A HREF = 
+"http://www.cs.wm.edu/~pkstoc/toh.html"> 
+Paul Stockmeyer's papers, including</A> 
+        <UL>
+        <LI> an extensive <I>Hanoi</I> bibliography; 
+        <LI> <I>Variations on the Four-Post Tower of Hanoi Puzzle</I>. 
+        </UL>
+    <LI> <A HREF = 
+"http://www.msri.org/publications/books/Book29/files/bibl.pdf"> 
+A. S. Fraenkel's <I>Combinatorial Games</I> bibliography.</A> 
+    <LI> W. W. Rouse Ball & H. S. M. Coxeter 
+<I>Mathematical Recreations and Essays</I> ed <B>12</B> 316, 
+University of Toronto (1982). 
+    <LI> M. D. Atkinson <I>The Cyclic Towers of Hanoi</I> 
+Info. Proc. Letters <B>13</B>(3), 118--119 (1981). 
+    <LI> W. Feller <I>An Introduction to Probability Theory an its 
+Applications</I>, vol I ed. <B>2</B> Wiley (1957). 
+Info. Proc. Letters <B>13</B>(3), 118--119 (1981). 
+    <LI> Richard E. Korf <I>Linear-time Disk-based Implicit Graph Search</I>, 
+J. ACM <B>55</B>(6) 26--65 (2008). 
+    <LI> Steven Minsker <I>The Towers of Hanoi Rainbow Problem</I> 
+Journal of Algorithms <B>10</B>(1) 1--19 (1989). 
+    <LI> Steven Minsker <I>The Towers of Antwerpen Problem</I> 
+Information Processing Letters <B>38</B>(2) 107--111 (1991). 
+    <LI> Victor Mascolo <I>U.S. patent application</I> 
+Feb. 1, 2007, Serial No.11/701,454. 
+    <LI> Craig Turner <I>Towers of Hanoi on Graphs and Digraphs</I> 
+thesis, Georgia College (1995). [Useful short bibliography] 
+    </UL> <P> 
+
+<TITLE> 
+    <LI> W.F.Lunnon hanoi1/2.tex. 
+    <LI> Robert Neale <I>The Temple of Hanoi</I> 
+Games Magazine <B>6</B>(7) 70 (Nov 1982). 
+    <LI> Andreas Hinz [shortest paths between configurations] 
+</TITLE> 
+
+Author: Fred Lunnon 
+<P> 
+Last update: 12 October 2010 
+<P> 
+
+</FONT> 
+</BODY> 
+</HTML> 
+

@@ -538,7 +538,7 @@ variations, disk, disks, multistack, solver" />
             These options might create initial setups that break rules for the
             given variation. However, in many cases, it's still possible to
             solve the puzzle if you don't make any illegal moves from that
-            point on. That said, these feature's are in the the testing stages,
+            point on. That said, these features are in the the testing stages,
             so there might be some cases in which they create unsolvable
             puzzles.
         </p>
@@ -554,15 +554,15 @@ variations, disk, disks, multistack, solver" />
     Evans</a>. All Rights Reserved.
 </p>
 <p>
-    Special thanks to Fred Lunnon for the program I based this page on and its
-    documentation, Victor Mascolo for inventing the original Multistack Hanoi
-    puzzle and models (U.S. patent number 7,566,057), Paul Stockmeyer and Steve
-    Minsker for their papers on several variations as well as other
-    contributions, Alex Munroe for his example of a custom built generator as
-    well as other assistance, Chris Santiago for design help, James Rhodes and
-    Ian Rahimi for support, and my sister, Lindsay Evans, for proposing an
-    alternative solution to the Classic multiple stacks problem, and for being
-    supportive with all of my endeavors.
+    Special thanks to Fred Lunnon for <a href="java/">his Java implementation I
+    based this page on</a>, Victor Mascolo for inventing the original
+    Multistack Hanoi puzzle and models (U.S. patent number 7,566,057), Paul
+    Stockmeyer and Steve Minsker for their papers on several variations as well
+    as other contributions, Alex Munroe for his example of a custom built
+    generator as well as other assistance, Chris Santiago for design help,
+    James Rhodes and Ian Rahimi for support, and my sister, Lindsay Evans, for
+    proposing an alternative solution to the Classic multiple stacks problem,
+    and for being supportive with all of my endeavors.
 </p>
 <div style="text-align: center">
     <p>
