@@ -12,7 +12,6 @@ variations, disk, disks, multistack, solver" />
 <link href="style.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="js/lib/jquery.js"></script>
 <script type="text/javascript" src="js/lib/mobile.js"></script>
-<script type="text/javascript" src="js/lib/excanvas.js"></script>
 <script type="text/javascript" src="js/lib/json2.js"></script>
 <script type="text/javascript" src="js/lib/sylvester.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
@@ -56,7 +55,9 @@ variations, disk, disks, multistack, solver" />
     variations of the puzzle, plus solution algorithms for many of them. I made
     this program to educate, entertain, and strive for the best solutions to
     these variations. Please <a href="mailto:admin@brandonevans.org">contact
-    me</a> if you have feedback or contributions. Thanks for visiting.
+    me</a> if you have feedback or contributions. You can see the stable
+    version of this page <a href="/hanoi/">here</a> and the development version
+    <a href="/dev/hanoi/">here</a>. Thanks for visiting.
 </p>
 <div class="yesscript" style="display: none">
     <div id="towers"></div>
@@ -121,7 +122,11 @@ variations, disk, disks, multistack, solver" />
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td>
+                <input type="checkbox" id="random" />
+                <label for="random">Random</label>
+            </td>
+            <td>
                 <input type="checkbox" id="shuffle" />
                 <label for="shuffle">Shuffle</label>
             </td>
@@ -180,13 +185,21 @@ variations, disk, disks, multistack, solver" />
             </td>
         </tr>
     </table>
+    <h2>Latest Changeset</h2>
+    <p>
+        Posted by [var]user[/var] on [var]date[/var]:
+    </p>
+    <div style="font: 1em/1.2em monospace">
+        [var entities="false"]description[/var]
+    </div>
     <h2>Instructions</h2>
     <p>
         To begin, choose a <em>Variation</em>. From here, you can select the
         number of <em>Disks per Stack</em>, the <em>Towers per Stack</em>, and
         the number of <em>Stacks</em>. The game will adjust after you click
-        outside of the field. You can also shuffle the positions of the disks
-        by checking <em>Shuffle</em>.
+        outside of the field. You can also make it so that the puzzle randomly
+        places disks on the towers by checking <em>Random</em> as well as
+        shuffle the order of the disks by checking <em>Shuffle</em>.
     </p>
     <p>
         You can use this program in two ways: manually move the disks or have
@@ -516,15 +529,17 @@ variations, disk, disks, multistack, solver" />
             rotate all of the stacks clockwise.
         </p>
     </div>
-    <div id="shuffling">
-        <h2>Playing with Shuffle</h2>
+    <div id="placing">
+        <h2>Playing with Random and Shuffle</h2>
         <p>
-            The <em>Shuffle</em> option shuffles the disks around randomly in
-            no given order. In fact, the initial setup might break some of the
-            rules for that variation. However, in many cases, it's still
-            possible to solve the puzzle if you don't make any illegal moves
-            from that point on. This feature's in the testing stages, so there
-            might be some cases in which Shuffle creates unsolvable puzzles.
+            The <em>Random</em> option randomly places disks on the towers
+            while the <em>Shuffle</em> option shuffles the order of the disks.
+            These options might create initial setups that break rules for the
+            given variation. However, in many cases, it's still possible to
+            solve the puzzle if you don't make any illegal moves from that
+            point on. That said, these feature's are in the the testing stages,
+            so there might be some cases in which they create unsolvable
+            puzzles.
         </p>
     </div>
 </div>
@@ -543,11 +558,24 @@ variations, disk, disks, multistack, solver" />
     puzzle and models (U.S. patent number 7,566,057), Paul Stockmeyer and Steve
     Minsker for their papers on several variations as well as other
     contributions, Alex Munroe for his example of a custom built generator as
-    well as other assistance, Chris Santiago for design help, Ian Rahimi and
-    James Rhodes for support, and my sister, Lindsay Evans, for proposing an
+    well as other assistance, Chris Santiago for design help, James Rhodes and
+    Ian Rahimi for support, and my sister, Lindsay Evans, for proposing an
     alternative solution to the Classic multiple stacks problem, and for being
     supportive with all of my endeavors.
 </p>
+<div style="text-align: center">
+    <p>
+        <a href="http://www.suitframework.com/slacks/?referrer=true"
+        target="_blank"><img src="images/slacks.png"
+        alt="Debug with SLACKS" /></a>
+    </p>
+    <p>
+        <a href="http://www.suitframework.com/" target="_blank"><img
+        src="images/poweredby/suit.png" alt="SUIT" /></a>
+        <a href="http://www.python.org/" target="_blank"><img
+        src="images/poweredby/python.png" alt="Python" /></a>
+    </p>
+</div>
 <div style="text-align: center">
     <script type="text/javascript">
     <!--
