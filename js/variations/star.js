@@ -19,7 +19,7 @@ star.rec = function(disks, from, using, extra, to)
         },
         function()
         {
-            return domino_aba(star.fk[disks], from, using, to);
+            return domino.aba(star.fk[disks], from, using, to);
         },
         function()
         {
