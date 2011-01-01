@@ -550,7 +550,7 @@ variations, disk, disks, multistack, solver" />
     </p>
 </div>
 <p style="text-align: center">
-    Copyright &copy; 2010 <a href="http://www.brandonevans.org/">Brandon
+    Copyright &copy; 2010-2011 <a href="http://www.brandonevans.org/">Brandon
     Evans</a>. All Rights Reserved.
 </p>
 <p>

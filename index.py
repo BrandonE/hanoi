@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Copyright (C) 2010 Brandon Evans and Chris Santiago.
+# Copyright (C) 2010-2011 Brandon Evans.
 # http://www.brandonevans.org/
 from cgi import escape
 import cgitb
@@ -43,11 +43,12 @@ from rulebox import templating
 templating.var.source = open('index.py').read()
 repo = repo = hg.repository(ui.ui(), '.')
 for rev in repo:
-    templating.var.date = time.ctime(repo[rev].date()[0])
+    templating.var.date = repo[rev].date()[0]
     templating.var.description = escape(
         Markup(repo[rev].description()).unescape()
     ).replace('\n', '<br />')
     templating.var.user = repo[rev].user()
+templating.var.date = time.ctime(templating.var.date)
 string = suit.execute(
     templating.rules,
     open(
