@@ -5,5 +5,5 @@ if (
     main.count.per == 3
 )
 {
-    main.generator = cyclic.far(main.count.disks, 0, 1, 2);
+    main.generator = cyclic.counter(main.count.disks, 0, 1, 2);
 }

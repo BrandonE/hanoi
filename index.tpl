@@ -1,3 +1,4 @@
+[trim]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -68,7 +69,9 @@ variations, disk, disks, multistack, solver" />
             <td><label for="variation">Variation</label></td>
             <td>
                 <select id="variation">
-                    <option>Classic</option>
+                    [loop value="value" iterable="variations"]
+                    <option>[var]value[/var]</option>
+                    [/loop]
                 </select>
             </td>
             <td rowspan="11">
@@ -293,17 +296,30 @@ variations, disk, disks, multistack, solver" />
         Also, unless stated otherwise, To win, transfer all of the
         disks to the tower farthest to the right in size order.
     </p>
-    <div class="variation" id="cyclic">
-        <h2>Cyclic</h2>
-        <p>This variation has one additional rule:</p>
+    <div class="variation" id="cyclic_about">
+        <h2>About Cyclic Variations</h2>
+        <p>All of the Cyclic variations have one additional rule:</p>
         <ul>
-            <li>
-                Every disk must move in the same cyclic direction (Clockwise).
-                For instance, if you play with three towers, you can only move
-                a given disk from the first tower to the second tower to the
-                third tower to the first tower again.
-            </li>
+            <li>Every disk must move in the same cyclic direction.</li>
         </ul>
+    </div>
+    <div class="variation" id="cyclic_clockwise">
+        <h2>Cyclic Clockwise</h2>
+        <p>
+            In this variation, the cyclic direction is clockwise. For instance,
+            if you play with three towers, you can only move a given disk from
+            the first tower to the second tower to the third tower to the first
+            tower again.
+        </p>
+    </div>
+    <div class="variation" id="cyclic_counterclockwise">
+        <h2>Cyclic Counterclockwise</h2>
+        <p>
+            In this variation, the cyclic direction is counterclockwise. For
+            instance, if you play with three towers, you can only move a given
+            disk from the first tower to the third tower to the second tower to
+            the first tower again.
+        </p>
     </div>
     <div class="variation" id="rainbow">
         <h2>Rainbow</h2>
@@ -605,3 +621,4 @@ variations, disk, disks, multistack, solver" />
 </div>
 </body>
 </html>
+[/trim]

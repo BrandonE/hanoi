@@ -41,6 +41,14 @@ from mercurial import ui, hg
 import suit
 from rulebox import templating
 templating.var.source = open('index.py').read()
+templating.var.variations = [
+    'Classic', 'Cyclic Clockwise', 'Cyclic Counterclockwise', 'Rainbow',
+    'Antwerp', 'Domino Light', 'Domino Dark', 'Domino Home Light', 'Checkers',
+    'Reversi Light', 'Reversi Dark', 'Reversi Home Light', 'Star',
+    'Lundon Light', 'Lundon Medium', 'Lundon Dark', 'Lundon Home Light',
+    'Lundon Home Dark', 'Brandonburg Light', 'Brandonburg Medium',
+    'Brandonburg Dark', 'Brandonburg Home Light', 'Brandonburg Home Dark'
+]
 repo = repo = hg.repository(ui.ui(), '.')
 for rev in repo:
     templating.var.date = repo[rev].date()[0]

@@ -330,6 +330,19 @@ main.movable = function(disk, tower, undo)
     {
         to = main.cycle(to);
     }
+    var cycle;
+    if (main.variation == 'Cyclic Clockwise')
+    {
+        cycle = 1;
+    }
+    if (main.variation == 'Cyclic Counterclockwise')
+    {
+        cycle = -1;
+    }
+    if (cycle !== undefined && undo)
+    {
+        cycle = -cycle;
+    }
     if (
         main.variation == 'Brandonburg Light' ||
         main.variation == 'Brandonburg Medium' ||
@@ -418,14 +431,14 @@ main.movable = function(disk, tower, undo)
         }
     }
     /*
-    If the variation is Cyclic and the target tower isn't next in the cycle,
-    fail.
+    If the variation is a Cyclic variation and the target tower isn't next in
+    the cycle, fail.
     */
     if (
-        main.variation == 'Cyclic' &&
+        cycle !== undefined &&
         tower != main.cycle(
             main.cycle(
-                disk.tower + 1,
+                disk.tower + cycle,
                 disk.stack * mult,
                 to
             )
@@ -634,6 +647,11 @@ main.move = function(tower, undo, redo, restoring)
         {
             $('#undo').css('visibility', 'visible');
         }
+        // If the puzzle has reached an impasse, show an appropriate message.
+        if (main.impasse())
+        {
+            alert('Puzzle has reached an impasse.');
+        }
     }
     // Else, if the solver isn't running, show an appropriate message.
     else if (!main.running)
@@ -654,11 +672,6 @@ main.move = function(tower, undo, redo, restoring)
         {
             alert('Puzzle solved in more moves than the current minimum.');
         }
-    }
-    // If the puzzle has reached an impasse, show an appropriate message.
-    if (main.impasse())
-    {
-        alert('Puzzle has reached an impasse.');
     }
 };
 
@@ -862,6 +875,13 @@ main.setup = function()
     {
         main.count.stacks = minimum;
     }
+    /*
+    If the variation is Cyclic Counterclockwise, there can only be one stack.
+    */
+    if (main.variation == 'Cyclic Counterclockwise')
+    {
+        main.count.stacks = 1;
+    }
     // If the variation is Antwerp, there cannot be more stacks than towers.
     if (main.variation == 'Antwerp' && main.count.stacks > main.count.per)
     {
@@ -934,11 +954,18 @@ main.setup = function()
                 ) + 1;
             }
         }
-        if (main.variation == 'Cyclic')
+        if (main.variation == 'Cyclic Clockwise')
         {
             if (main.count.stacks == 1 && main.count.per == 3)
             {
                 main.minimum = cyclic.moves(main.count.disks);
+            }
+        }
+        if (main.variation == 'Cyclic Counterclockwise')
+        {
+            if (main.count.stacks == 1 && main.count.per == 3)
+            {
+                main.minimum = cyclic.moves(main.count.disks, true);
             }
         }
         if (main.variation == 'Rainbow')
@@ -1241,7 +1268,8 @@ main.setup = function()
             else if (
                 size % 2 &&
                 main.variation != 'Antwerp' &&
-                main.variation != 'Cyclic' &&
+                main.variation != 'Cyclic Clockwise' &&
+                main.variation != 'Cyclic Counterclockwise' &&
                 main.variation != 'Domino Light' &&
                 main.variation != 'Domino Dark' &&
                 main.variation != 'Domino Home Light' &&
@@ -1797,25 +1825,6 @@ main.xor = function(a, b)
 $(document).ready(
     function()
     {
-        // Populate the list of variations.
-        var variations = [
-            'Classic', 'Cyclic', 'Rainbow', 'Antwerp', 'Domino Light',
-            'Domino Dark', 'Domino Home Light', 'Checkers', 'Reversi Light',
-            'Reversi Dark', 'Reversi Home Light', 'Star', 'Lundon Light',
-            'Lundon Medium', 'Lundon Dark', 'Lundon Home Light',
-            'Lundon Home Dark', 'Brandonburg Light', 'Brandonburg Medium',
-            'Brandonburg Dark', 'Brandonburg Home Light',
-            'Brandonburg Home Dark'
-        ];
-        for (var i = 1; i < variations.length; i++)
-        {
-            $(
-                '<option />',
-                {
-                    'text': variations[i]
-                }
-            ).appendTo('#variation');
-        }
         main.setup();
         main.load();
         // Update the page accordingly.
@@ -1825,6 +1834,7 @@ $(document).ready(
         $('#showlog').attr('checked', false);
         $('#showmovesource').attr('checked', false);
         $('#showsource').attr('checked', false);
+        $('#variation').val('Classic');
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
         $('.yesscript').show();
