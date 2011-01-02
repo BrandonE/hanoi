@@ -187,11 +187,23 @@ variations, disk, disks, multistack, solver" />
         </tr>
     </table>
     <h2>Latest Changeset</h2>
-    <p>
-        Posted by [var]user[/var] on [var]date[/var]:
-    </p>
+    <p>Posted by [var]user[/var] on [var]date[/var]:</p>
     <div style="font: 1em/1.2em monospace">
         [var entities="false"]description[/var]
+    </div>
+    <p>
+        To get the Mercurial repository for the stable version of this page,
+        run:
+    </p>
+    <div style="font: 1em/1.2em monospace">
+        hg clone http://www.brandonevans.org/hanoi/
+    </div>
+    <p>
+        To get the Mercurial repository for the development version of this
+        page, run:
+    </p>
+    <div style="font: 1em/1.2em monospace">
+        hg clone http://www.brandonevans.org/dev/hanoi/
     </div>
     <h2>Instructions</h2>
     <p>
