@@ -127,6 +127,29 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
+                <input type="radio" name="movement" id="any" value="any" />
+                <label for="any">Disks can move in any direction</label>
+            </td>
+            <td>
+                <input type="radio" name="movement" id="linear"
+                value="linear" /> <label for="linear">Disks can only move
+                linearly</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="radio" name="movement" id="clock" value="clock" />
+                <label for="clock">Disks can only move cyclicly
+                clockwise</label>
+            </td>
+            <td>
+                <input type="radio" name="movement" id="counter"
+                value="counter" /> <label for="counter">Disks can only move
+                cyclicly counterclockwise</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <input type="checkbox" id="random" />
                 <label for="random">Random</label>
             </td>

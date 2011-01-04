@@ -22,6 +22,7 @@ var main = {
     'manual': [],
     'minimum': 0,
     'mode': 'Wait',
+    'movement': 'any',
     'moves': {
         'current': 0,
         'old': 0
@@ -331,11 +332,11 @@ main.movable = function(disk, tower, undo)
         to = main.cycle(to);
     }
     var cycle;
-    if (main.variation == 'Cyclic Clockwise')
+    if (main.movement == 'clock')
     {
         cycle = 1;
     }
-    if (main.variation == 'Cyclic Counterclockwise')
+    if (main.movement == 'counter')
     {
         cycle = -1;
     }
@@ -431,8 +432,16 @@ main.movable = function(disk, tower, undo)
         }
     }
     /*
-    If the variation is a Cyclic variation and the target tower isn't next in
-    the cycle, fail.
+    If the movement is linear and the target tower isn't adjacent to this one,
+    fail.
+    */
+    if (main.movement == 'linear' && Math.abs(tower - disk.tower) > 1)
+    {
+        return false;
+    }
+    /*
+    If the movement is cyclical and the target tower isn't next in the cycle,
+    fail.
     */
     if (
         cycle !== undefined &&
@@ -876,9 +885,10 @@ main.setup = function()
         main.count.stacks = minimum;
     }
     /*
-    If the variation is Cyclic Counterclockwise, there can only be one stack.
+    If the movement is cyclic counterclockwise and the variation isn't Antwerp,
+    there can only be one stack.
     */
-    if (main.variation == 'Cyclic Counterclockwise')
+    if (main.movement == 'counter' && main.variation != 'Antwerp')
     {
         main.count.stacks = 1;
     }
@@ -936,6 +946,21 @@ main.setup = function()
                 main.minimum = classic.more.moves(
                     main.count.disks, main.count.towers
                 );
+                if (main.count.per == 3)
+                {
+                    if (main.movement == 'linear')
+                    {
+                        main.minimum = Math.pow(3, main.count.disks) - 1;
+                    }
+                    if (main.movement == 'clock')
+                    {
+                        main.minimum = cyclic.moves(main.count.disks);
+                    }
+                    if (main.movement == 'counter')
+                    {
+                        main.minimum = cyclic.moves(main.count.disks, true);
+                    }
+                }
             }
             else
             {
@@ -954,135 +979,124 @@ main.setup = function()
                 ) + 1;
             }
         }
-        if (main.variation == 'Cyclic Clockwise')
+        if (main.movement == 'any')
         {
-            if (main.count.stacks == 1 && main.count.per == 3)
+            if (main.variation == 'Rainbow')
             {
-                main.minimum = cyclic.moves(main.count.disks);
-            }
-        }
-        if (main.variation == 'Cyclic Counterclockwise')
-        {
-            if (main.count.stacks == 1 && main.count.per == 3)
-            {
-                main.minimum = cyclic.moves(main.count.disks, true);
-            }
-        }
-        if (main.variation == 'Rainbow')
-        {
-            main.minimum = rainbow.moves(main.count.disks);
-            if (main.count.stacks > 1)
-            {
-                main.minimum *= main.count.stacks + 1;
-            }
-        }
-        if (main.variation == 'Antwerp')
-        {
-            if (main.count.stacks == 2)
-            {
-                var minus = 11;
-                if (main.count.disks % 2)
-                {
-                    minus = 10;
-                }
-                main.minimum = (
-                    7 * Math.pow(
-                        2, main.count.disks + 1
-                    ) - 9 * main.count.disks - minus
-                ) / 3;
-            }
-            if (main.count.stacks == 3)
-            {
-                main.minimum = 5;
-                if (main.count.disks > 1)
-                {
-                    main.minimum = 12 * Math.pow(
-                        2, main.count.disks
-                    ) - (8 * main.count.disks) - 10;
-                }
-            }
-        }
-        if (main.variation == 'Checkers')
-        {
-            if (main.count.per == 3)
-            {
-                main.minimum = classic.three.moves(main.count.disks);
+                main.minimum = rainbow.moves(main.count.disks);
                 if (main.count.stacks > 1)
                 {
                     main.minimum *= main.count.stacks + 1;
                 }
             }
-        }
-        if (main.count.stacks == 1)
-        {
-            if (
-                main.variation == 'Domino Light' ||
-                main.variation == 'Domino Dark' ||
-                main.variation == 'Domino Home Light'
-            )
+            if (main.variation == 'Antwerp')
             {
-                var m = $M(
-                [
-                    [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
-                    [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
-                    [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                    [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
-                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                    [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
-                );
-                var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
-                for (i = 0; i < main.count.disks - 1; i++)
+                if (main.count.stacks == 2)
                 {
-                    s = m.x(s);
+                    var minus = 11;
+                    if (main.count.disks % 2)
+                    {
+                        minus = 10;
+                    }
+                    main.minimum = (
+                        7 * Math.pow(
+                            2, main.count.disks + 1
+                        ) - 9 * main.count.disks - minus
+                    ) / 3;
                 }
-                main.minimum = s.elements[0];
-                if (main.variation == 'Domino Dark')
+                if (main.count.stacks == 3)
                 {
-                    main.minimum = s.elements[1];
-                }
-                if (main.variation == 'Domino Home Light')
-                {
-                    main.minimum = s.elements[2];
+                    main.minimum = 5;
+                    if (main.count.disks > 1)
+                    {
+                        main.minimum = 12 * Math.pow(
+                            2, main.count.disks
+                        ) - (8 * main.count.disks) - 10;
+                    }
                 }
             }
-            if (main.variation == 'Star')
+            if (main.variation == 'Checkers')
             {
-                star.start();
+                if (main.count.per == 3)
+                {
+                    main.minimum = classic.three.moves(main.count.disks);
+                    if (main.count.stacks > 1)
+                    {
+                        main.minimum *= main.count.stacks + 1;
+                    }
+                }
             }
-            if (main.variation == 'Lundon Light')
+            if (main.count.stacks == 1)
             {
-                main.minimum = cyclic.moves(main.count.disks, true);
-            }
-            if (main.variation == 'Lundon Medium')
-            {
-                main.minimum = cyclic.moves(
-                    main.count.disks - 1
-                ) + cyclic.moves(main.count.disks - 1, true) + 3;
-            }
-            if (main.variation == 'Lundon Dark')
-            {
-                main.minimum = cyclic.moves(main.count.disks);
-            }
-            if (main.variation == 'Lundon Home Light')
-            {
-                main.minimum = cyclic.moves(
-                    main.count.disks - 1
-                ) + cyclic.moves(main.count.disks - 1) + 4;
-            }
-            if (main.variation == 'Lundon Home Dark')
-            {
-                main.minimum = cyclic.moves(
-                    main.count.disks - 1, true
-                ) + cyclic.moves(
-                    main.count.disks - 1, true
-                ) + 2;
+                if (
+                    main.variation == 'Domino Light' ||
+                    main.variation == 'Domino Dark' ||
+                    main.variation == 'Domino Home Light'
+                )
+                {
+                    var m = $M(
+                    [
+                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
+                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
+                    );
+                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
+                    for (i = 0; i < main.count.disks - 1; i++)
+                    {
+                        s = m.x(s);
+                    }
+                    main.minimum = s.elements[0];
+                    if (main.variation == 'Domino Dark')
+                    {
+                        main.minimum = s.elements[1];
+                    }
+                    if (main.variation == 'Domino Home Light')
+                    {
+                        main.minimum = s.elements[2];
+                    }
+                }
+                if (main.variation == 'Star')
+                {
+                    star.start();
+                }
+                if (main.variation == 'Lundon Light')
+                {
+                    main.minimum = cyclic.moves(main.count.disks, true);
+                }
+                if (main.variation == 'Lundon Medium')
+                {
+                    main.minimum = cyclic.moves(
+                        main.count.disks - 1
+                    ) + cyclic.moves(main.count.disks - 1, true) + 3;
+                }
+                if (main.variation == 'Lundon Dark')
+                {
+                    main.minimum = cyclic.moves(main.count.disks);
+                }
+                if (main.variation == 'Lundon Home Light')
+                {
+                    main.minimum = cyclic.moves(
+                        main.count.disks - 1
+                    ) + cyclic.moves(main.count.disks - 1) + 4;
+                }
+                if (main.variation == 'Lundon Home Dark')
+                {
+                    main.minimum = cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + 2;
+                }
             }
         }
     }
@@ -1268,8 +1282,6 @@ main.setup = function()
             else if (
                 size % 2 &&
                 main.variation != 'Antwerp' &&
-                main.variation != 'Cyclic Clockwise' &&
-                main.variation != 'Cyclic Counterclockwise' &&
                 main.variation != 'Domino Light' &&
                 main.variation != 'Domino Dark' &&
                 main.variation != 'Domino Home Light' &&
@@ -1828,13 +1840,14 @@ $(document).ready(
         main.setup();
         main.load();
         // Update the page accordingly.
+        $('#' + main.movement).attr('checked', true);
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
         $('#mode').val(main.mode);
         $('#showlog').attr('checked', false);
         $('#showmovesource').attr('checked', false);
         $('#showsource').attr('checked', false);
-        $('#variation').val('Classic');
+        $('#variation').val(main.variation);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
         $('.yesscript').show();
@@ -1849,6 +1862,17 @@ $(document).ready(
                     {
                         main.move(tower);
                     }
+                }
+            }
+        );
+        $('input[name=movement]').change(
+            function()
+            {
+                var value = $('input[name=movement]:checked').val();
+                if (main.movement != value)
+                {
+                    main.movement = value;
+                    main.setup();
                 }
             }
         );
