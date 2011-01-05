@@ -325,6 +325,7 @@ main.movable = function(disk, tower, undo)
     var color = main.color(disk, undo);
     // Find the last disk of this tower.
     var last = main.towers[tower].disks[main.towers[tower].disks.length - 1];
+    var medium = main.colors[disk.stack][0];
     var mult = main.count.per - 1;
     var to = disk.stack * mult + mult;
     if (main.count.stacks > 1)
@@ -457,29 +458,24 @@ main.movable = function(disk, tower, undo)
         return false;
     }
     /*
-    If the variation is Star and this move is not from nor to the star tower,
+    If the variation is Star and this move is not from nor to a star tower,
     fail.
     */
     if (
         main.variation == 'Star' &&
-        disk.tower != 1 &&
-        tower != 1
+        main.towers[disk.tower].peg != 'white' &&
+        main.towers[tower].peg != 'white'
     )
     {
         return false;
     }
-    /*
-    If there are multiple stacks, the variation isn't Antwerp, and this tower
-    isn't in the range this disk's stack is allowed to be on, fail.
-    */
+    // If this disk doesn't belong on this tower, fail.
     if (
-        main.count.stacks > 1 &&
-        main.variation != 'Antwerp' &&
-        (
-            tower - disk.stack * mult > mult ||
-            tower - disk.stack * mult < 0
-        ) &&
-        tower != to
+        main.towers[tower].base != 'grey' &&
+        main.towers[tower].base != medium &&
+        main.towers[tower].peg != 'grey' &&
+        main.towers[tower].peg != 'white' &&
+        main.towers[tower].peg != medium
     )
     {
         return false;
