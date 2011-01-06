@@ -49,12 +49,12 @@ star.start = function()
             return a - b;
         }
     );
-    minimum = 0;
+    main.minimum = 0;
     star.fk = [];
     for (i = 0; i < main.count.disks + 1; i++)
     {
-        minimum += Math.floor(Math.exp(fij[i] * log3) + 0.5);
+        main.minimum += Math.floor(Math.exp(fij[i] * log3) + 0.5);
         star.fk.push(Math.floor(fij[i]) + 1);
     }
-    minimum *= 2;
+    main.minimum *= 2;
 };
