@@ -319,31 +319,6 @@ variations, disk, disks, multistack, solver" />
         Also, unless stated otherwise, To win, transfer all of the
         disks to the tower farthest to the right in size order.
     </p>
-    <div class="variation" id="cyclic_about">
-        <h2>About Cyclic Variations</h2>
-        <p>All of the Cyclic variations have one additional rule:</p>
-        <ul>
-            <li>Every disk must move in the same cyclic direction.</li>
-        </ul>
-    </div>
-    <div class="variation" id="cyclic_clockwise">
-        <h2>Cyclic Clockwise</h2>
-        <p>
-            In this variation, the cyclic direction is clockwise. For instance,
-            if you play with three towers, you can only move a given disk from
-            the first tower to the second tower to the third tower to the first
-            tower again.
-        </p>
-    </div>
-    <div class="variation" id="cyclic_counterclockwise">
-        <h2>Cyclic Counterclockwise</h2>
-        <p>
-            In this variation, the cyclic direction is counterclockwise. For
-            instance, if you play with three towers, you can only move a given
-            disk from the first tower to the third tower to the second tower to
-            the first tower again.
-        </p>
-    </div>
     <div class="variation" id="rainbow">
         <h2>Rainbow</h2>
         <p>This variation has one additional rule:</p>
