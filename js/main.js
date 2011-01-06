@@ -3,6 +3,8 @@ Copyright (C) 2010 Brandon Evans.
 http://www.brandonevans.org/
 */
 var main = {
+    'alternate': true,
+    'change': false,
     'colors': [
         ['red', 'pink', 'darkred'],
         ['blue', 'lightblue', 'darkblue'],
@@ -11,6 +13,7 @@ var main = {
         ['mediumpurple', 'lavender', 'purple']
     ],
     'count': {
+        'colors': 2,
         'disks': 8,
         'per': 3,
         'towers': 3,
@@ -76,75 +79,33 @@ main.color = function(disk, undo)
 
     Returns: str - The new color.
     */
-    var color = disk.color;
-    var stack = main.colors[disk.stack];
-    // Switch between two colors if the variation requires it.
-    if (
-        main.variation == 'Domino Light' ||
-        main.variation == 'Domino Dark' ||
-        main.variation == 'Domino Home Light' ||
-        main.variation == 'Reversi Light' ||
-        main.variation == 'Reversi Dark' ||
-        main.variation == 'Reversi Home Light'
-    )
+    for (var i = 0; i < main.count.colors; i++)
     {
-        if (color == stack[0])
+        var stack = main.colors[disk.stack];
+        if (disk.color == stack[i])
         {
-            return stack[1];
-        }
-        return stack[0];
-    }
-    // Switch between three colors if the variation requires it.
-    if (
-        main.variation == 'Lundon Light' ||
-        main.variation == 'Lundon Medium' ||
-        main.variation == 'Lundon Dark' ||
-        main.variation == 'Lundon Home Light' ||
-        main.variation == 'Lundon Home Dark' ||
-        main.variation == 'Brandonburg Light' ||
-        main.variation == 'Brandonburg Medium' ||
-        main.variation == 'Brandonburg Dark' ||
-        main.variation == 'Brandonburg Home Light' ||
-        main.variation == 'Brandonburg Home Dark'
-    )
-    {
-        if (undo)
-        {
-            // Go backwards in the cycle.
-            if (color == stack[0])
+            if (main.change)
             {
-                return stack[2];
+                var cycle = 1;
+                if (undo)
+                {
+                    cycle = -1;
+                }
+                return stack[main.cycle(i + cycle, 0, main.count.colors - 1)];
             }
-            if (color == stack[1])
-            {
-                return stack[0];
-            }
-            return stack[1];
-        }
-        else
-        {
-            // Go forwards in the cycle.
-            if (color == stack[0])
-            {
-                return stack[1];
-            }
-            if (color == stack[1])
-            {
-                return stack[2];
-            }
-            return stack[0];
+            break;
         }
     }
-    return color;
+    return disk.color;
 };
 
-main.cycle = function(tower, start, end)
+main.cycle = function(num, start, end)
 {
     /*
-    Cycle a tower number in a range.
+    Cycle a number in a range.
 
-    ``tower``
-        int - The tower to range.
+    ``num``
+        int - The number to cycle.
 
     ``start``
         int - The start of the range (Optional. Default: 0).
@@ -152,13 +113,14 @@ main.cycle = function(tower, start, end)
     ``end``
         int - The end of the range (Optional. Default: main.count.towers).
 
-    Returns: int - The new tower.
+    Returns: int - The new number.
     */
-    tower = parseInt(tower, 10);
-    if (isNaN(tower))
+    num = parseInt(num, 10);
+    if (isNaN(num))
     {
-        return tower;
+        return num;
     }
+    // If no range is provided, assume we are cycling through the towers.
     if (start === undefined)
     {
         start = 0;
@@ -167,21 +129,21 @@ main.cycle = function(tower, start, end)
     {
         end = main.count.towers - 1;
     }
-    // Decrease the tower number where necessary.
-    while (tower > end && (end > start || tower < start))
+    // Decrease the number where necessary.
+    while (num > end && (end > start || num < start))
     {
-        tower += start - 1;
+        num += start - 1;
         if (end > start)
         {
-            tower -= end;
+            num -= end;
         }
     }
-    // Increase the tower number where necessary.
-    while (tower < start && end > start)
+    // Increase the number where necessary.
+    while (num < start && end > start)
     {
-        tower += end - start + 1;
+        num += end - start + 1;
     }
-    return tower;
+    return num;
 };
 
 main.exhaust = function(generator)
@@ -788,7 +750,7 @@ main.restart = function()
     if (main.mode == 'Increase' && main.count.disks != 100)
     {
         main.count.disks++;
-        $('#diskcount').val(main.count.disks);
+        $('#disks').val(main.count.disks);
     }
     main.setup();
     main.start(true);
@@ -888,7 +850,7 @@ main.setup = function()
     {
         main.count.stacks = 1;
     }
-    // If the variation is Antwerp, there cannot be more stacks than towers.
+    // If the variation is Antwerp, there can't be more stacks than towers.
     if (main.variation == 'Antwerp' && main.count.stacks > main.count.per)
     {
         main.count.stacks = main.count.per;
@@ -919,16 +881,24 @@ main.setup = function()
     per stack.
     */
     main.count.towers = main.count.per * main.count.stacks - main.count.stacks;
-    $('#per').text('Towers per Stack');
     // If the variation is Antwerp, all towers are shared.
     if (main.variation == 'Antwerp')
     {
         main.count.towers = main.count.per;
-        $('#per').text('Towers');
     }
     else if (main.count.stacks == 1)
     {
         main.count.towers++;
+    }
+    // There must be at least one color.
+    if (main.count.colors < 1)
+    {
+        main.count.colors = 1;
+    }
+    // There can't be more than 3 colors.
+    if (main.count.colors > 3)
+    {
+        main.count.colors = 3;
     }
     // Calculate the minimum moves for the this variation.
     main.minimum = 'N/A';
@@ -1097,15 +1067,16 @@ main.setup = function()
         }
     }
     // Update the page accordingly.
-    $('#diskcount').val(main.count.disks);
+    $('#colors').val(main.count.colors);
+    $('#disks').val(main.count.disks);
     $('#log').val('');
     $('#minimum').text(main.minimum);
     $('#moves').text(main.moves.current);
     $('#movesource').val('');
     $('#redo').css('visibility', 'hidden');
     $('#source').attr('readonly', '');
-    $('#stackcount').val(main.count.stacks);
-    $('#percount').val(main.count.per);
+    $('#stacks').val(main.count.stacks);
+    $('#per').val(main.count.per);
     $('#undo').css('visibility', 'hidden');
     // Show additional information if necessary.
     $('#multi').hide();
@@ -1245,52 +1216,14 @@ main.setup = function()
         }
         for (j = 0; j < main.count.disks; j++)
         {
-            // Assume the disk color is the medium color.
-            color = main.colors[i][0];
             // The size of disks should shrink as you add them.
             var size = main.count.disks - j - 1;
-            /*
-            Switch between three colors if the variation requires it,
-            medium color on top.
-            */
-            if (
-                main.variation == 'Rainbow' ||
-                main.variation == 'Brandonburg Light' ||
-                main.variation == 'Brandonburg Medium' ||
-                main.variation == 'Brandonburg Dark' ||
-                main.variation == 'Brandonburg Home Light' ||
-                main.variation == 'Brandonburg Home Dark'
-            )
+            color = 0;
+            if (main.alternate)
             {
-                if (size % 3 == 1)
-                {
-                    color = main.colors[i][1];
-                }
-                if (size % 3 == 2)
-                {
-                    color = main.colors[i][2];
-                }
+                color = size % main.count.colors;
             }
-            /*
-            Switch between two colors if the variation requires it, medium
-            color on top.
-            */
-            else if (
-                size % 2 &&
-                main.variation != 'Antwerp' &&
-                main.variation != 'Domino Light' &&
-                main.variation != 'Domino Dark' &&
-                main.variation != 'Domino Home Light' &&
-                main.variation != 'Star' &&
-                main.variation != 'Lundon Light' &&
-                main.variation != 'Lundon Medium' &&
-                main.variation != 'Lundon Dark' &&
-                main.variation != 'Lundon Home Light' &&
-                main.variation != 'Lundon Home Dark'
-            )
-            {
-                color = main.colors[i][1];
-            }
+            color = main.colors[i][color];
             /*
             Assume that we should place the disks on the specified
             tower.
@@ -1748,7 +1681,6 @@ main.start = function(restarting)
     main.stopped = false;
     // Update the page accordingly.
     $('#switch').val('Stop');
-    $('#delay').attr('readonly', 'readonly');
     $('#source').attr('readonly', 'readonly');
     $('.stopped').hide();
     // Restore to before manual moves were made.
@@ -1815,7 +1747,6 @@ main.stop = function(stay)
     main.stopped = true;
     // Update the page accordingly.
     $('#switch').val('Start');
-    $('#delay').attr('readonly', '');
     $('.stopped').show();
     main.running = false;
     if (main.popped && !stay)
@@ -1837,12 +1768,16 @@ $(document).ready(
         main.load();
         // Update the page accordingly.
         $('#' + main.movement).attr('checked', true);
+        $('#alternate').attr('checked', main.alternate);
+        $('#change').attr('checked', main.change);
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
         $('#mode').val(main.mode);
         $('#showlog').attr('checked', false);
         $('#showmovesource').attr('checked', false);
         $('#showsource').attr('checked', false);
+        $('#random').attr('checked', main.random);
+        $('#shuffle').attr('checked', main.shuffle);
         $('#variation').val(main.variation);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
@@ -1872,6 +1807,31 @@ $(document).ready(
                 }
             }
         );
+        $('#alternate').change(
+            function()
+            {
+                main.alternate = ($('#alternate:checked').length);
+                main.setup();
+            }
+        );
+        $('#change').change(
+            function()
+            {
+                main.change = ($('#change:checked').length);
+                main.setup();
+            }
+        );
+        $('#colors').blur(
+            function()
+            {
+                var value = parseInt($('#colors').val(), 10);
+                if (main.count.colors != value && !isNaN(value))
+                {
+                    main.count.colors = value;
+                    main.setup();
+                }
+            }
+        );
         $('#delay').blur(
             function()
             {
@@ -1888,10 +1848,10 @@ $(document).ready(
                 $('#delay').val(main.delay);
             }
         );
-        $('#diskcount').blur(
+        $('#disks').blur(
             function()
             {
-                var value = parseInt($('#diskcount').val(), 10);
+                var value = parseInt($('#disks').val(), 10);
                 if (main.count.disks != value && !isNaN(value))
                 {
                     main.count.disks = value;
@@ -1985,10 +1945,10 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#stackcount').blur(
+        $('#stacks').blur(
             function()
             {
-                var value = parseInt($('#stackcount').val(), 10);
+                var value = parseInt($('#stacks').val(), 10);
                 if (main.count.stacks != value && !isNaN(value))
                 {
                     main.count.stacks = value;
@@ -2014,10 +1974,10 @@ $(document).ready(
                 main.stop();
             }
         );
-        $('#percount').blur(
+        $('#per').blur(
             function()
             {
-                var value = parseInt($('#percount').val(), 10);
+                var value = parseInt($('#per').val(), 10);
                 if (main.count.per != value && !isNaN(value))
                 {
                     main.count.per = value;

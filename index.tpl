@@ -90,21 +90,27 @@ variations, disk, disks, multistack, solver" />
             </td>
         </tr>
         <tr>
-            <td><label for="diskcount">Disks per Stack</label></td>
+            <td><label for="disks">Disks per Stack</label></td>
             <td>
-                <input type="text" id="diskcount" />
+                <input type="text" id="disks" />
             </td>
         </tr>
         <tr class="antwerp">
-            <td><label id="per" for="percount"></label></td>
+            <td><label for="per">Towers per Stack</label></td>
             <td>
-                <input type="text" id="percount" />
+                <input type="text" id="per" />
             </td>
         </tr>
         <tr class="antwerp">
-            <td><label for="stackcount">Stacks</label></td>
+            <td><label for="stacks">Stacks</label></td>
             <td>
-                <input type="text" id="stackcount" />
+                <input type="text" id="stacks" />
+            </td>
+        </tr>
+        <tr>
+            <td><label for="colors">Colors</label></td>
+            <td>
+                <input type="text" id="colors" />
             </td>
         </tr>
         <tr>
@@ -146,6 +152,16 @@ variations, disk, disks, multistack, solver" />
                 <input type="radio" name="movement" id="counter"
                 value="counter" /> <label for="counter">Disks can only move
                 cyclicly counterclockwise</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="alternate" />
+                <label for="alternate">Alternate</label>
+            </td>
+            <td>
+                <input type="checkbox" id="change" />
+                <label for="change">Change</label>
             </td>
         </tr>
         <tr>
