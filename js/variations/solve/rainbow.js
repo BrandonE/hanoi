@@ -1,4 +1,4 @@
-if (!main.random && !main.shuffle)
+if (main.movement == 'any' && !main.random && !main.shuffle)
 {
     var solution = 0;
     var func = rainbow.ddd;

@@ -1,4 +1,9 @@
-if (!main.random && !main.shuffle && main.count.stacks == 1)
+if (
+    main.movement == 'any' &&
+    !main.random &&
+    !main.shuffle &&
+    main.count.stacks == 1
+)
 {
     var solution = 0;
     var func;
