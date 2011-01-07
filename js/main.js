@@ -4,6 +4,7 @@ http://www.brandonevans.org/
 */
 var main = {
     'alternate': true,
+    'antwerp': false,
     'change': false,
     'colors': [
         ['red', 'pink', 'darkred'],
@@ -36,6 +37,7 @@ var main = {
     'restriction': 'any',
     'running': false,
     'shuffle': false,
+    'size': false,
     'steps': [],
     'stopped': true,
     'towers': [],
@@ -344,16 +346,16 @@ main.movable = function(disk, tower, undo)
             return false;
         }
         /*
-        If the variation isn't Antwerp and this disk is the same size as the
-        last disk, fail.
+        If this disk is the same size as the last disk, and this is prohibited,
+        fail.
         */
-        if (main.variation != 'Antwerp' && last.size == disk.size)
+        if (!main.size && last.size == disk.size)
         {
             return false;
         }
         /*
-        If this disk is the same color as the last disk and this is prohibited,
-        fail.
+        If this disk is the same color as the last disk, and this is
+        prohibited, fail.
         */
         if (main.restriction == 'same' && last.color == color)
         {
@@ -414,7 +416,6 @@ main.movable = function(disk, tower, undo)
         main.towers[tower].base != 'grey' &&
         main.towers[tower].base != medium &&
         main.towers[tower].peg != 'grey' &&
-        main.towers[tower].peg != 'white' &&
         main.towers[tower].peg != medium
     )
     {
@@ -798,25 +799,22 @@ main.setup = function()
         main.count.per = 6;
     }
     var minimum = 1;
-    // If this variation is Antwerp, there must be at least two stacks.
-    if (main.variation == 'Antwerp')
+    if (main.antwerp)
     {
+        // There must be at least two stacks.
         minimum = 2;
     }
     if (main.count.stacks < minimum)
     {
         main.count.stacks = minimum;
     }
-    /*
-    If the movement is cyclic counterclockwise and the variation isn't Antwerp,
-    there can only be one stack.
-    */
-    if (main.movement == 'counter' && main.variation != 'Antwerp')
+    if (main.movement == 'counter' && !main.size)
     {
+        // There can only be one stack.
         main.count.stacks = 1;
     }
-    // If the variation is Antwerp, there can't be more stacks than towers.
-    if (main.variation == 'Antwerp' && main.count.stacks > main.count.per)
+    // If this is Antwerp styled, there can't be more stacks than towers.
+    if (main.antwerp && main.count.stacks > main.count.per)
     {
         main.count.stacks = main.count.per;
     }
@@ -831,9 +829,9 @@ main.setup = function()
         main.count.disks = 1;
     }
     var maximum = 100;
-    // If this variation is Antwerp, adjust the maximum number of disks.
-    if (main.variation == 'Antwerp')
+    if (main.size)
     {
+        // Adjust the maximum number of disks.
         maximum = Math.floor(100 / main.count.stacks);
     }
     // Restrict the disks.
@@ -846,9 +844,9 @@ main.setup = function()
     per stack.
     */
     main.count.towers = main.count.per * main.count.stacks - main.count.stacks;
-    // If the variation is Antwerp, all towers are shared.
-    if (main.variation == 'Antwerp')
+    if (main.antwerp)
     {
+        // All towers are shared.
         main.count.towers = main.count.per;
     }
     else if (main.count.stacks == 1)
@@ -920,7 +918,7 @@ main.setup = function()
                     main.minimum *= main.count.stacks + 1;
                 }
             }
-            if (main.variation == 'Antwerp')
+            if (main.antwerp)
             {
                 if (main.count.stacks == 2)
                 {
@@ -1046,7 +1044,7 @@ main.setup = function()
     // Show additional information if necessary.
     $('#multi').hide();
     $('#placing').hide();
-    if (main.count.stacks > 1 && main.variation != 'Antwerp')
+    if (main.count.stacks > 1 && !main.antwerp)
     {
         $('#multi').show();
     }
@@ -1057,9 +1055,9 @@ main.setup = function()
     var color;
     var denom = main.count.per - 1;
     var towers = main.count.towers - 1;
-    // If the variation is Antwerp, cycle through the towers that hold stacks.
-    if (main.variation == 'Antwerp')
+    if (main.antwerp)
     {
+        // Cycle through the towers that hold stacks.
         denom = 1;
         towers = main.count.stacks - 1;
     }
@@ -1069,8 +1067,7 @@ main.setup = function()
         var base = 'grey';
         var peg = 'grey';
         var remainder = i % denom;
-        // If there is more than one stack
-        if (main.count.stacks > 1 || main.variation == 'Antwerp')
+        if (main.count.stacks > 1 || main.antwerp)
         {
             /*
             If this tower is one of a stack's "using" towers, make the color
@@ -1085,11 +1082,14 @@ main.setup = function()
             {
                 color = i / denom;
                 /*
-                If the variation isn't Antwerp, make the base the same color as
-                the stack that is from this tower.
+                If the variation isn't Antwerp, 
                 */
-                if (main.variation != 'Antwerp')
+                if (!main.antwerp)
                 {
+                    /*
+                    Make the base the same color as the stack that is from this
+                    tower.
+                    */
                     base = main.colors[color][0];
                 }
                 color = main.cycle(i - denom, 0, towers) / denom;
@@ -1126,11 +1126,11 @@ main.setup = function()
         {
             if (
                 (
-                    main.variation == 'Antwerp' &&
+                    main.antwerp &&
                     i < main.count.stacks
                 ) ||
                 (
-                    main.variation != 'Antwerp' &&
+                    !main.antwerp &&
                     i % denom === 0
                 )
             )
@@ -1299,12 +1299,9 @@ main.setup = function()
     var offset = 0;
     var scale = 10;
     var stackable = main.count.disks;
-    /*
-    As all of the stacks can be on the same tower when the disks are randomly
-    placed and in the Antwerp variation, count all of the disks in either case.
-    */
-    if (main.random || main.variation == 'Antwerp')
+    if (main.random || main.size)
     {
+        // Count all of the disks.
         stackable *= main.count.stacks;
     }
     /*
@@ -1453,9 +1450,9 @@ main.solved = function()
     solved = true;
     var mult = main.count.per - 1;
     var towers;
-    // If the variation is Antwerp, cycle through the towers that hold stacks.
-    if (main.variation == 'Antwerp')
+    if (main.antwerp)
     {
+        // Cycle through the towers that hold stacks.
         mult = 1;
         towers = main.count.stacks - 1;
     }
@@ -1712,6 +1709,7 @@ $(document).ready(
         // Update the page accordingly.
         $('#' + main.movement).attr('checked', true);
         $('#alternate').attr('checked', main.alternate);
+        $('#antwerp').attr('checked', main.antwerp);
         $('#change').attr('checked', main.change);
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
@@ -1722,6 +1720,7 @@ $(document).ready(
         $('#showsource').attr('checked', false);
         $('#random').attr('checked', main.random);
         $('#shuffle').attr('checked', main.shuffle);
+        $('#size').attr('checked', main.size);
         $('#variation').val(main.variation);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
@@ -1766,6 +1765,13 @@ $(document).ready(
             function()
             {
                 main.alternate = ($('#alternate:checked').length);
+                main.setup();
+            }
+        );
+        $('#antwerp').change(
+            function()
+            {
+                main.antwerp = ($('#antwerp:checked').length);
                 main.setup();
             }
         );
@@ -1900,6 +1906,13 @@ $(document).ready(
                 main.setup();
             }
         );
+        $('#size').change(
+            function()
+            {
+                main.size = ($('#size:checked').length);
+                main.setup();
+            }
+        );
         $('#stacks').blur(
             function()
             {
@@ -1963,13 +1976,6 @@ $(document).ready(
                 if (main.variation != value)
                 {
                     main.variation = value;
-                    // Set the default values.
-                    main.count.stacks = 1;
-                    if (main.variation == 'Antwerp')
-                    {
-                        main.count.stacks = 3;
-                    }
-                    main.count.per = 3;
                     main.setup();
                     main.load();
                 }

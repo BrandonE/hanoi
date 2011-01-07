@@ -189,6 +189,17 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
+                <input type="checkbox" id="size" />
+                <label for="size">Disks of the same size can be placed on
+                eachother</label>
+            </td>
+            <td>
+                <input type="checkbox" id="antwerp" />
+                <label for="antwerp">Antwerp</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <input type="checkbox" id="random" />
                 <label for="random">Random</label>
             </td>
@@ -358,38 +369,6 @@ variations, disk, disks, multistack, solver" />
         Also, unless stated otherwise, To win, transfer all of the
         disks to the tower farthest to the right in size order.
     </p>
-    <div class="variation" id="antwerp">
-        <h2>Antwerp</h2>
-        <p>
-            This variation replaces the first general rule with the following:
-        </p>
-        <ul>
-            <li>No disk can be moved onto a smaller disk.</li>
-        </ul>
-        <p>
-            Although this might seem to be a subtle difference, it means you
-            can stack disks of the same size on top of eachother. To win, 
-            rotate all of the stacks clockwise.
-        </p>
-    </div>
-    <div class="variation" id="star">
-        <h2>Star</h2>
-        <p>This variation has one additional rule:</p>
-        <ul>
-            <li>
-                Every move must be from or to the star tower, indicated by a
-                white peg.
-            </li>
-        </ul>
-    </div>
-    <div class="variation" id="super">
-        <h2>Super</h2>
-        <p>
-            This variation begins by placeing the disks randomly on the towers.
-            Although the placing might not be in size order, the general rules
-            apply from that point on.
-        </p>
-    </div>
     <div id="multi">
         <h2>Playing with Multiple Stacks</h2>
         <p>
