@@ -787,24 +787,6 @@ main.setup = function()
     {
         main.count.per = 3;
     }
-    // Some variations require at least four towers per stack.
-    if (
-        main.count.per < 4 &&
-        (
-            main.variation == 'Reversi Light' ||
-            main.variation == 'Reversi Dark' ||
-            main.variation == 'Reversi Home Light' ||
-            main.variation == 'Star' ||
-            main.variation == 'Brandonburg Light' ||
-            main.variation == 'Brandonburg Medium' ||
-            main.variation == 'Brandonburg Dark' ||
-            main.variation == 'Brandonburg Home Light' ||
-            main.variation == 'Brandonburg Home Dark'
-        )
-    )
-    {
-        main.count.per = 4;
-    }
     // There can't be more than six towers per stack.
     if (main.count.per > 6)
     {

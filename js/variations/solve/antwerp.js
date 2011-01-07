@@ -1,4 +1,4 @@
-if (main.movement == 'any' && !main.random && !main.shuffle)
+if (main.movement == 'all' && !main.random && !main.shuffle)
 {
     if (main.count.stacks == 2)
     {

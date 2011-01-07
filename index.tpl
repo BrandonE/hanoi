@@ -358,13 +358,6 @@ variations, disk, disks, multistack, solver" />
         Also, unless stated otherwise, To win, transfer all of the
         disks to the tower farthest to the right in size order.
     </p>
-    <div class="variation" id="rainbow">
-        <h2>Rainbow</h2>
-        <p>This variation has one additional rule:</p>
-        <ul>
-            <li>No disk may be placed on another of the same color.</li>
-        </ul>
-    </div>
     <div class="variation" id="antwerp">
         <h2>Antwerp</h2>
         <p>
@@ -377,85 +370,6 @@ variations, disk, disks, multistack, solver" />
             Although this might seem to be a subtle difference, it means you
             can stack disks of the same size on top of eachother. To win, 
             rotate all of the stacks clockwise.
-        </p>
-    </div>
-    <div class="variation" id="domino_about">
-        <h2>About Domino Variations</h2>
-        <p>All of the Domino variations have two additional rules:</p>
-        <ol>
-            <li>
-                Every disk shall flip between two colors as it moves to a new
-                tower.
-            </li>
-            <li>No disk may be placed on a disk of a different color.</li>
-        </ol>
-    </div>
-    <div class="variation" id="domino_light">
-        <h2>Domino Light</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make each disk's color light.
-        </p>
-    </div>
-    <div class="variation" id="domino_dark">
-        <h2>Domino Dark</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make each disk's color dark.
-        </p>
-    </div>
-    <div class="variation" id="domino_home_light">
-        <h2>Domino Home Light</h2>
-        <p>
-            To win, end with all of the disks on the tower they started on in
-            size order and make each disk's color light.
-        </p>
-    </div>
-    <div class="variation" id="checkers">
-        <h2>Checkers</h2>
-        <p>This variation has one additional rule:</p>
-        <ul>
-            <li>No disk may be placed on a disk of a different color.</li>
-        </ul>
-        <p>
-            This may seem to be the same as the Classic puzzle, but you have
-            more than three towers or multiple stacks, the optimal solution
-            might be different.
-        </p>
-    </div>
-    <div class="variation" id="reversi_about">
-        <h2>About Reversi Variations</h2>
-        <p>All of the Reversi variations have two additional rules:</p>
-        <ol>
-            <li>
-                Every disk shall flip between two colors as it moves to a new
-                tower.
-            </li>
-            <li>No disk may be placed on a disk of the same color.</li>
-        </ol>
-    </div>
-    <div class="variation" id="reversi_light">
-        <h2>Reversi Light</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make the color of the disk on the top of
-            the stack light.
-        </p>
-    </div>
-    <div class="variation" id="reversi_dark">
-        <h2>Reversi Dark</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make the color of the disk on the top of
-            the stack dark.
-        </p>
-    </div>
-    <div class="variation" id="reversi_home_light">
-        <h2>Reversi Home Light</h2>
-        <p>
-            To win, end with all of the disks on the tower they started on in
-            size order and make the color of the disk on the top of the stack
-            light.
         </p>
     </div>
     <div class="variation" id="star">
@@ -474,106 +388,6 @@ variations, disk, disks, multistack, solver" />
             This variation begins by placeing the disks randomly on the towers.
             Although the placing might not be in size order, the general rules
             apply from that point on.
-        </p>
-    </div>
-    <div class="variation" id="lundon_about">
-        <h2>About Lundon Variations</h2>
-        <p>All of the Lundon variations have two additional rules:</p>
-        <ol>
-            <li>
-                Every disk shall flip between three colors as it moves to a new
-                tower.
-            </li>
-            <li>No disk may be placed on a disk of a different color.</li>
-        </ol>
-    </div>
-    <div class="variation" id="lundon_light">
-        <h2>Lundon Light</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make each disk's color light.
-        </p>
-    </div>
-    <div class="variation" id="lundon_medium">
-        <h2>Lundon Medium</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make each disk's color medium.
-        </p>
-    </div>
-    <div class="variation" id="lundon_dark">
-        <h2>Lundon Dark</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make each disk's color dark.
-        </p>
-    </div>
-    <div class="variation" id="lundon_home_light">
-        <h2>Lundon Home Light</h2>
-        <p>
-            To win, end with all of the disks on the tower they started on in
-            size order and make each disk's color light.
-        </p>
-    </div>
-    <div class="variation" id="lundon_home_dark">
-        <h2>Lundon Home Dark</h2>
-        <p>
-            To win, end with all of the disks on the tower they started on in
-            size order and make each disk's color dark.
-        </p>
-    </div>
-    <div class="variation" id="brandonburg_about">
-        <h2>About Brandonburg Variations</h2>
-        <p>All of the Brandonburg variations have three additional rules:</p>
-        <ol>
-            <li>
-                Every disk shall flip between three colors as it moves to a new
-                tower.
-            </li>
-            <li>
-                In any group of three disks, there can never be two of the same
-                color.
-            </li>
-        </ol>
-    </div>
-    <div class="variation" id="brandonburg_light">
-        <h2>Brandonburg Light</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make the color of the disk on the top of
-            the stack light.
-        </p>
-    </div>
-    <div class="variation" id="brandonburg_medium">
-        <h2>Brandonburg Medium</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make the color of the disk on the top of
-            the stack medium.
-        </p>
-    </div>
-    <div class="variation" id="brandonburg_dark">
-        <h2>Brandonburg Dark</h2>
-        <p>
-            To win, end with all of the disks on the tower farthest to the
-            right in size order and make the color of the disk on the top of
-            the stack dark.
-        </p>
-    </div>
-    <div class="variation" id="brandonburg_home_light">
-        <h2>Brandonburg Home Light</h2>
-        <p>
-            To win, end with all of the disks on the the tower they started on
-            in size order and make the color of the disk on the top of the
-            stack light.
-        </p>
-    </div>
-    <div class="variation" id="brandonburg_home_dark">
-        <h2>Brandonburg Home Dark</h2>
-        <p>
-            To win, end with all of the disks on the the tower they started on
-            in size order and make the color of the disk on the top of the
-            stack dark.
         </p>
     </div>
     <div id="multi">
