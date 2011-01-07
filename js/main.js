@@ -461,6 +461,7 @@ main.move = function(tower, undo, redo, restoring)
     var disk;
     var i;
     var hide;
+    var parent;
     var show;
     // If a disk has been popped off a tower
     if (main.popped)
@@ -528,6 +529,7 @@ main.move = function(tower, undo, redo, restoring)
         show = '#disk' + tower + '-' + main.towers[tower].disks.length;
         // Hide the popped disk.
         hide = '#disk' + main.popped.tower;
+        parent = '#tower' + main.popped.tower;
         disk = main.popped.size;
         color = main.popped.color;
         main.popped.tower = tower;
@@ -544,6 +546,7 @@ main.move = function(tower, undo, redo, restoring)
         show = '#disk' + tower;
         // Hide the top disk of this tower.
         hide = '#disk' + tower + '-' + main.towers[tower].disks.length;
+        parent = '#tower' + tower;
         disk = main.popped.size;
         color = main.color(main.popped, undo);
     }
@@ -553,7 +556,9 @@ main.move = function(tower, undo, redo, restoring)
         return;
     }
     $(show).css('visibility', 'visible');
-    $(show).css('width', $(hide).css('width'));
+    $(show).css(
+        'width', Math.ceil(($(hide).width() / $(parent).width()) * 100) + '%'
+    );
     $(show).css('background-color', color);
     // Only update the text if there previously was text.
     if ($(show).text())
