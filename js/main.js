@@ -23,6 +23,7 @@ var main = {
     'delay': 250,
     'fact': [1, 1],
     'generator': [],
+    'goal': 'away',
     'manual': [],
     'minimum': 0,
     'mode': 'Wait',
@@ -40,6 +41,7 @@ var main = {
     'size': false,
     'steps': [],
     'stopped': true,
+    'top': 'Any',
     'towers': [],
     'variation': 'Classic'
 };
@@ -237,27 +239,6 @@ main.impasse = function()
         }
     }
     return true;
-};
-
-main.load = function()
-{
-    // Load the appropriate solve source and variation information.
-    var name = main.variation.toLowerCase().split(' ');
-    var about = name[0];
-    name = name.join('_');
-    $.ajax(
-        {
-            'url': 'js/variations/solve/' + name + '.js',
-            'dataType': 'text',
-            'success': function(data)
-            {
-                $('#source').val(data);
-            }
-        }
-    );
-    $('.variation').hide();
-    $('#' + about + '_about').show();
-    $('#' + name).show();
 };
 
 main.movable = function(disk, tower, undo)
@@ -1041,6 +1022,21 @@ main.setup = function()
     $('#stacks').val(main.count.stacks);
     $('#per').val(main.count.per);
     $('#undo').css('visibility', 'hidden');
+    // Populate the top color list.
+    while ($('#top').children().length > main.count.colors + 1)
+    {
+        $('#top').children().last().remove();
+    }
+    while ($('#top').children().length < main.count.colors + 1)
+    {
+        var num = $('#top').children().length;
+        $(
+            '<option />',
+            {
+                'text': num
+            }
+        ).appendTo('#top');
+    }
     // Show additional information if necessary.
     $('#multi').hide();
     $('#placing').hide();
@@ -1460,15 +1456,7 @@ main.solved = function()
     {
         // Assume the target tower is the "to" tower.
         var target = main.cycle(mult * i + mult, 0, towers);
-        // Some variations use the "from" tower as the target tower.
-        if (
-            main.variation == 'Domino Home Light' ||
-            main.variation == 'Reversi Home Light' ||
-            main.variation == 'Lundon Home Light' ||
-            main.variation == 'Lundon Home Dark' ||
-            main.variation == 'Brandonburg Home Light' ||
-            main.variation == 'Brandonburg Home Dark'
-        )
+        if (main.goal == 'home')
         {
             target = mult * i;
         }
@@ -1496,65 +1484,17 @@ main.solved = function()
         if (!main.ordered(target))
         {
             solved = false;
+            break;
         }
-        // Find the last disk of this tower.
-        var last = main.towers[target].disks[
-            main.towers[target].disks.length - 1
-        ];
-        /*
-        If the top disk of this stack isn't the medium color and this variation
-        requires that it is to win, fail.
-        */
+        // If the last disk doesn't have the specified top shade, fail.
         if (
-            (
-                main.variation == 'Domino Dark' ||
-                main.variation == 'Reversi Dark' ||
-                main.variation == 'Lundon Medium' ||
-                main.variation == 'Brandonburg Medium'
-            ) &&
-            last.color != main.colors[i][0]
+            main.top != 'Any' &&
+            main.towers[target].disks[
+                main.towers[target].disks.length - 1
+            ].color != main.colors[i][main.top - 1]
         )
         {
             solved = false;
-        }
-        /*
-        If the top disk of this stack isn't the light color and this variation
-        requires that it is to win, fail.
-        */
-        if (
-            (
-                main.variation == 'Domino Light' ||
-                main.variation == 'Domino Home Light' ||
-                main.variation == 'Reversi Light' ||
-                main.variation == 'Reversi Light' ||
-                main.variation == 'Lundon Light' ||
-                main.variation == 'Lundon Home Light' ||
-                main.variation == 'Brandonburg Light' ||
-                main.variation == 'Brandonburg Home Light'
-            ) &&
-            last.color != main.colors[i][1]
-        )
-        {
-            solved = false;
-        }
-        /*
-        If the top disk of this stack isn't the dark color and this variation
-        requires that it is to win, fail.
-        */
-        if (
-            (
-                main.variation == 'Lundon Dark' ||
-                main.variation == 'Lundon Home Dark' ||
-                main.variation == 'Brandonburg Dark' ||
-                main.variation == 'Brandonburg Home Dark'
-            ) &&
-            last.color != main.colors[i][2]
-        )
-        {
-            solved = false;
-        }
-        if (!solved)
-        {
             break;
         }
     }
@@ -1705,7 +1645,6 @@ $(document).ready(
     function()
     {
         main.setup();
-        main.load();
         // Update the page accordingly.
         $('#' + main.movement).attr('checked', true);
         $('#alternate').attr('checked', main.alternate);
@@ -1713,6 +1652,7 @@ $(document).ready(
         $('#change').attr('checked', main.change);
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
+        $('#' + main.goal).attr('checked', true);
         $('#mode').val(main.mode);
         $('#' + main.restriction).attr('checked', true);
         $('#showlog').attr('checked', false);
@@ -1721,6 +1661,7 @@ $(document).ready(
         $('#random').attr('checked', main.random);
         $('#shuffle').attr('checked', main.shuffle);
         $('#size').attr('checked', main.size);
+        $('#top').val(main.top);
         $('#variation').val(main.variation);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
@@ -1736,6 +1677,17 @@ $(document).ready(
                     {
                         main.move(tower);
                     }
+                }
+            }
+        );
+        $('input[name=goal]').change(
+            function()
+            {
+                var value = $('input[name=goal]:checked').val();
+                if (main.goal != value)
+                {
+                    main.goal = value;
+                    main.setup();
                 }
             }
         );
@@ -1820,16 +1772,6 @@ $(document).ready(
                 }
             }
         );
-        $('#draw').change(
-            function()
-            {
-                $('#towers').hide();
-                if ($('#draw:checked').length)
-                {
-                    $('#towers').show();
-                }
-            }
-        );
         $('#mode').change(
             function()
             {
@@ -1837,6 +1779,17 @@ $(document).ready(
                 if (main.mode != value)
                 {
                     main.mode = value;
+                }
+            }
+        );
+        $('#per').blur(
+            function()
+            {
+                var value = parseInt($('#per').val(), 10);
+                if (main.count.per != value && !isNaN(value))
+                {
+                    main.count.per = value;
+                    main.setup();
                 }
             }
         );
@@ -1863,12 +1816,6 @@ $(document).ready(
                 }
             }
         );
-        $('#reload').click(
-            function()
-            {
-                main.load();
-            }
-        );
         $('#showlog').change(
             function()
             {
@@ -1886,16 +1833,6 @@ $(document).ready(
                 if ($('#showmovesource:checked').length)
                 {
                     $('#movesource').show();
-                }
-            }
-        );
-        $('#showsource').change(
-            function()
-            {
-                $('.source').css('visibility', 'hidden');
-                if ($('#showsource:checked').length)
-                {
-                    $('.source').css('visibility', 'visible');
                 }
             }
         );
@@ -1942,13 +1879,13 @@ $(document).ready(
                 main.stop();
             }
         );
-        $('#per').blur(
+        $('#top').change(
             function()
             {
-                var value = parseInt($('#per').val(), 10);
-                if (main.count.per != value && !isNaN(value))
+                var value = $('#top').val();
+                if (main.top != value)
                 {
-                    main.count.per = value;
+                    main.top = value;
                     main.setup();
                 }
             }
@@ -1977,7 +1914,6 @@ $(document).ready(
                 {
                     main.variation = value;
                     main.setup();
-                    main.load();
                 }
             }
         );

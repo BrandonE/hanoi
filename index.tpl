@@ -74,10 +74,6 @@ variations, disk, disks, multistack, solver" />
                     [/loop]
                 </select>
             </td>
-            <td rowspan="11">
-                <textarea class="source" id="source" style="width: 100%"
-                rows="20" cols="80"></textarea>
-            </td>
         </tr>
         <tr>
             <td><label for="mode">Mode</label></td>
@@ -200,22 +196,30 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
+                <input type="radio" name="goal" id="away" value="away" />
+                <label for="away">End on the Away Peg</label>
+            </td>
+            <td>
+                <input type="radio" name="goal" id="home" value="home" />
+                <label for="home">End on the Home Peg</label>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="top">Top Shade</label></td>
+            <td>
+                <select id="top">
+                    <option>Any</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <input type="checkbox" id="random" />
                 <label for="random">Random</label>
             </td>
             <td>
                 <input type="checkbox" id="shuffle" />
                 <label for="shuffle">Shuffle</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="draw" />
-                <label for="draw">Draw</label>
-            </td>
-            <td>
-                <input type="checkbox" id="showsource" />
-                <label for="showsource">Source</label>
             </td>
         </tr>
         <tr>
@@ -256,9 +260,6 @@ variations, disk, disks, multistack, solver" />
                 <div class="stopped">
                     <input type="button" id="redo" value="Redo" />
                 </div>
-            </td>
-            <td class="source" style="text-align: center">
-                <input type="button" id="reload" value="Reload" />
             </td>
         </tr>
     </table>
