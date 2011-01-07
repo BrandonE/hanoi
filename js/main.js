@@ -25,7 +25,7 @@ var main = {
     'manual': [],
     'minimum': 0,
     'mode': 'Wait',
-    'movement': 'any',
+    'movement': 'all',
     'moves': {
         'current': 0,
         'old': 0
@@ -33,6 +33,7 @@ var main = {
     'popped': null,
     'redo': [],
     'random': false,
+    'restriction': 'any',
     'running': false,
     'shuffle': false,
     'steps': [],
@@ -307,34 +308,30 @@ main.movable = function(disk, tower, undo)
     {
         cycle = -cycle;
     }
-    if (
-        main.variation == 'Brandonburg Light' ||
-        main.variation == 'Brandonburg Medium' ||
-        main.variation == 'Brandonburg Dark' ||
-        main.variation == 'Brandonburg Home Light' ||
-        main.variation == 'Brandonburg Home Dark'
-    )
+    if (main.restriction == 'group')
     {
-        for (var i = 0; i < main.towers[tower].disks.length; i++)
+        for (
+            var i = 0;
+            i <= main.towers[tower].disks.length - main.count.colors + 1;
+            i++
+        )
         {
-            var previous;
-            // If this isn't the first disk, record the previous disk's color.
-            if (i)
+            var colors = {};
+            for (var j = i; j < i + main.count.colors; j++)
             {
-                previous = main.towers[tower].disks[i - 1].color;
-            }
-            var current = main.towers[tower].disks[i].color;
-            // Assuming this is the last disk, record the new color.
-            var next = color;
-            // Otherwise, record the next disk's color.
-            if (i != main.towers[tower].disks.length - 1)
-            {
-                next = main.towers[tower].disks[i + 1].color;
-            }
-            // If any of these disks have the same color, fail.
-            if (previous == current || previous == next || current == next)
-            {
-                return false;
+                var current = color;
+                if (
+                    i <= main.towers[tower].disks.length - main.count.colors ||
+                    j < i + main.count.colors - 1
+                )
+                {
+                    current = main.towers[tower].disks[j].color;
+                }
+                if (current in colors)
+                {
+                    return false;
+                }
+                colors[current] = null;
             }
         }
     }
@@ -355,38 +352,19 @@ main.movable = function(disk, tower, undo)
             return false;
         }
         /*
-        If this disk is the same color as the last disk and this variation
-        prohbits disks of the same color touching, fail.
+        If this disk is the same color as the last disk and this is prohibited,
+        fail.
         */
-        if (
-            (
-                main.variation == 'Rainbow' ||
-                main.variation == 'Checkers' ||
-                main.variation == 'Reversi Light' ||
-                main.variation == 'Reversi Dark' ||
-                main.variation == 'Reversi Home Light'
-            ) &&
-            last.color == color
-        )
+        if (main.restriction == 'same' && last.color == color)
         {
             return false;
         }
         /*
         If this disk is a different color than the last disk, the two disks are
-        from the same stack, and this variation prohibits disks of different
-        colors from touching, fail.
+        from the same stack, and this is prohibited, fail.
         */
         if (
-            (
-                main.variation == 'Domino Light' ||
-                main.variation == 'Domino Dark' ||
-                main.variation == 'Domino Home Light' ||
-                main.variation == 'Lundon Light' ||
-                main.variation == 'Lundon Medium' ||
-                main.variation == 'Lundon Dark' ||
-                main.variation == 'Lundon Home Light' ||
-                main.variation == 'Lundon Home Dark'
-            ) &&
+            main.restriction == 'different' &&
             last.color != color &&
             last.stack == disk.stack
         )
@@ -945,7 +923,7 @@ main.setup = function()
                 ) + 1;
             }
         }
-        if (main.movement == 'any')
+        if (main.movement == 'all')
         {
             if (main.variation == 'Rainbow')
             {
@@ -1288,48 +1266,26 @@ main.setup = function()
             while (main.solved());            
         }
     }
-    if (
-        main.variation == 'Reversi Light' ||
-        main.variation == 'Reversi Dark' ||
-        main.variation == 'Reversi Home Light' ||
-        main.variation == 'Brandonburg Light' ||
-        main.variation == 'Brandonburg Medium' ||
-        main.variation == 'Brandonburg Dark' ||
-        main.variation == 'Brandonburg Home Light' ||
-        main.variation == 'Brandonburg Home Dark'
-    )
+    if (main.alternate && main.change)
     {
+        // Cycle the colors of each stack.
         for (i = 0; i < main.count.towers; i++)
         {
-            for (j = 0; j < main.towers[i].disks.length; j++)
+            for (
+                j = 0;
+                j <= main.towers[i].disks.length - main.count.colors;
+                j++
+            )
             {
-                var previous = main.towers[i].disks[j - 1];
-                var current = main.towers[i].disks[j];
-                var next = main.towers[i].disks[j + 1];
-                /*
-                While the current disk is the same as the previous one,
-                cycle it.
-                */
-                while (previous && previous.color == current.color)
+                var colors = {};
+                for (var k = j; k < j + main.count.colors; k++)
                 {
-                    current.color = main.color(current);
-                }
-                /*
-                While the variation is not one of the Reversis and the next
-                disk is the same as the previous or current one, cycle it.
-                */
-                while (
-                    main.variation != 'Reversi Light' &&
-                    main.variation != 'Reversi Dark' &&
-                    main.variation != 'Reversi Home Light' &&
-                    next &&
-                    (
-                        (previous && previous.color == next.color) ||
-                        current.color == next.color
-                    )
-                )
-                {
-                    next.color = main.color(next);
+                    var current = main.towers[i].disks[k];
+                    while (current.color in colors)
+                    {
+                        current.color = main.color(current);
+                    }
+                    colors[current.color] = null;
                 }
             }
         }
@@ -1773,6 +1729,7 @@ $(document).ready(
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
         $('#mode').val(main.mode);
+        $('#' + main.restriction).attr('checked', true);
         $('#showlog').attr('checked', false);
         $('#showmovesource').attr('checked', false);
         $('#showsource').attr('checked', false);
@@ -1803,6 +1760,17 @@ $(document).ready(
                 if (main.movement != value)
                 {
                     main.movement = value;
+                    main.setup();
+                }
+            }
+        );
+        $('input[name=restriction]').change(
+            function()
+            {
+                var value = $('input[name=restriction]:checked').val();
+                if (main.restriction != value)
+                {
+                    main.restriction = value;
                     main.setup();
                 }
             }

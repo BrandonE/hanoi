@@ -133,8 +133,8 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
-                <input type="radio" name="movement" id="any" value="any" />
-                <label for="any">Disks can move in any direction</label>
+                <input type="radio" name="movement" id="all" value="all" />
+                <label for="all">Disks can move in all directions</label>
             </td>
             <td>
                 <input type="radio" name="movement" id="linear"
@@ -162,6 +162,29 @@ variations, disk, disks, multistack, solver" />
             <td>
                 <input type="checkbox" id="change" />
                 <label for="change">Change</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="radio" name="restriction" id="any" value="any" />
+                <label for="any">Disks can touch any colored disk</label>
+            </td>
+            <td>
+                <input type="radio" name="restriction" id="same" value="same"
+                /> <label for="same">Disks can't touch disks with
+                the same color</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="radio" name="restriction" id="different"
+                value="different" /> <label for="different">Disks can't touch
+                disks of a different color</label>
+            </td>
+            <td>
+                <input type="radio" name="restriction" id="group" value="group"
+                /> <label for="group">In any group of C = Colors disks, there
+                can't be two of the same color disks</label>
             </td>
         </tr>
         <tr>
