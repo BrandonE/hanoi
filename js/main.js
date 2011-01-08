@@ -27,7 +27,7 @@ var main = {
     'manual': [],
     'minimum': 0,
     'mode': 'Wait',
-    'movement': 'all',
+    'movement': 'any',
     'moves': {
         'current': 0,
         'old': 0
@@ -35,7 +35,7 @@ var main = {
     'popped': null,
     'redo': [],
     'random': false,
-    'restriction': 'any',
+    'restriction': 'none',
     'running': false,
     'shuffle': false,
     'size': false,
@@ -786,7 +786,8 @@ main.run = function(restarting)
 main.setup = function()
 {
     // Set up the towers.
-    var base = 'grey';
+    var alerted = false;
+    var base;
     var calc;
     var checked;
     var color;
@@ -801,12 +802,12 @@ main.setup = function()
     var j;
     var k;
     var maximum = 100;
-    var minimum = 1;
+    var message;
     var multistack;
     var num;
     var offset = 0;
     var old = main.count.towers;
-    var peg = 'grey';
+    var peg;
     var remainder;
     var random = [];
     var scale = 10;
@@ -814,6 +815,7 @@ main.setup = function()
     var stack;
     var stackable;
     var stacks = [0];
+    var stars = 0;
     var tower;
     var towers;
     var width;
@@ -827,83 +829,154 @@ main.setup = function()
     main.redo = [];
     main.steps = [];
     main.towers = [];
-    // There must be at least three towers per stack.
     if (main.count.per < 3)
     {
+        alert('There must be at least three towers per stack.');
         main.count.per = 3;
     }
-    // There can't be more than six towers per stack.
-    if (main.count.per > 6)
+    if (main.antwerp && main.count.stacks < 2)
     {
-        main.count.per = 6;
+        alert('There must be at least two stacks in an Antwerp styled game.');
+        main.count.stacks = 2;
     }
-    if (main.antwerp)
+    if (main.count.stacks < 1)
     {
-        // There must be at least two stacks.
-        minimum = 2;
-    }
-    if (main.count.stacks < minimum)
-    {
-        main.count.stacks = minimum;
-    }
-    if (main.movement === 'counter' && !main.size)
-    {
-        // There can only be one stack.
+        alert('There must be at least one stack.');
         main.count.stacks = 1;
     }
-    // If this is Antwerp styled, there can't be more stacks than towers.
+    if (main.antwerp && !main.size)
+    {
+        message = 'Disks must be placed on eachother in an Antwerp styled ';
+        message += 'game.';
+        alert(message);
+        main.size = true;
+    }
+    if (main.movement === 'counter' && main.count.stacks > 1 && !main.size)
+    {
+        message = 'Disks must be placed on eachother in a game with multiple ';
+        message += 'stacks in which disks can only move cyclicly ';
+        message += 'counterclockwise';
+        alert(message);
+        main.size = true;
+    }
     if (main.antwerp && main.count.stacks > main.count.per)
     {
+        message = 'There can\'t be more stacks than towers in an Antwerp ';
+        message += 'styled game';
+        alert(message);
         main.count.stacks = main.count.per;
     }
-    // There can't be more than five stacks.
     if (main.count.stacks > 5)
     {
+        alert('There can\'t be more than five stacks.');
         main.count.stacks = 5;
     }
-    // There must be at least one disk.
     if (main.count.disks < 1)
     {
+        alert('There must be at least one disk.');
         main.count.disks = 1;
     }
     if (main.size)
     {
-        // Adjust the maximum number of disks.
         maximum = Math.floor(100 / main.count.stacks);
     }
-    // Restrict the disks.
     if (main.count.disks > maximum)
     {
+        alert('There can\'t be more than 100 disks on one tower.');
         main.count.disks = maximum;
     }
-    /*
-    Calculate the number of towers based on the number of stacks and the towers
-    per stack.
-    */
-    main.count.towers = main.count.per * main.count.stacks - main.count.stacks;
-    if (main.antwerp)
+    if (main.count.colors < 1)
     {
-        // All towers are shared.
-        main.count.towers = main.count.per;
+        alert('There must be at least one color.');
+        main.count.colors = 1;
     }
-    else if (main.count.stacks === 1)
+    if (main.goal === 'home' && main.count.colors < 2)
     {
-        main.count.towers++;
+        message = 'There must be at least two colors if the game should end ';
+        message += 'on the Home tower.';
+        alert(message);
+        main.count.colors = 2;
     }
+    if (main.count.colors > 3)
+    {
+        alert('There can\'t be more than 3 colors.');
+        main.count.colors = 3;
+    }
+    if (main.goal === 'home' && main.top === 'Any' || main.top === 1)
+    {
+        message = 'The top shade can\'t be the first shade if the game ';
+        message += 'should be ended on the Home tower.';
+        main.top = 2;
+        alert(message);
+    }
+    if (main.top !== 'Any' && main.top !== 1 && !main.change)
+    {
+        message = 'Disks must change colors when moved if the top shade ';
+        message += 'isn\'t the first shade.';
+        alert(message);
+        main.change = true;
+    }
+    if (main.restriction == 'different' && main.alternate)
+    {
+        message = 'The disks can\'t alternate if disks can\'t touch disks ';
+        message += 'of a different color.';
+        alert(message);
+        main.alternate = false;
+    }
+    if (main.restriction == 'same' || main.restriction == 'group')
+    {
+        if (!main.alternate)
+        {
+            message = 'The disks must alternate if disks can\'t touch disks ';
+            message += 'with the same color.';
+            alert(message);
+            main.alternate = true;
+        }
+        if (main.movement !== 'any')
+        {
+            message = 'The disks must move in any direction if disks can\'t ';
+            message += 'touch disks with the same color.';
+            alert(message);
+            main.movement = 'any';
+        }
+        if (main.change && main.count.per < 4)
+        {
+            message = 'There must be at least four towers if disks can\'t ';
+            message += 'touch disks with the same color and disks change ';
+            message += 'colors.';
+            alert(message);
+            main.count.per = 4;
+        }
+    }
+    do
+    {
+        main.count.towers = (
+            main.count.per * main.count.stacks - main.count.stacks
+        );
+        if (main.antwerp)
+        {
+            // All towers are shared.
+            main.count.towers = main.count.per;
+        }
+        else if (main.count.stacks === 1)
+        {
+            main.count.towers++;
+        }
+        if (main.count.towers > 25)
+        {
+            if (!alerted)
+            {
+                alert('There can\'t be more than 25 towers');
+                alerted = true;
+            }
+            main.count.per--;
+        }
+    }
+    while (main.count.towers > 25);
     // If the tower count has changed, remove all star towers.
     if (old !== main.count.towers)
     {
         main.stars = {};
-    }
-    // There must be at least one color.
-    if (main.count.colors < 1)
-    {
-        main.count.colors = 1;
-    }
-    // There can't be more than 3 colors.
-    if (main.count.colors > 3)
-    {
-        main.count.colors = 3;
     }
     denom = main.count.per - 1;
     for (i = 0; i < main.count.towers; i++)
@@ -918,6 +991,30 @@ main.setup = function()
         if (checked)
         {
             main.stars[i] = 0;
+        }
+    }
+    for (i in main.stars)
+    {
+        if (i !== '__prototype__')
+        {
+            stars++;
+        }
+    }
+    if (stars)
+    {
+        if (main.movement !== 'any')
+        {
+            message = 'The disks must move in any direction if there are ';
+            message += 'star towers.';
+            alert(message);
+            main.movement = 'any';
+        }
+        if (main.restriction !== 'none')
+        {
+            message = 'The disks must touch any colored disk if there are ';
+            message += 'star towers.';
+            alert(message);
+            main.restriction = 'none';
         }
     }
     // Calculate the minimum moves for the this variation.
@@ -964,7 +1061,7 @@ main.setup = function()
                 ) + 1;
             }
         }
-        if (main.movement === 'all')
+        if (main.movement === 'any')
         {
             if (main.variation === 'Rainbow')
             {
@@ -1086,16 +1183,20 @@ main.setup = function()
         }
     }
     // Update the page accordingly.
+    $('#alternate').attr('checked', main.alternate);
+    $('#change').attr('checked', main.change);
     $('#colors').val(main.count.colors);
     $('#disks').val(main.count.disks);
     $('#log').val('');
     $('#minimum').text(main.minimum);
+    $('#' + main.movement).attr('checked', true);
     $('#moves').text(main.moves.current);
     $('#movesource').val('');
-    $('#redo').css('visibility', 'hidden');
-    $('#source').attr('readonly', '');
-    $('#stacks').val(main.count.stacks);
     $('#per').val(main.count.per);
+    $('#redo').css('visibility', 'hidden');
+    $('#' + main.restriction).attr('checked', true);
+    $('#size').attr('checked', main.size);
+    $('#stacks').val(main.count.stacks);
     $('#undo').css('visibility', 'hidden');
     // Populate the top color list.
     while ($('#top').children().length > main.count.colors + 1)
@@ -1112,6 +1213,7 @@ main.setup = function()
             }
         ).appendTo('#top');
     }
+    $('#top').val(main.top);
     // Show additional information if necessary.
     $('#multi').hide();
     $('#placing').hide();
@@ -1133,6 +1235,9 @@ main.setup = function()
     }
     for (i = 0; i < main.count.towers; i++)
     {
+        // Asssume the base and peg are both grey.
+        base = 'grey';
+        peg = 'grey';
         remainder = i % denom;
         if (main.count.stacks > 1 || main.antwerp)
         {
@@ -1203,34 +1308,21 @@ main.setup = function()
         {
             random.push({'tower': j});
         }
-        // If the variation is a Domino variation or a Lundon variation
         if (
-            main.variation === 'Domino Light' ||
-            main.variation === 'Domino Dark' ||
-            main.variation === 'Domino Home Light' ||
-            main.variation === 'Lundon Light' ||
-            main.variation === 'Lundon Medium' ||
-            main.variation === 'Lundon Dark' ||
-            main.variation === 'Lundon Home Light' ||
-            main.variation === 'Lundon Home Dark'
+            !main.alternate &&
+            main.change &&
+            main.restriction === 'different'
         )
         {
             // Force a tower to be empty.
             tower = Math.floor(Math.random() * random.length);
             random.splice(tower, 1);
-        }
-        // If the variation is a Lundon variation
-        if (
-            main.variation === 'Lundon Light' ||
-            main.variation === 'Lundon Medium' ||
-            main.variation === 'Lundon Dark' ||
-            main.variation === 'Lundon Home Light' ||
-            main.variation === 'Lundon Home Dark'
-        )
-        {
-            // Force a tower to contain one disk at maximum.
-            tower = Math.floor(Math.random() * random.length);
-            random[tower].limit = 1;
+            if (main.count.colors > 2)
+            {
+                // Force a tower to contain one disk at maximum.
+                tower = Math.floor(Math.random() * random.length);
+                random[tower].limit = 1;
+            }
         }
         for (j = 0; j < main.count.disks; j++)
         {
@@ -1390,6 +1482,14 @@ main.setup = function()
                 }
             ).appendTo('#towers');
             $(
+                '<input />',
+                {
+                    'class': 'star',
+                    'id': 'star' + i,
+                    'type': 'checkbox'
+                }
+            ).appendTo(element);
+            $(
                 '<div />',
                 {
                     'class': 'move',
@@ -1432,14 +1532,6 @@ main.setup = function()
                     'id': 'peg' + i
                 }
             ).appendTo('#move' + i);
-            $(
-                '<input />',
-                {
-                    'class': 'star',
-                    'id': 'star' + i,
-                    'type': 'checkbox'
-                }
-            ).appendTo(element);
             $('#star' + i).data('tower', i);
             $(
                 '<label />',
@@ -1711,22 +1803,16 @@ $(document).ready(
     {
         main.setup();
         // Update the page accordingly.
-        $('#' + main.movement).attr('checked', true);
-        $('#alternate').attr('checked', main.alternate);
         $('#antwerp').attr('checked', main.antwerp);
-        $('#change').attr('checked', main.change);
         $('#delay').val(main.delay);
         $('#draw').attr('checked', true);
         $('#' + main.goal).attr('checked', true);
         $('#mode').val(main.mode);
-        $('#' + main.restriction).attr('checked', true);
         $('#showlog').attr('checked', false);
         $('#showmovesource').attr('checked', false);
         $('#showsource').attr('checked', false);
         $('#random').attr('checked', main.random);
         $('#shuffle').attr('checked', main.shuffle);
-        $('#size').attr('checked', main.size);
-        $('#top').val(main.top);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
         $('.yesscript').show();
