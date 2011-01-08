@@ -14,201 +14,20 @@ var solve = {
             'counter': [0, 1, 5]
         }
     },
-    'domino': {}
+    'domino': {},
+    'fact': [1, 1]
 };
 
-solve.start = function()
+solve.binomial = function(x, y)
 {
-    if (!main.random && !main.shuffle)
+    var ans = 1;
+    var i = 0;
+    while (i < y)
     {
-        if (main.movement === 'any')
-        {
-            if (main.count.stacks === 1)
-            {
-                main.generator = main.pick(
-                    main.stacks(
-                        solve.classic.more.rec,
-                        solve.classic.more.first,
-                        solve.classic.more.other,
-                        solve.classic.three.shortcut
-                    ),
-                    solve.classic.three.pick
-                );
-                main.minimum = solve.classic.more.moves(
-                    main.count.disks, main.count.towers
-                );
-                return;
-            }
-            main.generator = main.pick(
-                main.stacks(
-                    solve.classic.three.rec,
-                    solve.classic.three.first,
-                    solve.classic.three.other,
-                    solve.classic.three.shortcut
-                ),
-                solve.classic.three.pick
-            );
-            main.minimum = solve.classic.three.moves(main.count.disks);
-            if (main.count.stacks === 2)
-            {
-                main.minimum *= 3;
-            }
-            if (main.count.stacks > 2)
-            {
-                main.minimum = (
-                    main.count.stacks * main.minimum
-                ) + solve.classic.three.moves(
-                    main.count.disks - 1
-                ) + 1;
-            }
-            return;
-        }
-        if (main.count.per === 3)
-        {
-            if (main.movement === 'linear')
-            {
-                main.generator = solve.domino.linear(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = Math.pow(3, main.count.disks) - 1;
-            }
-            if (main.movement === 'clock')
-            {
-                main.generator = solve.cyclic.clock(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = solve.cyclic.moves(main.count.disks);
-            }
-            if (main.movement === 'counter')
-            {
-                main.generator = solve.cyclic.clock(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = solve.cyclic.moves(main.count.disks, true);
-            }
-            return;
-        }
-        if (main.movement === 'any')
-        {
-            if (main.variation === 'Rainbow')
-            {
-                main.minimum = rainbow.moves(main.count.disks);
-                if (main.count.stacks > 1)
-                {
-                    main.minimum *= main.count.stacks + 1;
-                }
-            }
-            if (main.antwerp)
-            {
-                if (main.count.stacks === 2)
-                {
-                    var minus = 11;
-                    if (main.count.disks % 2)
-                    {
-                        minus = 10;
-                    }
-                    main.minimum = (
-                        7 * Math.pow(
-                            2, main.count.disks + 1
-                        ) - 9 * main.count.disks - minus
-                    ) / 3;
-                }
-                if (main.count.stacks === 3)
-                {
-                    main.minimum = 5;
-                    if (main.count.disks > 1)
-                    {
-                        main.minimum = 12 * Math.pow(
-                            2, main.count.disks
-                        ) - (8 * main.count.disks) - 10;
-                    }
-                }
-            }
-            if (main.variation === 'Checkers')
-            {
-                if (main.count.per === 3)
-                {
-                    main.minimum = solve.classic.three.moves(main.count.disks);
-                    if (main.count.stacks > 1)
-                    {
-                        main.minimum *= main.count.stacks + 1;
-                    }
-                }
-            }
-            if (main.count.stacks === 1)
-            {
-                if (
-                    main.variation === 'Domino Light' ||
-                    main.variation === 'Domino Dark' ||
-                    main.variation === 'Domino Home Light'
-                )
-                {
-                    var m = $M(
-                    [
-                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
-                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
-                    );
-                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
-                    for (i = 0; i < main.count.disks - 1; i++)
-                    {
-                        s = m.x(s);
-                    }
-                    main.minimum = s.elements[0];
-                    if (main.variation === 'Domino Dark')
-                    {
-                        main.minimum = s.elements[1];
-                    }
-                    if (main.variation === 'Domino Home Light')
-                    {
-                        main.minimum = s.elements[2];
-                    }
-                }
-                if (main.variation === 'Star')
-                {
-                    star.start();
-                }
-                if (main.variation === 'Lundon Light')
-                {
-                    main.minimum = solve.cyclic.moves(main.count.disks, true);
-                }
-                if (main.variation === 'Lundon Medium')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1
-                    ) + solve.cyclic.moves(main.count.disks - 1, true) + 3;
-                }
-                if (main.variation === 'Lundon Dark')
-                {
-                    main.minimum = solve.cyclic.moves(main.count.disks);
-                }
-                if (main.variation === 'Lundon Home Light')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1
-                    ) + solve.cyclic.moves(main.count.disks - 1) + 4;
-                }
-                if (main.variation === 'Lundon Home Dark')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + solve.cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + 2;
-                }
-            }
-        }
+        ans *= (x - i) / (i + 1);
+        i++;
     }
+    return ans;
 };
 
 solve.classic.four.first = function(func, stack)
@@ -311,12 +130,12 @@ solve.classic.more.calc = function(disks, towers)
         Math.round(
             Math.exp(
                 Math.log(
-                    main.factorial(towers - 2) * disks
+                    solve.factorial(towers - 2) * disks
                 ) / (towers - 2)
             ) - (towers - 3) / 2
         )
     );
-    var disks_0 = Math.round(main.binomial(t + towers - 3, towers - 2));
+    var disks_0 = Math.round(solve.binomial(t + towers - 3, towers - 2));
     var disks_1 = disks_0 * (t + towers - 2) / t;
     while (disks >= disks_1)
     {
@@ -361,7 +180,7 @@ solve.classic.more.moves = function(disks, towers)
     for (var i = 0; i < towers - 2; i++)
     {
         ans += mult * Math.round(
-            main.binomial(t + towers - 3, towers - 3 - i)
+            solve.binomial(t + towers - 3, towers - 3 - i)
         );
         mult *= -2;
     }
@@ -373,7 +192,7 @@ solve.classic.more.moves = function(disks, towers)
     for (i = 0; i < t; i++)
     {
         ant += mult * Math.round(
-            main.binomial(i + towers - 3, towers - 3)
+            solve.binomial(i + towers - 3, towers - 3)
         );
         mult *= 2;
     }
@@ -1182,4 +1001,317 @@ solve.domino.linear = function(disks, from, using, to, clock)
             return solve.domino.linear(disks, from, using, to, clock + 1);
         }
     ];
+};
+
+solve.factorial = function(n)
+{
+    var i;
+    for (i = solve.fact.length; i < n + 1; i++)
+    {
+        solve.fact.push(n * solve.fact[i - 1]);
+    }
+    return solve.fact[n];
+};
+
+solve.pick = function(stacks, func, data, stack)
+{
+    /*
+    Create a generator that returns the moves from the stacks in the order that
+    it picks.
+
+    ``stacks``
+        list - The generators for each stack.
+
+    ``func``
+        func - The function used to pick the stack to return a move from.
+
+    ``data``
+        dict - Data for the function to use (Optional. Default: {}).
+
+    ``stack``
+        int - The current picked stack (Optional. Default: 0).
+
+    Returns: list - The generator.
+    */
+    var result;
+    if (data === undefined)
+    {
+        data = {};
+    }
+    if (stack === undefined)
+    {
+        stack = 0;
+    }
+    // A stack only needs to be picked if there is more than one stack.
+    if (main.count.stacks > 1)
+    {
+        result = func(stack, data);
+        stack = result.stack;
+        data = result.data;
+    }
+    main.exhaust(stacks[stack]);
+    /*
+    If this generator contains moves, return a generator containing the next
+    move of it and repeat the picking process.
+    */
+    if (stacks[stack].length)
+    {
+        return [
+            main.next(stacks[stack]),
+            function()
+            {
+                return solve.pick(stacks, func, data, stack);
+            }
+        ];
+    }
+    return [];
+};
+
+solve.stacks = function(func, first, other, shortcut)
+{
+    /*
+    Create the generators for all of the stacks.
+
+    ``func``
+        func - The function used to generate the moves for a single stack game.
+
+    ``first``
+        func - The function used to generate the moves for the first stack.
+
+    ``other``
+        func - The function used to generate the moves for the other stacks.
+
+    ``shortcut``
+        func - The function used to generate the moves for the first stack
+        using a shortcut (Optional).
+
+    Returns: list - The generators for each stack.
+    */
+    var i;
+    var stacks = [];
+    for (i = 0; i < main.count.stacks; i++)
+    {
+        // If this is the first stack and not the only stack
+        if (!i && main.count.stacks > 1)
+        {
+            /*
+            If a shortcut was provided and there are more than two stacks, use
+            it.
+            */
+            if (shortcut && main.count.stacks > 2)
+            {
+                stacks.push(shortcut(func, i));
+            }
+            // Else, use the first function.
+            else
+            {
+                stacks.push(first(func, i));
+            }
+        }
+        // Else, use the other function.
+        else
+        {
+            stacks.push(other(func, i));
+        }
+    }
+    return stacks;
+};
+
+solve.start = function()
+{
+    if (!main.random && !main.shuffle)
+    {
+        if (main.movement === 'any')
+        {
+            if (main.count.stacks === 1)
+            {
+                main.generator = solve.pick(
+                    solve.stacks(
+                        solve.classic.more.rec,
+                        solve.classic.more.first,
+                        solve.classic.more.other,
+                        solve.classic.three.shortcut
+                    ),
+                    solve.classic.three.pick
+                );
+                main.minimum = solve.classic.more.moves(
+                    main.count.disks, main.count.towers
+                );
+                return;
+            }
+            main.generator = main.pick(
+                main.stacks(
+                    solve.classic.three.rec,
+                    solve.classic.three.first,
+                    solve.classic.three.other,
+                    solve.classic.three.shortcut
+                ),
+                solve.classic.three.pick
+            );
+            main.minimum = solve.classic.three.moves(main.count.disks);
+            if (main.count.stacks === 2)
+            {
+                main.minimum *= 3;
+            }
+            if (main.count.stacks > 2)
+            {
+                main.minimum = (
+                    main.count.stacks * main.minimum
+                ) + solve.classic.three.moves(
+                    main.count.disks - 1
+                ) + 1;
+            }
+            return;
+        }
+        if (main.count.per === 3)
+        {
+            if (main.movement === 'linear')
+            {
+                main.generator = solve.domino.linear(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = Math.pow(3, main.count.disks) - 1;
+            }
+            if (main.movement === 'clock')
+            {
+                main.generator = solve.cyclic.clock(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = solve.cyclic.moves(main.count.disks);
+            }
+            if (main.movement === 'counter')
+            {
+                main.generator = solve.cyclic.clock(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = solve.cyclic.moves(main.count.disks, true);
+            }
+            return;
+        }
+        if (main.movement === 'any')
+        {
+            if (main.variation === 'Rainbow')
+            {
+                main.minimum = rainbow.moves(main.count.disks);
+                if (main.count.stacks > 1)
+                {
+                    main.minimum *= main.count.stacks + 1;
+                }
+            }
+            if (main.antwerp)
+            {
+                if (main.count.stacks === 2)
+                {
+                    var minus = 11;
+                    if (main.count.disks % 2)
+                    {
+                        minus = 10;
+                    }
+                    main.minimum = (
+                        7 * Math.pow(
+                            2, main.count.disks + 1
+                        ) - 9 * main.count.disks - minus
+                    ) / 3;
+                }
+                if (main.count.stacks === 3)
+                {
+                    main.minimum = 5;
+                    if (main.count.disks > 1)
+                    {
+                        main.minimum = 12 * Math.pow(
+                            2, main.count.disks
+                        ) - (8 * main.count.disks) - 10;
+                    }
+                }
+            }
+            if (main.variation === 'Checkers')
+            {
+                if (main.count.per === 3)
+                {
+                    main.minimum = solve.classic.three.moves(main.count.disks);
+                    if (main.count.stacks > 1)
+                    {
+                        main.minimum *= main.count.stacks + 1;
+                    }
+                }
+            }
+            if (main.count.stacks === 1)
+            {
+                if (
+                    main.variation === 'Domino Light' ||
+                    main.variation === 'Domino Dark' ||
+                    main.variation === 'Domino Home Light'
+                )
+                {
+                    var m = $M(
+                    [
+                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
+                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
+                    );
+                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
+                    for (i = 0; i < main.count.disks - 1; i++)
+                    {
+                        s = m.x(s);
+                    }
+                    main.minimum = s.elements[0];
+                    if (main.variation === 'Domino Dark')
+                    {
+                        main.minimum = s.elements[1];
+                    }
+                    if (main.variation === 'Domino Home Light')
+                    {
+                        main.minimum = s.elements[2];
+                    }
+                }
+                if (main.variation === 'Star')
+                {
+                    star.start();
+                }
+                if (main.variation === 'Lundon Light')
+                {
+                    main.minimum = solve.cyclic.moves(main.count.disks, true);
+                }
+                if (main.variation === 'Lundon Medium')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1
+                    ) + solve.cyclic.moves(main.count.disks - 1, true) + 3;
+                }
+                if (main.variation === 'Lundon Dark')
+                {
+                    main.minimum = solve.cyclic.moves(main.count.disks);
+                }
+                if (main.variation === 'Lundon Home Light')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1
+                    ) + solve.cyclic.moves(main.count.disks - 1) + 4;
+                }
+                if (main.variation === 'Lundon Home Dark')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + 2;
+                }
+            }
+        }
+    }
+};
+
+solve.xor = function(a, b)
+{
+    return ((a || b) && !(a && b));
 };

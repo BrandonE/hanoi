@@ -155,8 +155,8 @@ variations, disk, disks, multistack, solver" />
         <tr>
             <td>
                 <input type="radio" name="restriction" id="same" value="same"
-                /> <label for="same">Disks can't touch disks with
-                the same color</label>
+                /> <label for="same">Disks can't touch disks of the same
+                color</label>
             </td>
             <td>
                 <input type="radio" name="restriction" id="group" value="group"

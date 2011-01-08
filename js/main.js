@@ -21,7 +21,6 @@ var main = {
         'stacks': 1
     },
     'delay': 250,
-    'fact': [1, 1],
     'generator': [],
     'goal': 'away',
     'manual': [],
@@ -59,18 +58,6 @@ Array.prototype.shuffle = function()
         this[p] = t;
     }
     return this;
-};
-
-main.binomial = function(x, y)
-{
-    var ans = 1;
-    var i = 0;
-    while (i < y)
-    {
-        ans *= (x - i) / (i + 1);
-        i++;
-    }
-    return ans;
 };
 
 main.color = function(disk, undo)
@@ -203,16 +190,6 @@ main.exhaust = function(generator)
         }
     }
     return generator;
-};
-
-main.factorial = function(n)
-{
-    var i;
-    for (i = main.fact.length; i < n + 1; i++)
-    {
-        main.fact.push(n * main.fact[i - 1]);
-    }
-    return main.fact[n];
 };
 
 main.impasse = function()
@@ -677,60 +654,6 @@ main.ordered = function(tower)
     return true;
 };
 
-main.pick = function(stacks, func, data, stack)
-{
-    /*
-    Create a generator that returns the moves from the stacks in the order that
-    it picks.
-
-    ``stacks``
-        list - The generators for each stack.
-
-    ``func``
-        func - The function used to pick the stack to return a move from.
-
-    ``data``
-        dict - Data for the function to use (Optional. Default: {}).
-
-    ``stack``
-        int - The current picked stack (Optional. Default: 0).
-
-    Returns: list - The generator.
-    */
-    var result;
-    if (data === undefined)
-    {
-        data = {};
-    }
-    if (stack === undefined)
-    {
-        stack = 0;
-    }
-    // A stack only needs to be picked if there is more than one stack.
-    if (main.count.stacks > 1)
-    {
-        result = func(stack, data);
-        stack = result.stack;
-        data = result.data;
-    }
-    main.exhaust(stacks[stack]);
-    /*
-    If this generator contains moves, return a generator containing the next
-    move of it and repeat the picking process.
-    */
-    if (stacks[stack].length)
-    {
-        return [
-            main.next(stacks[stack]),
-            function()
-            {
-                return main.pick(stacks, func, data, stack);
-            }
-        ];
-    }
-    return [];
-};
-
 main.restart = function()
 {
     // Set up the towers and restart the solver.
@@ -921,24 +844,31 @@ main.setup = function()
     }
     if (main.restriction === 'same' || main.restriction === 'group')
     {
+        if (main.count.colors < 2)
+        {
+            message = 'There must be at least two colors if disks can\'t ';
+            message += 'touch disks of the same color.';
+            alert(message);
+            main.count.colors = 2;
+        }
         if (!main.alternate)
         {
             message = 'The disks must alternate if disks can\'t touch disks ';
-            message += 'with the same color.';
+            message += 'of the same color.';
             alert(message);
             main.alternate = true;
         }
         if (main.movement !== 'any')
         {
             message = 'The disks must move in any direction if disks can\'t ';
-            message += 'touch disks with the same color.';
+            message += 'touch disks of the same color.';
             alert(message);
             main.movement = 'any';
         }
         if (main.change && main.count.per < 4)
         {
             message = 'There must be at least four towers if disks can\'t ';
-            message += 'touch disks with the same color and disks change ';
+            message += 'touch disks of the same color and disks change ';
             message += 'colors.';
             alert(message);
             main.count.per = 4;
@@ -1528,56 +1458,6 @@ main.solved = function()
     return solved;
 };
 
-main.stacks = function(func, first, other, shortcut)
-{
-    /*
-    Create the generators for all of the stacks.
-
-    ``func``
-        func - The function used to generate the moves for a single stack game.
-
-    ``first``
-        func - The function used to generate the moves for the first stack.
-
-    ``other``
-        func - The function used to generate the moves for the other stacks.
-
-    ``shortcut``
-        func - The function used to generate the moves for the first stack
-        using a shortcut (Optional).
-
-    Returns: list - The generators for each stack.
-    */
-    var i;
-    var stacks = [];
-    for (i = 0; i < main.count.stacks; i++)
-    {
-        // If this is the first stack and not the only stack
-        if (!i && main.count.stacks > 1)
-        {
-            /*
-            If a shortcut was provided and there are more than two stacks, use
-            it.
-            */
-            if (shortcut && main.count.stacks > 2)
-            {
-                stacks.push(shortcut(func, i));
-            }
-            // Else, use the first function.
-            else
-            {
-                stacks.push(first(func, i));
-            }
-        }
-        // Else, use the other function.
-        else
-        {
-            stacks.push(other(func, i));
-        }
-    }
-    return stacks;
-};
-
 main.start = function(restarting)
 {
     /*
@@ -1659,11 +1539,6 @@ main.stop = function(stay)
     }
 };
 
-main.xor = function(a, b)
-{
-    return ((a || b) && !(a && b));
-};
-
 $(document).ready(
     function()
     {
@@ -1685,7 +1560,11 @@ $(document).ready(
                 if (!$(e.target).closest(':input').get(0))
                 {
                     var tower = parseInt(String.fromCharCode(e.which), 10) - 1;
-                    if (!isNaN(tower))
+                    /*
+                    If the solver isn't running, make a manual move if the
+                    tower is valid.
+                    */
+                    if (!main.running && !isNaN(tower))
                     {
                         main.move(tower);
                     }
