@@ -76,12 +76,12 @@ main.color = function(disk, undo)
     var cycle;
     var i;
     var stack;
-    for (i = 0; i < main.count.colors; i++)
+    if (main.change)
     {
-        stack = main.colors[disk.stack];
-        if (disk.color === stack[i])
+        for (i = 0; i < main.count.colors; i++)
         {
-            if (main.change)
+            stack = main.colors[disk.stack];
+            if (disk.color === stack[i])
             {
                 cycle = 1;
                 if (undo)
@@ -90,7 +90,6 @@ main.color = function(disk, undo)
                 }
                 return stack[main.cycle(i + cycle, 0, main.count.colors - 1)];
             }
-            break;
         }
     }
     return disk.color;
@@ -228,7 +227,7 @@ main.impasse = function()
     return true;
 };
 
-main.movable = function(disk, tower, undo)
+main.movable = function(disk, tower, size, undo)
 {
     /*
     Check if the disk is movable to a given tower.
@@ -238,6 +237,9 @@ main.movable = function(disk, tower, undo)
 
     ``tower``
         int - The tower to move it to.
+
+    ``size``
+        bool - Whether or not we're only checking size rules.
 
     ``undo``
         bool - Whether or not this move is undoing a previous one.
@@ -250,6 +252,7 @@ main.movable = function(disk, tower, undo)
     var cycle;
     var i;
     var j;
+    var last;
     var medium;
     var mult;
     var stars;
@@ -295,7 +298,7 @@ main.movable = function(disk, tower, undo)
             stars++;
         }
     }
-    if (main.restriction === 'group')
+    if (main.restriction === 'group' && !size)
     {
         for (
             i = 0;
@@ -342,7 +345,7 @@ main.movable = function(disk, tower, undo)
         If this disk is the same color as the last disk, and this is
         prohibited, fail.
         */
-        if (main.restriction === 'same' && last.color === color)
+        if (main.restriction === 'same' && last.color === color && !size)
         {
             return false;
         }
@@ -353,7 +356,8 @@ main.movable = function(disk, tower, undo)
         if (
             main.restriction === 'different' &&
             last.color !== color &&
-            last.stack === disk.stack
+            last.stack === disk.stack &&
+            !size
         )
         {
             return false;
@@ -363,7 +367,11 @@ main.movable = function(disk, tower, undo)
     If the movement is linear and the target tower isn't adjacent to this one,
     fail.
     */
-    if (main.movement === 'linear' && Math.abs(tower - disk.tower) > 1)
+    if (
+        main.movement === 'linear' &&
+        Math.abs(tower - disk.tower) > 1 &&
+        !size
+    )
     {
         return false;
     }
@@ -379,7 +387,8 @@ main.movable = function(disk, tower, undo)
                 disk.stack * mult,
                 to
             )
-        )
+        ) &&
+        !size
     )
     {
         return false;
@@ -388,7 +397,8 @@ main.movable = function(disk, tower, undo)
     if (
         stars &&
         !(disk.tower in main.stars) &&
-        !(tower in main.stars)
+        !(tower in main.stars) &&
+        !size
     )
     {
         return false;
@@ -398,7 +408,8 @@ main.movable = function(disk, tower, undo)
         main.towers[tower].base !== 'grey' &&
         main.towers[tower].base !== medium &&
         main.towers[tower].peg !== 'grey' &&
-        main.towers[tower].peg !== medium
+        main.towers[tower].peg !== medium &&
+        !size
     )
     {
         return false;
@@ -450,7 +461,7 @@ main.move = function(tower, undo, redo, restoring)
     // If a disk has been popped off a tower
     if (main.popped)
     {
-        if (!main.movable(main.popped, tower, undo))
+        if (!main.movable(main.popped, tower, false, undo))
         {
             // Show an error message with the real tower numbers.
             alert(
@@ -738,7 +749,7 @@ main.setup = function()
     var tower;
     var towers;
     var width;
-    main.stop();
+    main.stop(true);
     // Set the default values.
     main.generator = [];
     main.manual = [];

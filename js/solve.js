@@ -226,12 +226,7 @@ solve.classic.more.other = function(func, stack)
 
 solve.classic.more.rec = function(disks, towers, from, to)
 {
-    if (
-        disks < 1 ||
-        towers.length < 2 ||
-        from === undefined ||
-        to === undefined
-    )
+    if (disks < 1 || towers.length < 2)
     {
         return [];
     }
@@ -248,7 +243,7 @@ solve.classic.more.rec = function(disks, towers, from, to)
         if (
             using != from &&
             using != to &&
-            main.movable(last, using)
+            main.movable(last, using, true)
         )
         {
             break;
@@ -266,15 +261,15 @@ solve.classic.more.rec = function(disks, towers, from, to)
     return [
         function()
         {
-            return new solve.classic.more.rec(disks - k, towers, from, using);
+            return solve.classic.more.rec(disks - k, towers, from, using);
         },
         function()
         {
-            return new solve.classic.more.rec(k, removed, from, to);
+            return solve.classic.more.rec(k, removed, from, to);
         },
         function()
         {
-            return new solve.classic.more.rec(disks - k, towers, using, to);
+            return solve.classic.more.rec(disks - k, towers, using, to);
         }
     ];
 };
