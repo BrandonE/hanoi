@@ -39,11 +39,11 @@ var main = {
     'running': false,
     'shuffle': false,
     'size': false,
+    'stars': {},
     'steps': [],
     'stopped': true,
     'top': 'Any',
-    'towers': [],
-    'variation': 'Classic'
+    'towers': []
 };
 
 Array.prototype.shuffle = function()
@@ -291,10 +291,15 @@ main.movable = function(disk, tower, undo)
     {
         cycle = -cycle;
     }
+    var stars = 0;
+    for (var i in main.stars)
+    {
+        stars++;
+    }
     if (main.restriction == 'group')
     {
         for (
-            var i = 0;
+            i = 0;
             i <= main.towers[tower].disks.length - main.count.colors + 1;
             i++
         )
@@ -380,14 +385,11 @@ main.movable = function(disk, tower, undo)
     {
         return false;
     }
-    /*
-    If the variation is Star and this move is not from nor to a star tower,
-    fail.
-    */
+    // If there are star towers and this move is not from nor to one, fail.
     if (
-        main.variation == 'Star' &&
-        main.towers[disk.tower].peg != 'white' &&
-        main.towers[tower].peg != 'white'
+        stars &&
+        !(disk.tower in main.stars) &&
+        !(tower in main.stars)
     )
     {
         return false;
@@ -820,6 +822,7 @@ main.setup = function()
     {
         main.count.disks = maximum;
     }
+    var old = main.count.towers;
     /*
     Calculate the number of towers based on the number of stacks and the towers
     per stack.
@@ -834,6 +837,11 @@ main.setup = function()
     {
         main.count.towers++;
     }
+    // If the tower count has changed, remove all star towers.
+    if (old != main.count.towers)
+    {
+        main.stars = {};
+    }
     // There must be at least one color.
     if (main.count.colors < 1)
     {
@@ -844,9 +852,23 @@ main.setup = function()
     {
         main.count.colors = 3;
     }
+    var denom = main.count.per - 1;
+    for (var i = 0; i < main.count.towers; i++)
+    {
+        var multistack = (main.count.stacks > 1 && !main.antwerp);
+        var checked = (
+            (multistack && i % denom in main.stars) ||
+            (!multistack && i in main.stars)
+        );
+        $('#star' + i).attr('checked', checked);
+        delete main.stars[i];
+        if (checked)
+        {
+            main.stars[i] = null;
+        }
+    }
     // Calculate the minimum moves for the this variation.
     main.minimum = 'N/A';
-    var i;
     if (!main.random && !main.shuffle)
     {
         if (main.variation == 'Classic')
@@ -1049,7 +1071,7 @@ main.setup = function()
         $('#placing').show();
     }
     var color;
-    var denom = main.count.per - 1;
+    denom = main.count.per - 1;
     var towers = main.count.towers - 1;
     if (main.antwerp)
     {
@@ -1077,9 +1099,6 @@ main.setup = function()
             else
             {
                 color = i / denom;
-                /*
-                If the variation isn't Antwerp, 
-                */
                 if (!main.antwerp)
                 {
                     /*
@@ -1098,14 +1117,6 @@ main.setup = function()
                     peg = main.colors[color][0];
                 }
             }
-        }
-        /*
-        If the variation is Star and the tower is the first one after the
-        "from" tower, make the peg white.
-        */
-        if (main.variation == 'Star' && remainder == 1)
-        {
-            peg = 'white';
         }
         // Add the tower.
         main.towers.push({
@@ -1335,14 +1346,21 @@ main.setup = function()
                     'id': 'tower' + i
                 }
             ).appendTo('#towers');
-            $(element).data('tower', i);
+            $(
+                '<div />',
+                {
+                    'class': 'move',
+                    'id': 'move' + i
+                }
+            ).appendTo(element);
+            $('#move' + i).data('tower', i);
             $(
                 '<div />',
                 {
                     'class': 'disks',
                     'id': 'disks' + i
                 }
-            ).appendTo(element);
+            ).appendTo('#move' + i);
             $(
                 '<div />',
                 {
@@ -1363,19 +1381,29 @@ main.setup = function()
                     'class': 'base',
                     'id': 'base' + i
                 }
-            ).appendTo(element);
-            $(
-                '<div />',
-                {
-                    'id': 'label' + i,
-                    'text': (i + 1)
-                }
-            ).appendTo(element);
+            ).appendTo('#move' + i);
             $(
                 '<div />',
                 {
                     'class': 'peg',
                     'id': 'peg' + i
+                }
+            ).appendTo('#move' + i);
+            $(
+                '<input />',
+                {
+                    'class': 'star',
+                    'id': 'star' + i,
+                    'type': 'checkbox'
+                }
+            ).appendTo(element);
+            $('#star' + i).data('tower', i);
+            $(
+                '<label />',
+                {
+                    'id': 'label' + i,
+                    'for': 'star' + i,
+                    'text': (i + 1)
                 }
             ).appendTo(element);
         }
@@ -1662,7 +1690,6 @@ $(document).ready(
         $('#shuffle').attr('checked', main.shuffle);
         $('#size').attr('checked', main.size);
         $('#top').val(main.top);
-        $('#variation').val(main.variation);
         $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
         $('.yesscript').show();
@@ -1906,18 +1933,7 @@ $(document).ready(
                 }
             }
         );
-        $('#variation').change(
-            function()
-            {
-                var value = $('#variation').val();
-                if (main.variation != value)
-                {
-                    main.variation = value;
-                    main.setup();
-                }
-            }
-        );
-        $('.tower').live(
+        $('.move').live(
             'tap',
             function()
             {
@@ -1926,6 +1942,24 @@ $(document).ready(
                 {
                     main.move($(this).data('tower'));
                 }
+            }
+        );
+        $('.star').live(
+            'change',
+            function()
+            {
+                var tower = $(this).data('tower');
+                var star = tower;
+                if (main.count.stacks > 1 && !main.antwerp)
+                {
+                    star %= main.count.per - 1;
+                }
+                delete main.stars[star];
+                if ($('#star' + tower + ':checked').length)
+                {
+                    main.stars[star] = null;
+                }
+                main.setup();
             }
         );
     }

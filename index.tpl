@@ -1,4 +1,3 @@
-[trim]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -65,16 +64,6 @@ variations, disk, disks, multistack, solver" />
     <div id="towers"></div>
     <div style="clear: both"></div>
     <table style="width: 100%">
-        <tr>
-            <td><label for="variation">Variation</label></td>
-            <td>
-                <select id="variation">
-                    [loop value="value" iterable="variations"]
-                    <option>[var]value[/var]</option>
-                    [/loop]
-                </select>
-            </td>
-        </tr>
         <tr>
             <td><label for="mode">Mode</label></td>
             <td>
@@ -452,4 +441,3 @@ variations, disk, disks, multistack, solver" />
 </div>
 </body>
 </html>
-[/trim]
