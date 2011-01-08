@@ -1386,6 +1386,10 @@ main.setup = function()
         }
     }
     solve.start();
+    if (!main.generator.length)
+    {
+        main.minimum = 'Unsolved';
+    }
     // Update the page accordingly.
     $('#alternate').attr('checked', main.alternate);
     $('#antwerp').attr('checked', main.antwerp);
