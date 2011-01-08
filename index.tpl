@@ -16,16 +16,7 @@ variations, disk, disks, multistack, solver" />
 <script type="text/javascript" src="js/lib/json2.js"></script>
 <script type="text/javascript" src="js/lib/sylvester.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="js/variations/classic.js"></script>
-<script type="text/javascript" src="js/variations/cyclic.js"></script>
-<script type="text/javascript" src="js/variations/rainbow.js"></script>
-<script type="text/javascript" src="js/variations/antwerp.js"></script>
-<script type="text/javascript" src="js/variations/domino.js"></script>
-<script type="text/javascript" src="js/variations/checkers.js"></script>
-<script type="text/javascript" src="js/variations/reversi.js"></script>
-<script type="text/javascript" src="js/variations/star.js"></script>
-<script type="text/javascript" src="js/variations/lundon.js"></script>
-<script type="text/javascript" src="js/variations/brandonburg.js"></script>
+<script type="text/javascript" src="js/solve.js"></script>
 </head>
 <body>
 <div style="text-align: center">
@@ -224,11 +215,41 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
-                <input type="checkbox" id="showmovesource" />
-                <label for="showmovesource">Move Source</label>
+                <input type="checkbox" id="showexportmoves" />
+                <label for="showexportmoves">Export Moves</label>
             </td>
             <td>
-                <textarea id="movesource" rows="1" cols="17" readonly="readonly"
+                <textarea id="exportmoves" rows="1" cols="17"
+                readonly="readonly" style="display: none"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="showimportmoves" />
+                <label for="showimportmoves">Import Moves</label>
+            </td>
+            <td>
+                <textarea id="importmoves" rows="1" cols="17"
+                style="display: none"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="showexportsettings" />
+                <label for="showexportsettings">Export Settings</label>
+            </td>
+            <td>
+                <textarea id="exportsettings" rows="1" cols="17"
+                readonly="readonly" style="display: none"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="showimportsettings" />
+                <label for="showimportsettings">Import Settings</label>
+            </td>
+            <td>
+                <textarea id="importsettings" rows="1" cols="17"
                 style="display: none"></textarea>
             </td>
         </tr>

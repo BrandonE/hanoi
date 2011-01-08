@@ -450,7 +450,6 @@ main.move = function(tower, undo, redo, restoring)
     var disk;
     var i;
     var log = [];
-    var movesource = [];
     var hide;
     var parent;
     var show;
@@ -513,7 +512,7 @@ main.move = function(tower, undo, redo, restoring)
                     main.redo = [];
                 }
             }
-            // Based on the moves made, build the Log and Move Source.
+            // Based on the moves made, build the Log.
             for (i = 0; i < main.steps.length; i++)
             {
                 // Group the steps of a move together in the log.
@@ -524,12 +523,9 @@ main.move = function(tower, undo, redo, restoring)
                         (main.steps[i] + 1) + '-' + (main.steps[i + 1] + 1)
                     );
                 }
-                movesource.push(main.steps[i]);
             }
             $('#log').val(log.join(',\n'));
-            $('#movesource').val(
-                'main.generator = [' + movesource.join(', ') + '];'
-            );
+            $('#exportmoves').val(JSON.stringify(main.steps));
         }
         // Show the top disk of this tower.
         show = '#disk' + tower + '-' + main.towers[tower].disks.length;
@@ -916,14 +912,14 @@ main.setup = function()
         alert(message);
         main.change = true;
     }
-    if (main.restriction == 'different' && main.alternate)
+    if (main.restriction === 'different' && main.alternate)
     {
         message = 'The disks can\'t alternate if disks can\'t touch disks ';
         message += 'of a different color.';
         alert(message);
         main.alternate = false;
     }
-    if (main.restriction == 'same' || main.restriction == 'group')
+    if (main.restriction === 'same' || main.restriction === 'group')
     {
         if (!main.alternate)
         {
@@ -1184,17 +1180,41 @@ main.setup = function()
     }
     // Update the page accordingly.
     $('#alternate').attr('checked', main.alternate);
+    $('#antwerp').attr('checked', main.antwerp);
     $('#change').attr('checked', main.change);
     $('#colors').val(main.count.colors);
+    $('#delay').val(main.delay);
     $('#disks').val(main.count.disks);
+    $('#exportmoves').val('');
+    $('#exportsettings').val(
+        JSON.stringify({
+            'alternate': main.alternate,
+            'antwerp': main.antwerp,
+            'change': main.change,
+            'count': main.count,
+            'delay': main.delay,
+            'goal': main.goal,
+            'mode': main.mode,
+            'movement': main.movement,
+            'random': main.random,
+            'restriction': main.restriction,
+            'shuffle': main.shuffle,
+            'size': main.size,
+            'stars': main.stars,
+            'top': main.top
+        })
+    );
+    $('#' + main.goal).attr('checked', true);
     $('#log').val('');
     $('#minimum').text(main.minimum);
+    $('#mode').val(main.mode);
     $('#' + main.movement).attr('checked', true);
     $('#moves').text(main.moves.current);
-    $('#movesource').val('');
     $('#per').val(main.count.per);
+    $('#random').attr('checked', main.random);
     $('#redo').css('visibility', 'hidden');
     $('#' + main.restriction).attr('checked', true);
+    $('#shuffle').attr('checked', main.shuffle);
     $('#size').attr('checked', main.size);
     $('#stacks').val(main.count.stacks);
     $('#undo').css('visibility', 'hidden');
@@ -1750,6 +1770,8 @@ main.start = function(restarting)
         main.move(args[0], !args[1], args[1], true);
         restarting = true;
     }
+    main.redo = [];
+    $('#redo').css('visibility', 'hidden');
     // If there are no steps in the generator
     if (!main.generator.length)
     {
@@ -1759,7 +1781,10 @@ main.start = function(restarting)
             main.restart();
             return;
         }
-        // SOLVE
+        if ($('#importmoves').val())
+        {
+            main.generator = JSON.parse($('#importmoves').val());
+        }
         if (!main.generator.length)
         {
             alert('Error: No moves to be made.');
@@ -1802,18 +1827,14 @@ $(document).ready(
     function()
     {
         main.setup();
-        // Update the page accordingly.
-        $('#antwerp').attr('checked', main.antwerp);
-        $('#delay').val(main.delay);
-        $('#draw').attr('checked', true);
-        $('#' + main.goal).attr('checked', true);
-        $('#mode').val(main.mode);
+        // Update the page accourdingly.
+        $('#importmoves').val('');
+        $('#importsettings').val('');
+        $('#showexportmoves').attr('checked', false);
+        $('#showexportsettings').attr('checked', false);
+        $('#showimportmoves').attr('checked', false);
+        $('#showimportsettings').attr('checked', false);
         $('#showlog').attr('checked', false);
-        $('#showmovesource').attr('checked', false);
-        $('#showsource').attr('checked', false);
-        $('#random').attr('checked', main.random);
-        $('#shuffle').attr('checked', main.shuffle);
-        $('.source').css('visibility', 'hidden');
         $('.noscript').hide();
         $('.yesscript').show();
         $(document).keypress(
@@ -1922,6 +1943,21 @@ $(document).ready(
                 }
             }
         );
+        $('#importsettings').change(
+            function()
+            {
+                var value = JSON.parse($('#importsettings').val());
+                for (i in value)
+                {
+                    if (i !== '__prototype__')
+                    {
+                        main[i] = value[i];
+                    }
+                }
+                $('#importsettings').val('');
+                main.setup();
+            }
+        );
         $('#mode').change(
             function()
             {
@@ -1966,6 +2002,48 @@ $(document).ready(
                 }
             }
         );
+        $('#showexportmoves').change(
+            function()
+            {
+                $('#exportmoves').hide();
+                if ($('#showexportmoves:checked').length)
+                {
+                    $('#exportmoves').show();
+                }
+            }
+        );
+        $('#showexportsettings').change(
+            function()
+            {
+                $('#exportsettings').hide();
+                if ($('#showexportsettings:checked').length)
+                {
+                    $('#exportsettings').show();
+                }
+            }
+        );
+        $('#showimportmoves').change(
+            function()
+            {
+                $('#importmoves').val('');
+                $('#importmoves').hide();
+                if ($('#showimportmoves:checked').length)
+                {
+                    $('#importmoves').show();
+                }
+            }
+        );
+        $('#showimportsettings').change(
+            function()
+            {
+                $('#importsettings').val('');
+                $('#importsettings').hide();
+                if ($('#showimportsettings:checked').length)
+                {
+                    $('#importsettings').show();
+                }
+            }
+        );
         $('#showlog').change(
             function()
             {
@@ -1973,16 +2051,6 @@ $(document).ready(
                 if ($('#showlog:checked').length)
                 {
                     $('#log').show();
-                }
-            }
-        );
-        $('#showmovesource').change(
-            function()
-            {
-                $('#movesource').hide();
-                if ($('#showmovesource:checked').length)
-                {
-                    $('#movesource').show();
                 }
             }
         );
