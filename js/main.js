@@ -1013,238 +1013,7 @@ main.setup = function()
             main.restriction = 'none';
         }
     }
-    // Calculate the minimum moves for the this variation.
     main.minimum = 'N/A';
-    if (!main.random && !main.shuffle)
-    {
-        if (main.variation === 'Classic')
-        {
-            if (main.count.stacks === 1)
-            {
-                main.minimum = classic.more.moves(
-                    main.count.disks, main.count.towers
-                );
-                if (main.count.per === 3)
-                {
-                    if (main.movement === 'linear')
-                    {
-                        main.minimum = Math.pow(3, main.count.disks) - 1;
-                    }
-                    if (main.movement === 'clock')
-                    {
-                        main.minimum = cyclic.moves(main.count.disks);
-                    }
-                    if (main.movement === 'counter')
-                    {
-                        main.minimum = cyclic.moves(main.count.disks, true);
-                    }
-                }
-            }
-            else
-            {
-                main.minimum = classic.three.moves(main.count.disks);
-            }
-            if (main.count.stacks === 2)
-            {
-                main.minimum *= 3;
-            }
-            if (main.count.stacks > 2)
-            {
-                main.minimum = (
-                    main.count.stacks * main.minimum
-                ) + classic.three.moves(
-                    main.count.disks - 1
-                ) + 1;
-            }
-        }
-        if (main.movement === 'any')
-        {
-            if (main.variation === 'Rainbow')
-            {
-                main.minimum = rainbow.moves(main.count.disks);
-                if (main.count.stacks > 1)
-                {
-                    main.minimum *= main.count.stacks + 1;
-                }
-            }
-            if (main.antwerp)
-            {
-                if (main.count.stacks === 2)
-                {
-                    var minus = 11;
-                    if (main.count.disks % 2)
-                    {
-                        minus = 10;
-                    }
-                    main.minimum = (
-                        7 * Math.pow(
-                            2, main.count.disks + 1
-                        ) - 9 * main.count.disks - minus
-                    ) / 3;
-                }
-                if (main.count.stacks === 3)
-                {
-                    main.minimum = 5;
-                    if (main.count.disks > 1)
-                    {
-                        main.minimum = 12 * Math.pow(
-                            2, main.count.disks
-                        ) - (8 * main.count.disks) - 10;
-                    }
-                }
-            }
-            if (main.variation === 'Checkers')
-            {
-                if (main.count.per === 3)
-                {
-                    main.minimum = classic.three.moves(main.count.disks);
-                    if (main.count.stacks > 1)
-                    {
-                        main.minimum *= main.count.stacks + 1;
-                    }
-                }
-            }
-            if (main.count.stacks === 1)
-            {
-                if (
-                    main.variation === 'Domino Light' ||
-                    main.variation === 'Domino Dark' ||
-                    main.variation === 'Domino Home Light'
-                )
-                {
-                    var m = $M(
-                    [
-                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
-                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
-                    );
-                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
-                    for (i = 0; i < main.count.disks - 1; i++)
-                    {
-                        s = m.x(s);
-                    }
-                    main.minimum = s.elements[0];
-                    if (main.variation === 'Domino Dark')
-                    {
-                        main.minimum = s.elements[1];
-                    }
-                    if (main.variation === 'Domino Home Light')
-                    {
-                        main.minimum = s.elements[2];
-                    }
-                }
-                if (main.variation === 'Star')
-                {
-                    star.start();
-                }
-                if (main.variation === 'Lundon Light')
-                {
-                    main.minimum = cyclic.moves(main.count.disks, true);
-                }
-                if (main.variation === 'Lundon Medium')
-                {
-                    main.minimum = cyclic.moves(
-                        main.count.disks - 1
-                    ) + cyclic.moves(main.count.disks - 1, true) + 3;
-                }
-                if (main.variation === 'Lundon Dark')
-                {
-                    main.minimum = cyclic.moves(main.count.disks);
-                }
-                if (main.variation === 'Lundon Home Light')
-                {
-                    main.minimum = cyclic.moves(
-                        main.count.disks - 1
-                    ) + cyclic.moves(main.count.disks - 1) + 4;
-                }
-                if (main.variation === 'Lundon Home Dark')
-                {
-                    main.minimum = cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + 2;
-                }
-            }
-        }
-    }
-    // Update the page accordingly.
-    $('#alternate').attr('checked', main.alternate);
-    $('#antwerp').attr('checked', main.antwerp);
-    $('#change').attr('checked', main.change);
-    $('#colors').val(main.count.colors);
-    $('#delay').val(main.delay);
-    $('#disks').val(main.count.disks);
-    $('#exportmoves').val('');
-    $('#exportsettings').val(
-        JSON.stringify({
-            'alternate': main.alternate,
-            'antwerp': main.antwerp,
-            'change': main.change,
-            'count': main.count,
-            'delay': main.delay,
-            'goal': main.goal,
-            'mode': main.mode,
-            'movement': main.movement,
-            'random': main.random,
-            'restriction': main.restriction,
-            'shuffle': main.shuffle,
-            'size': main.size,
-            'stars': main.stars,
-            'top': main.top
-        })
-    );
-    $('#' + main.goal).attr('checked', true);
-    $('#log').val('');
-    $('#minimum').text(main.minimum);
-    $('#mode').val(main.mode);
-    $('#' + main.movement).attr('checked', true);
-    $('#moves').text(main.moves.current);
-    $('#per').val(main.count.per);
-    $('#random').attr('checked', main.random);
-    $('#redo').css('visibility', 'hidden');
-    $('#' + main.restriction).attr('checked', true);
-    $('#shuffle').attr('checked', main.shuffle);
-    $('#size').attr('checked', main.size);
-    $('#stacks').val(main.count.stacks);
-    $('#undo').css('visibility', 'hidden');
-    // Populate the top color list.
-    while ($('#top').children().length > main.count.colors + 1)
-    {
-        $('#top').children().last().remove();
-    }
-    while ($('#top').children().length < main.count.colors + 1)
-    {
-        num = $('#top').children().length;
-        $(
-            '<option />',
-            {
-                'text': num
-            }
-        ).appendTo('#top');
-    }
-    $('#top').val(main.top);
-    // Show additional information if necessary.
-    $('#multi').hide();
-    $('#placing').hide();
-    if (main.count.stacks > 1 && !main.antwerp)
-    {
-        $('#multi').show();
-    }
-    if (main.random || main.shuffle)
-    {
-        $('#placing').show();
-    }
     denom = main.count.per - 1;
     towers = main.count.towers - 1;
     if (main.antwerp)
@@ -1615,6 +1384,74 @@ main.setup = function()
                 $(element).css('font-size', (height - 3) + 'px');
             }
         }
+    }
+    solve.start();
+    // Update the page accordingly.
+    $('#alternate').attr('checked', main.alternate);
+    $('#antwerp').attr('checked', main.antwerp);
+    $('#change').attr('checked', main.change);
+    $('#colors').val(main.count.colors);
+    $('#delay').val(main.delay);
+    $('#disks').val(main.count.disks);
+    $('#exportmoves').val('');
+    $('#exportsettings').val(
+        JSON.stringify({
+            'alternate': main.alternate,
+            'antwerp': main.antwerp,
+            'change': main.change,
+            'count': main.count,
+            'delay': main.delay,
+            'goal': main.goal,
+            'mode': main.mode,
+            'movement': main.movement,
+            'random': main.random,
+            'restriction': main.restriction,
+            'shuffle': main.shuffle,
+            'size': main.size,
+            'stars': main.stars,
+            'top': main.top
+        })
+    );
+    $('#' + main.goal).attr('checked', true);
+    $('#log').val('');
+    $('#minimum').text(main.minimum);
+    $('#mode').val(main.mode);
+    $('#' + main.movement).attr('checked', true);
+    $('#moves').text(main.moves.current);
+    $('#per').val(main.count.per);
+    $('#random').attr('checked', main.random);
+    $('#redo').css('visibility', 'hidden');
+    $('#' + main.restriction).attr('checked', true);
+    $('#shuffle').attr('checked', main.shuffle);
+    $('#size').attr('checked', main.size);
+    $('#stacks').val(main.count.stacks);
+    $('#undo').css('visibility', 'hidden');
+    // Populate the top color list.
+    while ($('#top').children().length > main.count.colors + 1)
+    {
+        $('#top').children().last().remove();
+    }
+    while ($('#top').children().length < main.count.colors + 1)
+    {
+        num = $('#top').children().length;
+        $(
+            '<option />',
+            {
+                'text': num
+            }
+        ).appendTo('#top');
+    }
+    $('#top').val(main.top);
+    // Show additional information if necessary.
+    $('#multi').hide();
+    $('#placing').hide();
+    if (main.count.stacks > 1 && !main.antwerp)
+    {
+        $('#multi').show();
+    }
+    if (main.random || main.shuffle)
+    {
+        $('#placing').show();
     }
 };
 

@@ -1,0 +1,1185 @@
+/*
+Copyright (C) 2010 Brandon Evans.
+http://www.brandonevans.org/
+*/
+var solve = {
+    'classic': {
+        'four': {},
+        'more': {},
+        'three': {}
+    },
+    'cyclic': {
+        'seq': {
+            'clock': [0, 2, 7],
+            'counter': [0, 1, 5]
+        }
+    },
+    'domino': {}
+};
+
+solve.start = function()
+{
+    if (!main.random && !main.shuffle)
+    {
+        if (main.movement === 'any')
+        {
+            if (main.count.stacks === 1)
+            {
+                main.generator = main.pick(
+                    main.stacks(
+                        solve.classic.more.rec,
+                        solve.classic.more.first,
+                        solve.classic.more.other,
+                        solve.classic.three.shortcut
+                    ),
+                    solve.classic.three.pick
+                );
+                main.minimum = solve.classic.more.moves(
+                    main.count.disks, main.count.towers
+                );
+                return;
+            }
+            main.generator = main.pick(
+                main.stacks(
+                    solve.classic.three.rec,
+                    solve.classic.three.first,
+                    solve.classic.three.other,
+                    solve.classic.three.shortcut
+                ),
+                solve.classic.three.pick
+            );
+            main.minimum = solve.classic.three.moves(main.count.disks);
+            if (main.count.stacks === 2)
+            {
+                main.minimum *= 3;
+            }
+            if (main.count.stacks > 2)
+            {
+                main.minimum = (
+                    main.count.stacks * main.minimum
+                ) + solve.classic.three.moves(
+                    main.count.disks - 1
+                ) + 1;
+            }
+            return;
+        }
+        if (main.count.per === 3)
+        {
+            if (main.movement === 'linear')
+            {
+                main.generator = solve.domino.linear(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = Math.pow(3, main.count.disks) - 1;
+            }
+            if (main.movement === 'clock')
+            {
+                main.generator = solve.cyclic.clock(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = solve.cyclic.moves(main.count.disks);
+            }
+            if (main.movement === 'counter')
+            {
+                main.generator = solve.cyclic.clock(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = solve.cyclic.moves(main.count.disks, true);
+            }
+            return;
+        }
+        if (main.movement === 'any')
+        {
+            if (main.variation === 'Rainbow')
+            {
+                main.minimum = rainbow.moves(main.count.disks);
+                if (main.count.stacks > 1)
+                {
+                    main.minimum *= main.count.stacks + 1;
+                }
+            }
+            if (main.antwerp)
+            {
+                if (main.count.stacks === 2)
+                {
+                    var minus = 11;
+                    if (main.count.disks % 2)
+                    {
+                        minus = 10;
+                    }
+                    main.minimum = (
+                        7 * Math.pow(
+                            2, main.count.disks + 1
+                        ) - 9 * main.count.disks - minus
+                    ) / 3;
+                }
+                if (main.count.stacks === 3)
+                {
+                    main.minimum = 5;
+                    if (main.count.disks > 1)
+                    {
+                        main.minimum = 12 * Math.pow(
+                            2, main.count.disks
+                        ) - (8 * main.count.disks) - 10;
+                    }
+                }
+            }
+            if (main.variation === 'Checkers')
+            {
+                if (main.count.per === 3)
+                {
+                    main.minimum = solve.classic.three.moves(main.count.disks);
+                    if (main.count.stacks > 1)
+                    {
+                        main.minimum *= main.count.stacks + 1;
+                    }
+                }
+            }
+            if (main.count.stacks === 1)
+            {
+                if (
+                    main.variation === 'Domino Light' ||
+                    main.variation === 'Domino Dark' ||
+                    main.variation === 'Domino Home Light'
+                )
+                {
+                    var m = $M(
+                    [
+                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
+                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
+                    );
+                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
+                    for (i = 0; i < main.count.disks - 1; i++)
+                    {
+                        s = m.x(s);
+                    }
+                    main.minimum = s.elements[0];
+                    if (main.variation === 'Domino Dark')
+                    {
+                        main.minimum = s.elements[1];
+                    }
+                    if (main.variation === 'Domino Home Light')
+                    {
+                        main.minimum = s.elements[2];
+                    }
+                }
+                if (main.variation === 'Star')
+                {
+                    star.start();
+                }
+                if (main.variation === 'Lundon Light')
+                {
+                    main.minimum = solve.cyclic.moves(main.count.disks, true);
+                }
+                if (main.variation === 'Lundon Medium')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1
+                    ) + solve.cyclic.moves(main.count.disks - 1, true) + 3;
+                }
+                if (main.variation === 'Lundon Dark')
+                {
+                    main.minimum = solve.cyclic.moves(main.count.disks);
+                }
+                if (main.variation === 'Lundon Home Light')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1
+                    ) + solve.cyclic.moves(main.count.disks - 1) + 4;
+                }
+                if (main.variation === 'Lundon Home Dark')
+                {
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + 2;
+                }
+            }
+        }
+    }
+};
+
+solve.classic.four.first = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    var from = mult * stack;
+    var using = mult * stack + 1;
+    var extra = mult * stack + 2;
+    var to = mult * stack + mult;
+    return [
+        function()
+        {
+            return func(main.count.disks, from, to, extra, using);
+        },
+        function()
+        {
+            return func(main.count.disks, using, from, extra, to);
+        }
+    ];
+}
+;
+solve.classic.four.k = function(disks)
+{
+    return Math.round(Math.sqrt(2 * disks));
+};
+
+solve.classic.four.other = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    return [
+        function()
+        {
+            return func(
+                main.count.disks,
+                mult * stack,
+                mult * stack + 1,
+                mult * stack + 2,
+                mult * stack + mult
+            );
+        }
+    ];
+};
+
+solve.classic.four.rec = function(disks, from, using, extra, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    var k = solve.classic.four.k(disks);
+    return [
+        function()
+        {
+            return solve.classic.four.rec(disks - k, from, to, extra, using);
+        },
+        function()
+        {
+            return solve.classic.three.rec(
+                disks, from, extra, to, disks - k + 1
+            );
+        },
+        function()
+        {
+            return solve.classic.four.rec(disks - k, using, from, extra, to);
+        }
+    ];
+};
+
+solve.classic.four.shortcut = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    var from = mult * stack;
+    var using = mult * stack + 1;
+    var extra = mult * stack + 2;
+    var to = mult * stack + mult;
+    return [
+        function()
+        {
+            return func(main.count.disks - 1, from, using, extra, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return func(main.count.disks - 1, to, using, extra, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return func(main.count.disks - 1, from, using, extra, to);
+        }
+    ];
+};
+
+solve.classic.more.calc = function(disks, towers)
+{
+    var t = Math.max(
+        1,
+        Math.round(
+            Math.exp(
+                Math.log(
+                    main.factorial(towers - 2) * disks
+                ) / (towers - 2)
+            ) - (towers - 3) / 2
+        )
+    );
+    var disks_0 = Math.round(main.binomial(t + towers - 3, towers - 2));
+    var disks_1 = disks_0 * (t + towers - 2) / t;
+    while (disks >= disks_1)
+    {
+        t++;
+        disks_0 = disks_1;
+        disks_1 = disks_0 * (t + towers - 2) / t;
+    }
+    while (disks < disks_0)
+    {
+        t--;
+        disks_1 = disks_0;
+        disks_0 = disks_1 * t / (t + towers - 2);
+    }
+    var k_0 = 1;
+    if (t + towers != 3)
+    {
+        k_0 = disks_0 * (towers - 2) / (t + towers - 3);
+    }
+    var k_1 = disks_1 * (towers - 2) / (t + towers - 2);
+    var k = Math.max(k_0, k_1 - disks_1 + disks);
+    return {
+        't': t,
+        'disks_0': disks_0,
+        'disks_1': disks_1,
+        'k_0': k_0,
+        'k_1': k_1,
+        'k': k
+    };
+};
+
+solve.classic.more.moves = function(disks, towers)
+{
+    if (disks < 1 || !towers)
+    {
+        return 0;
+    }
+    var calc = solve.classic.more.calc(disks, towers);
+    var t = calc.t;
+    var disks_0 = calc.disks_0;
+    var ans = 0;
+    var mult = 1;
+    for (var i = 0; i < towers - 2; i++)
+    {
+        ans += mult * Math.round(
+            main.binomial(t + towers - 3, towers - 3 - i)
+        );
+        mult *= -2;
+    }
+    ans = (ans + disks - disks_0) * Math.round(
+        Math.pow(2, t)
+    ) + 1 - towers % 2 * 2;
+    var ant = 0;
+    mult = 1;
+    for (i = 0; i < t; i++)
+    {
+        ant += mult * Math.round(
+            main.binomial(i + towers - 3, towers - 3)
+        );
+        mult *= 2;
+    }
+    ant += (disks - disks_0) * Math.round(
+        Math.pow(2, t)
+    );
+    if (ant == -2)
+    {
+        ant = ans;
+    }
+    return ant;
+};
+
+solve.classic.more.other = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    var towers = [];
+    for (var i = mult * stack; i <= mult * stack + mult; i++)
+    {
+        towers.push(i);
+    }
+    return [
+        function()
+        {
+            return func(
+                main.count.disks, towers, (mult * stack), (mult * stack + mult)
+            );
+        }
+    ];
+};
+
+solve.classic.more.rec = function(disks, towers, from, to)
+{
+    if (
+        disks < 1 ||
+        towers.length < 2 ||
+        from === undefined ||
+        to === undefined
+    )
+    {
+        return [];
+    }
+    if (towers.length == 2)
+    {
+        return [from, to];
+    }
+    var k = solve.classic.more.calc(disks, towers.length).k;
+    var last = main.towers[from].disks[main.towers[from].disks.length - 1];
+    var using;
+    for (var i = 0; i < towers.length; i++)
+    {
+        using = towers[i];
+        if (
+            using != from &&
+            using != to &&
+            main.movable(last, using)
+        )
+        {
+            break;
+        }
+    }
+    var removed = [];
+    for (i = 0; i < towers.length; i++)
+    {
+        var tower = towers[i];
+        if (tower != using)
+        {
+            removed.push(tower);
+        }
+    }
+    return [
+        function()
+        {
+            return new solve.classic.more.rec(disks - k, towers, from, using);
+        },
+        function()
+        {
+            return new solve.classic.more.rec(k, removed, from, to);
+        },
+        function()
+        {
+            return new solve.classic.more.rec(disks - k, towers, using, to);
+        }
+    ];
+};
+
+solve.classic.three.first = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    var from = mult * stack;
+    var using = mult * stack + 1;
+    var to = mult * stack + mult;
+    return [
+        function()
+        {
+            return func(main.count.disks, from, to, using);
+        },
+        function()
+        {
+            return func(main.count.disks, using, from, to);
+        }
+    ];
+};
+
+solve.classic.three.iter = function(disks, from, using, to, clock)
+{
+    if (clock === undefined)
+    {
+        clock = 0;
+    }
+    if (clock == solve.classic.three.moves(disks))
+    {
+        return [];
+    }
+    var frower = from;
+    var tower = to;
+    if (disks % 2)
+    {
+        if (clock % 3 == 1)
+        {
+            frower = using;
+            tower = from;
+        }
+        if (clock % 3 == 2)
+        {
+            frower = to;
+            tower = using;
+        }
+    }
+    else
+    {
+        tower = using;
+        if (clock % 3 == 1)
+        {
+            frower = to;
+            tower = from;
+        }
+        if (clock % 3 == 2)
+        {
+            frower = using;
+            tower = to;
+        }
+    }
+    var last = main.towers[frower].disks[main.towers[frower].disks.length - 1];
+    if (!main.movable(last, tower))
+    {
+        frower = frower ^ tower;
+        tower = frower ^ tower;
+        frower = frower ^ tower;
+    }
+    return [
+        frower,
+        tower,
+        function()
+        {
+            return solve.classic.three.iter(disks, from, using, to, clock + 1);
+        }
+    ];
+};
+
+solve.classic.three.moves = function(disks)
+{
+    return Math.pow(2, disks) - 1;
+};
+
+solve.classic.three.other = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    return [
+        function()
+        {
+            return func(
+                main.count.disks,
+                mult * stack,
+                mult * stack + 1,
+                mult * stack + mult
+            );
+        }
+    ];
+};
+
+solve.classic.three.pick = function(stack, data)
+{
+    if (!data.hasOwnProperty('count'))
+    {
+        if (main.count.disks % 2 === 0)
+        {
+            stack = main.count.stacks - 1;
+        }
+        data.count = 0;
+        data.phase = 'break';
+    }
+    if (!data.hasOwnProperty('shortcut'))
+    {
+        data.shortcut = true;
+    }
+    var mult = main.count.per - 1;
+    var using = mult * stack + 1;
+    var to = main.cycle(mult * stack + mult);
+    var tower = using;
+    if (data.phase == 'build')
+    {
+        tower = to;
+    }
+    if (
+        data.phase == 'shortcut' &&
+        main.towers[0].disks.length === main.count.disks
+    )
+    {
+        data.phase = 'base';
+        stack = main.count.stacks - 1;
+    }
+    if (data.phase == 'last' && main.towers[0].disks.length == 1)
+    {
+        data.phase = 'shortcut';
+        stack = 0;
+        if (main.count.disks === 1)
+        {
+            data.phase = 'base';
+            stack = main.count.stacks - 1;
+        }
+    }
+    if (
+        data.phase == 'break' &&
+        data.shortcut &&
+        main.count.stacks > 2 &&
+        main.towers[1].disks.length === 1 &&
+        main.towers[1].disks[0].size == main.count.disks - 1
+    )
+    {
+        data.phase = 'last';
+        stack = main.count.stacks - 1;
+    }
+    else if (data.phase == 'base' && main.towers[to].disks.length == 1)
+    {
+        stack--;
+        if (stack === 0)
+        {
+            data.phase = 'build';
+            to = main.cycle(mult * stack + mult);
+            data.count = main.towers[to].disks.length;
+        }
+    }
+    else if (
+        (
+            data.phase == 'break' ||
+            data.phase == 'build'
+        ) &&
+        main.towers[tower].disks.length > data.count &&
+        (
+            main.xor(
+                stack === 0,
+                (
+                    main.xor(
+                        main.count.disks % 2 === 0 || data.phase == 'build',
+                        main.towers[tower].disks.length % 2 === 0
+                    )
+                )
+            ) ||
+            main.towers[tower].disks.length == main.count.disks
+        ) &&
+        (
+            data.phase == 'break' ||
+            main.ordered(tower)
+        )
+    )
+    {
+        stack--;
+        if (stack < 0)
+        {
+            stack = main.count.stacks - 1;
+        }
+        if (main.towers[1].disks.length == main.count.disks)
+        {
+            data.phase = 'build';
+            tower = to;
+        }
+        using = mult * stack + 1;
+        to = main.cycle(mult * stack + mult);
+        tower = using;
+        if (data.phase == 'build')
+        {
+            tower = to;
+        }
+        data.count = main.towers[tower].disks.length;
+    }
+    return {
+        'stack': stack,
+        'data': data
+    };
+};
+
+solve.classic.three.rec = function(disks, from, using, to, limit)
+{
+    if (!limit)
+    {
+        limit = 1;
+    }
+    if (limit > disks)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.classic.three.rec(disks - 1, from, to, using, limit);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.classic.three.rec(disks - 1, using, from, to, limit);
+        }
+    ];
+};
+
+solve.classic.three.shortcut = function(func, stack)
+{
+    var mult = main.count.per - 1;
+    var from = mult * stack;
+    var using = mult * stack + 1;
+    var to = mult * stack + mult;
+    return [
+        function()
+        {
+            return func(main.count.disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return func(main.count.disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return func(main.count.disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.cyclic.counter = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.cyclic.clock = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.cyclic.counter(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.cyclic.moves = function(disks, counter)
+{
+    var seq = solve.cyclic.seq.clock;
+    if (counter)
+    {
+        seq = solve.cyclic.seq.counter;
+    }
+    for (var i = seq.length; i < disks + 1; i++)
+    {
+        seq.push((3 * seq[i - 1]) - (2 * seq[i - 3]));
+    }
+    return seq[disks];
+};
+
+solve.domino.aab = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.aab(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.aba = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.aba(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.abb = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.abb(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.aba(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.abe = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.adb(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.aba(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.abf = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.abe(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.dab(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.adb = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.abe(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.dba(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.ade = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.ade(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.dba(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.adf = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.ade(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.dab(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.dab = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.adb(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.dba = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.abe(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.dab(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.dbf = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.abe(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.dab(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.dba(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.dda = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.aba(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.abe(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.ddb(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.ddb = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.abf(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.ddb(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.dde = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.ade(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function()
+        {
+            return solve.domino.dda(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.domino.ddf = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.ade(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.dab(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.dda(disks - 1, from, using, to);
+        }
+    ];
+};
+
+solve.domino.edd = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.domino.ade(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function()
+        {
+            return solve.domino.dab(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function()
+        {
+            return solve.domino.dab(disks - 1, from, to, using);
+        },
+        to,
+        from,
+        function()
+        {
+            return solve.domino.dda(disks - 1, using, to, from);
+        }
+    ];
+};
+
+solve.domino.linear = function(disks, from, using, to, clock)
+{
+    if (clock === undefined)
+    {
+        clock = 0;
+    }
+    if (clock == Math.pow(3, disks) - 1)
+    {
+        return [];
+    }
+    var frower = from;
+    var tower = using;
+    if (clock % 2)
+    {
+        frower = using;
+        tower = to;
+    }
+    var last = main.towers[frower].disks[main.towers[frower].disks.length - 1];
+    if (!main.movable(last, tower))
+    {
+        frower = frower ^ tower;
+        tower = frower ^ tower;
+        frower = frower ^ tower;
+    }
+    return [
+        frower,
+        tower,
+        function()
+        {
+            return solve.domino.linear(disks, from, using, to, clock + 1);
+        }
+    ];
+};
