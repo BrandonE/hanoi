@@ -171,7 +171,7 @@ checkers.bbab = function(disks, from, using, extra, to, clock)
             break;
     }
     var last = main.towers[frower].disks[main.towers[frower].disks.length - 1];
-    if (!main.movable(last, tower))
+    if (!main.movable(last, tower, true))
     {
         frower = frower ^ tower;
         tower = frower ^ tower;

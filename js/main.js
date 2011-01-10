@@ -254,7 +254,6 @@ main.movable = function(disk, tower, size, undo)
     var last;
     var medium;
     var mult;
-    var stars;
     var to;
     // If this disk doesn't exist or the tower is undefined, you can't move it.
     if (!disk || tower === undefined)
@@ -288,14 +287,6 @@ main.movable = function(disk, tower, size, undo)
     if (cycle !== undefined && undo)
     {
         cycle = -cycle;
-    }
-    stars = 0;
-    for (i in main.stars)
-    {
-        if (i !== '__prototype__')
-        {
-            stars++;
-        }
     }
     if (main.restriction === 'group' && !size)
     {
@@ -394,7 +385,7 @@ main.movable = function(disk, tower, size, undo)
     }
     // If there are star towers and this move is not from nor to one, fail.
     if (
-        stars &&
+        main.stars.length &&
         !(disk.tower in main.stars) &&
         !(tower in main.stars) &&
         !size
@@ -744,7 +735,6 @@ main.setup = function()
     var stack;
     var stackable;
     var stacks = [0];
-    var stars = 0;
     var tower;
     var towers;
     var width;
@@ -932,14 +922,15 @@ main.setup = function()
             main.stars[i] = 0;
         }
     }
+    main.stars.length = 0;
     for (i in main.stars)
     {
-        if (i !== '__prototype__')
+        if (i !== '__prototype__' && i !== 'length')
         {
-            stars++;
+            main.stars.length++;
         }
     }
-    if (stars && main.restriction !== 'none')
+    if (main.stars.length && main.restriction !== 'none')
     {
         message = 'There must be no additional restrictions if there are ';
         message += 'stars.';

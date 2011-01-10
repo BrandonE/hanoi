@@ -252,15 +252,11 @@ variations, disk, disks, multistack, solver" />
             </td>
         </tr>
         <tr>
-            <td>
-                <div class="stopped">
-                    <input type="button" id="undo" value="Undo" />
-                </div>
+            <td class="stopped">
+                <input type="button" id="undo" value="Undo" />
             </td>
-            <td>
-                <div class="stopped">
-                    <input type="button" id="redo" value="Redo" />
-                </div>
+            <td class="stopped">
+                <input type="button" id="redo" value="Redo" />
             </td>
         </tr>
     </table>

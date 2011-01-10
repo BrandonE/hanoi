@@ -3,6 +3,12 @@ Copyright (C) 2010 Brandon Evans.
 http://www.brandonevans.org/
 */
 var solve = {
+    'antwerp': {
+        'three': {
+            'three': {},
+            'two': {}
+        }
+    },
     'classic': {
         'four': {},
         'more': {},
@@ -15,7 +21,272 @@ var solve = {
         }
     },
     'domino': {},
-    'fact': [1, 1]
+    'fact': [1, 1],
+    'star': {
+        'fk': []
+    }
+};
+
+solve.antwerp.three.three.all = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    if (disks == 1)
+    {
+        return [z, x, y, z, x, z, x, y, z, x];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.three.compress(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, y, x, z);
+        },
+        y,
+        x,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, z, y, x);
+        },
+        z,
+        y,
+        z,
+        y,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, y, x, z);
+        },
+        y,
+        x,
+        function()
+        {
+            return solve.antwerp.three.three.extract(disks - 1, z, y, x);
+        }
+    ];
+};
+
+solve.antwerp.three.three.compress = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.three.compress(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, y, z, x);
+        },
+        y,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, x, y, z);
+        }
+    ];
+};
+
+solve.antwerp.three.three.extract = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, y, x, z);
+        },
+        x,
+        y,
+        function()
+        {
+            return solve.antwerp.three.three.extract(disks - 1, z, y, x);
+        }
+    ];
+};
+
+solve.antwerp.three.three.one = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        x,
+        z,
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.three.one(disks - 1, y, x, z);
+        }
+    ];
+};
+
+solve.antwerp.three.two.big = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, x, z, y);
+        },
+        x,
+        y,
+        x,
+        y,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, z, y, x);
+        }
+    ];
+};
+
+solve.antwerp.three.two.other = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.two.spare(disks - 1, x, y, z);
+        },
+        y,
+        x,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, z, x, y);
+        }
+    ];
+};
+
+solve.antwerp.three.two.rebuild = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    if (disks < 2 && x == 1)
+    {
+        return [x, z];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, x, y, z);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 2, y, z, x);
+        },
+        y,
+        x,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 2, z, x, y);
+        },
+        y,
+        z,
+        function()
+        {
+            return solve.antwerp.three.two.rebuild(disks - 2, x, y, z);
+        }
+    ];
+}
+
+solve.antwerp.three.two.solve = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.two.other(disks - 1, x, y, z);
+        },
+        y,
+        z,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, x, z, y);
+        },
+        x,
+        y,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, z, y, x);
+        },
+        z,
+        x,
+        function()
+        {
+            return solve.antwerp.three.two.rebuild(disks - 1, y, z, x);
+        }
+    ];
+};
+
+solve.antwerp.three.two.spare = function(disks, x, y, z)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.antwerp.three.two.other(disks - 1, x, y, z);
+        },
+        y,
+        z,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, x, y, z);
+        },
+        x,
+        z,
+        function()
+        {
+            return solve.antwerp.three.two.big(disks - 1, y, z, x);
+        }
+    ];
 };
 
 solve.binomial = function(x, y)
@@ -332,7 +603,7 @@ solve.classic.three.iter = function(disks, from, using, to, clock)
         }
     }
     var last = main.towers[frower].disks[main.towers[frower].disks.length - 1];
-    if (!main.movable(last, tower))
+    if (!main.movable(last, tower, true))
     {
         frower = frower ^ tower;
         tower = frower ^ tower;
@@ -982,7 +1253,7 @@ solve.domino.linear = function(disks, from, using, to, clock)
         tower = to;
     }
     var last = main.towers[frower].disks[main.towers[frower].disks.length - 1];
-    if (!main.movable(last, tower))
+    if (!main.movable(last, tower, true))
     {
         frower = frower ^ tower;
         tower = frower ^ tower;
@@ -1112,15 +1383,48 @@ solve.stacks = function(func, first, other, shortcut)
     return stacks;
 };
 
+solve.star.rec = function(disks, from, using, extra, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.star.rec(
+                disks - solve.star.fk[disks], from, using, to, extra
+            );
+        },
+        function()
+        {
+            return solve.domino.aba(solve.star.fk[disks], from, using, to);
+        },
+        function()
+        {
+            return solve.star.rec(
+                disks - solve.star.fk[disks], extra, using, from, to
+            );
+        }
+    ];
+};
+
 solve.start = function()
 {
-    var func;
+    var bdi;
+    var bdj;
+    var fij
     var first;
+    var func;
+    var i;
+    var j;
+    var log2;
+    var log3;
     var other;
     var shortcut;
     if (!main.random && !main.shuffle)
     {
-        if (main.movement === 'any')
+        if (main.restriction === 'none')
         {
             func = solve.classic.three.rec;
             first = solve.classic.three.first;
@@ -1128,11 +1432,98 @@ solve.start = function()
             shortcut = solve.classic.three.shortcut;
             if (main.count.stacks === 1)
             {
+                if (
+                    main.stars.length &&
+                    main.stars.length < main.count.per - 1
+                )
+                {
+                    if (1 in main.stars)
+                    {
+                        if (main.count.per === 3)
+                        {
+                            main.generator = solve.domino.linear(
+                                main.count.disks, 0, 1, 2
+                            );
+                            main.minimum = Math.pow(3, main.count.disks) - 1;
+                            return;
+                        }
+                        main.generator = solve.star.rec(
+                            main.count.disks, 0, 1, 2, main.count.towers - 1
+                        );
+                        log2 = Math.log(2.0);
+                        log3 = Math.log(3.0);
+                        bdi = Math.floor(
+                            Math.sqrt(2 * main.count.disks * log2 / log3)
+                        ) + 1;
+                        bdj = Math.floor(
+                            Math.sqrt(2 * main.count.disks * log3 / log2)
+                        ) + 1;
+                        fij = [];
+                        for (i = 0; i < bdi; i++)
+                        {
+                            for (j = 0; j < bdj; j++)
+                            {
+                                fij.push(j * log2 / log3 + i);
+                            }
+                        }
+                        fij[bdi * bdj - 1] = -1;
+                        fij.sort(
+                            function(a, b)
+                            {
+                                return a - b;
+                            }
+                        );
+                        main.minimum = 0;
+                        solve.star.fk = [];
+                        for (i = 0; i < main.count.disks + 1; i++)
+                        {
+                            main.minimum += Math.floor(
+                                Math.exp(fij[i] * log3) + 0.5
+                            );
+                            solve.star.fk.push(Math.floor(fij[i]) + 1);
+                        }
+                        main.minimum *= 2;
+                    }
+                    return;
+                }
                 func = solve.classic.more.rec;
                 other = solve.classic.more.other;
                 main.minimum = solve.classic.more.moves(
                     main.count.disks, main.count.towers
                 );
+            }
+            else if (main.antwerp)
+            {
+                if (main.count.stacks === 2)
+                {
+                    main.generator = solve.antwerp.three.two.solve(
+                        main.count.disks, 0, 1, 2
+                    );
+                    var minus = 11;
+                    if (main.count.disks % 2)
+                    {
+                        minus = 10;
+                    }
+                    main.minimum = (
+                        7 * Math.pow(
+                            2, main.count.disks + 1
+                        ) - 9 * main.count.disks - minus
+                    ) / 3;
+                }
+                if (main.count.stacks === 3)
+                {
+                    main.generator = solve.antwerp.three.three.all(
+                        main.count.disks, 0, 1, 2
+                    );
+                    main.minimum = 5;
+                    if (main.count.disks > 1)
+                    {
+                        main.minimum = 12 * Math.pow(
+                            2, main.count.disks
+                        ) - (8 * main.count.disks) - 10;
+                    }
+                }
+                return;
             }
             else
             {
@@ -1158,21 +1549,21 @@ solve.start = function()
         }
         if (main.count.per === 3)
         {
-            if (main.movement === 'linear')
+            if (main.restriction === 'linear')
             {
                 main.generator = solve.domino.linear(
                     main.count.disks, 0, 1, 2
                 );
                 main.minimum = Math.pow(3, main.count.disks) - 1;
             }
-            if (main.movement === 'clock')
+            if (main.restriction === 'clock')
             {
                 main.generator = solve.cyclic.clock(
                     main.count.disks, 0, 1, 2
                 );
                 main.minimum = solve.cyclic.moves(main.count.disks);
             }
-            if (main.movement === 'counter')
+            if (main.restriction === 'counter')
             {
                 main.generator = solve.cyclic.clock(
                     main.count.disks, 0, 1, 2
@@ -1189,32 +1580,6 @@ solve.start = function()
                 if (main.count.stacks > 1)
                 {
                     main.minimum *= main.count.stacks + 1;
-                }
-            }
-            if (main.antwerp)
-            {
-                if (main.count.stacks === 2)
-                {
-                    var minus = 11;
-                    if (main.count.disks % 2)
-                    {
-                        minus = 10;
-                    }
-                    main.minimum = (
-                        7 * Math.pow(
-                            2, main.count.disks + 1
-                        ) - 9 * main.count.disks - minus
-                    ) / 3;
-                }
-                if (main.count.stacks === 3)
-                {
-                    main.minimum = 5;
-                    if (main.count.disks > 1)
-                    {
-                        main.minimum = 12 * Math.pow(
-                            2, main.count.disks
-                        ) - (8 * main.count.disks) - 10;
-                    }
                 }
             }
             if (main.variation === 'Checkers')
