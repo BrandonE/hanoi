@@ -821,7 +821,7 @@ main.setup = function()
         alert('There can\'t be more than 3 colors.');
         main.count.colors = 3;
     }
-    if (main.home && main.top === 'Any' || main.top === 1)
+    if (main.home && (main.top === 'Any' || main.top === '1'))
     {
         message = 'The top shade can\'t be the first shade if the game ';
         message += 'should be ended on the Home tower.';
