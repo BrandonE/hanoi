@@ -438,10 +438,10 @@ solve.classic.three.pick = function(stack, data)
         ) &&
         main.towers[tower].disks.length > data.count &&
         (
-            main.xor(
+            solve.xor(
                 stack === 0,
                 (
-                    main.xor(
+                    solve.xor(
                         main.count.disks % 2 === 0 || data.phase == 'build',
                         main.towers[tower].disks.length % 2 === 0
                     )
@@ -1114,48 +1114,46 @@ solve.stacks = function(func, first, other, shortcut)
 
 solve.start = function()
 {
+    var func;
+    var first;
+    var other;
+    var shortcut;
     if (!main.random && !main.shuffle)
     {
         if (main.movement === 'any')
         {
+            func = solve.classic.three.rec;
+            first = solve.classic.three.first;
+            other = solve.classic.three.other;
+            shortcut = solve.classic.three.shortcut;
             if (main.count.stacks === 1)
             {
-                main.generator = solve.pick(
-                    solve.stacks(
-                        solve.classic.more.rec,
-                        solve.classic.more.first,
-                        solve.classic.more.other,
-                        solve.classic.three.shortcut
-                    ),
-                    solve.classic.three.pick
-                );
+                func = solve.classic.more.rec;
+                other = solve.classic.more.other;
                 main.minimum = solve.classic.more.moves(
                     main.count.disks, main.count.towers
                 );
-                return;
             }
-            main.generator = main.pick(
-                main.stacks(
-                    solve.classic.three.rec,
-                    solve.classic.three.first,
-                    solve.classic.three.other,
-                    solve.classic.three.shortcut
-                ),
+            else
+            {
+                main.minimum = solve.classic.three.moves(main.count.disks);
+                if (main.count.stacks === 2)
+                {
+                    main.minimum *= 3;
+                }
+                if (main.count.stacks > 2)
+                {
+                    main.minimum = (
+                        main.count.stacks * main.minimum
+                    ) + solve.classic.three.moves(
+                        main.count.disks - 1
+                    ) + 1;
+                }
+            }
+            main.generator = solve.pick(
+                solve.stacks(func, first, other, shortcut),
                 solve.classic.three.pick
             );
-            main.minimum = solve.classic.three.moves(main.count.disks);
-            if (main.count.stacks === 2)
-            {
-                main.minimum *= 3;
-            }
-            if (main.count.stacks > 2)
-            {
-                main.minimum = (
-                    main.count.stacks * main.minimum
-                ) + solve.classic.three.moves(
-                    main.count.disks - 1
-                ) + 1;
-            }
             return;
         }
         if (main.count.per === 3)

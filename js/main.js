@@ -22,11 +22,10 @@ var main = {
     },
     'delay': 250,
     'generator': [],
-    'goal': 'away',
+    'home': false,
     'manual': [],
     'minimum': 0,
     'mode': 'Wait',
-    'movement': 'any',
     'moves': {
         'current': 0,
         'old': 0
@@ -278,11 +277,11 @@ main.movable = function(disk, tower, size, undo)
     {
         to = main.cycle(to);
     }
-    if (main.movement === 'clock')
+    if (main.restriction === 'clock')
     {
         cycle = 1;
     }
-    if (main.movement === 'counter')
+    if (main.restriction === 'counter')
     {
         cycle = -1;
     }
@@ -368,7 +367,7 @@ main.movable = function(disk, tower, size, undo)
     fail.
     */
     if (
-        main.movement === 'linear' &&
+        main.restriction === 'linear' &&
         Math.abs(tower - disk.tower) > 1 &&
         !size
     )
@@ -596,7 +595,7 @@ main.move = function(tower, undo, redo, restoring)
     // Else, if the solver isn't running, show an appropriate message.
     else if (!main.running)
     {
-        if (main.minimum === 'N/A')
+        if (main.minimum === 'N/A' || main.minimum === 'Unsolved')
         {
             alert('Puzzle solved.');
         }
@@ -781,7 +780,7 @@ main.setup = function()
         alert(message);
         main.size = true;
     }
-    if (main.movement === 'counter' && main.count.stacks > 1 && !main.size)
+    if (main.restriction === 'counter' && main.count.stacks > 1 && !main.size)
     {
         message = 'Disks must be placed on eachother in a game with multiple ';
         message += 'stacks in which disks can only move cyclicly ';
@@ -820,7 +819,7 @@ main.setup = function()
         alert('There must be at least one color.');
         main.count.colors = 1;
     }
-    if (main.goal === 'home' && main.count.colors < 2)
+    if (main.home && main.count.colors < 2)
     {
         message = 'There must be at least two colors if the game should end ';
         message += 'on the Home tower.';
@@ -832,19 +831,29 @@ main.setup = function()
         alert('There can\'t be more than 3 colors.');
         main.count.colors = 3;
     }
-    if (main.goal === 'home' && main.top === 'Any' || main.top === 1)
+    if (main.home && main.top === 'Any' || main.top === 1)
     {
         message = 'The top shade can\'t be the first shade if the game ';
         message += 'should be ended on the Home tower.';
         main.top = 2;
         alert(message);
     }
-    if (main.top !== 'Any' && main.top !== 1 && !main.change)
+    if (main.top !== 'Any')
     {
-        message = 'Disks must change colors when moved if the top shade ';
-        message += 'isn\'t the first shade.';
-        alert(message);
-        main.change = true;
+        if (main.top !== '1' && !main.change)
+        {
+            message = 'Disks must change colors when moved if the top shade ';
+            message += 'isn\'t the first shade.';
+            alert(message);
+            main.change = true;
+        }
+        if (main.restriction in {'linear': 0, 'clock': 0, 'counter': 0})
+        {
+            message = 'There must be no additional restrictions on disk ';
+            message += 'movement if the top shade can\'t be any shade.';
+            alert(message);
+            main.restriction = 'none';
+        }
     }
     if (main.restriction === 'different' && main.alternate)
     {
@@ -868,13 +877,6 @@ main.setup = function()
             message += 'of the same color.';
             alert(message);
             main.alternate = true;
-        }
-        if (main.movement !== 'any')
-        {
-            message = 'The disks must move in any direction if disks can\'t ';
-            message += 'touch disks of the same color.';
-            alert(message);
-            main.movement = 'any';
         }
         if (main.change && main.count.per < 4)
         {
@@ -937,22 +939,12 @@ main.setup = function()
             stars++;
         }
     }
-    if (stars)
+    if (stars && main.restriction !== 'none')
     {
-        if (main.movement !== 'any')
-        {
-            message = 'The disks must move in any direction if there are ';
-            message += 'star towers.';
-            alert(message);
-            main.movement = 'any';
-        }
-        if (main.restriction !== 'none')
-        {
-            message = 'The disks must touch any colored disk if there are ';
-            message += 'star towers.';
-            alert(message);
-            main.restriction = 'none';
-        }
+        message = 'There must be no additional restrictions if there are ';
+        message += 'stars.';
+        alert(message);
+        main.restriction = 'none';
     }
     main.minimum = 'N/A';
     denom = main.count.per - 1;
@@ -1346,9 +1338,8 @@ main.setup = function()
             'change': main.change,
             'count': main.count,
             'delay': main.delay,
-            'goal': main.goal,
+            'home': main.home,
             'mode': main.mode,
-            'movement': main.movement,
             'random': main.random,
             'restriction': main.restriction,
             'shuffle': main.shuffle,
@@ -1357,11 +1348,10 @@ main.setup = function()
             'top': main.top
         })
     );
-    $('#' + main.goal).attr('checked', true);
+    $('#home').attr('checked', main.home);
     $('#log').val('');
     $('#minimum').text(main.minimum);
     $('#mode').val(main.mode);
-    $('#' + main.movement).attr('checked', true);
     $('#moves').text(main.moves.current);
     $('#per').val(main.count.per);
     $('#random').attr('checked', main.random);
@@ -1424,7 +1414,7 @@ main.solved = function()
     {
         // Assume the target tower is the "to" tower.
         target = main.cycle(mult * i + mult, 0, towers);
-        if (main.goal === 'home')
+        if (main.home)
         {
             target = mult * i;
         }
@@ -1582,28 +1572,6 @@ $(document).ready(
                 }
             }
         );
-        $('input[name=goal]').change(
-            function()
-            {
-                var value = $('input[name=goal]:checked').val();
-                if (main.goal !== value)
-                {
-                    main.goal = value;
-                    main.setup();
-                }
-            }
-        );
-        $('input[name=movement]').change(
-            function()
-            {
-                var value = $('input[name=movement]:checked').val();
-                if (main.movement !== value)
-                {
-                    main.movement = value;
-                    main.setup();
-                }
-            }
-        );
         $('input[name=restriction]').change(
             function()
             {
@@ -1672,6 +1640,13 @@ $(document).ready(
                     main.count.disks = value;
                     main.setup();
                 }
+            }
+        );
+        $('#home').change(
+            function()
+            {
+                main.home = ($('#home:checked').length);
+                main.setup();
             }
         );
         $('#importsettings').change(

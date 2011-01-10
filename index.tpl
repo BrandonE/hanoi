@@ -109,29 +109,6 @@ variations, disk, disks, multistack, solver" />
         </tr>
         <tr>
             <td>
-                <input type="radio" name="movement" id="any" value="any" />
-                <label for="any">Disks can move in any direction</label>
-            </td>
-            <td>
-                <input type="radio" name="movement" id="linear"
-                value="linear" /> <label for="linear">Disks can only move
-                linearly</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="radio" name="movement" id="clock" value="clock" />
-                <label for="clock">Disks can only move cyclicly
-                clockwise</label>
-            </td>
-            <td>
-                <input type="radio" name="movement" id="counter"
-                value="counter" /> <label for="counter">Disks can only move
-                cyclicly counterclockwise</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <input type="checkbox" id="alternate" />
                 <label for="alternate">Alternate</label>
             </td>
@@ -144,45 +121,58 @@ variations, disk, disks, multistack, solver" />
             <td>
                 <input type="radio" name="restriction" id="none" value="none"
                 />
-                <label for="none">Disks can touch any colored disk</label>
+                <label for="none">No additional restrictions.</label>
             </td>
+            <td>
+                <input type="radio" name="restriction" id="linear"
+                value="linear" /> <label for="linear">Disks can only move
+                linearly</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="radio" name="restriction" id="clock" value="clock" />
+                <label for="clock">Disks can only move cyclicly
+                clockwise</label>
+            </td>
+            <td>
+                <input type="radio" name="restriction" id="counter"
+                value="counter" /> <label for="counter">Disks can only move
+                cyclicly counterclockwise</label>
+            </td>
+        </tr>
+        <tr>
             <td>
                 <input type="radio" name="restriction" id="different"
                 value="different" /> <label for="different">Disks can't touch
                 disks of a different color</label>
             </td>
-        </tr>
-        <tr>
             <td>
                 <input type="radio" name="restriction" id="same" value="same"
                 /> <label for="same">Disks can't touch disks of the same
                 color</label>
             </td>
+        </tr>
+        <tr>
             <td>
                 <input type="radio" name="restriction" id="group" value="group"
                 /> <label for="group">In any group of C = Colors disks, there
                 can't be two of the same color disks</label>
             </td>
-        </tr>
-        <tr>
             <td>
                 <input type="checkbox" id="size" />
                 <label for="size">Disks of the same size can be placed on
                 eachother</label>
             </td>
+        </tr>
+        <tr>
             <td>
                 <input type="checkbox" id="antwerp" />
                 <label for="antwerp">Antwerp</label>
             </td>
-        </tr>
-        <tr>
             <td>
-                <input type="radio" name="goal" id="away" value="away" />
-                <label for="away">End on the Away tower</label>
-            </td>
-            <td>
-                <input type="radio" name="goal" id="home" value="home" />
-                <label for="home">End on the Home tower</label>
+                <input type="checkbox" id="home" />
+                <label for="home">Home</label>
             </td>
         </tr>
         <tr>
