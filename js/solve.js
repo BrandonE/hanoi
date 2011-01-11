@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010 Brandon Evans.
+Copyright (C) 2010-2011 Brandon Evans.
 http://www.brandonevans.org/
 */
 var solve = {
@@ -22,6 +22,10 @@ var solve = {
     },
     'domino': {},
     'fact': [1, 1],
+    'lundon': {
+        'home': {},
+        'medium': {}
+    },
     'star': {
         'fk': []
     }
@@ -1279,6 +1283,98 @@ solve.factorial = function(n)
     return solve.fact[n];
 };
 
+solve.lundon.home.dark = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.counter(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        to,
+        from,
+        function()
+        {
+            return solve.cyclic.counter(disks - 1, using, to, from);
+        }
+    ];
+};
+
+solve.lundon.home.light = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, from, to, using);
+        },
+        solve.lundon.same(from, to),
+        to,
+        from,
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, using, to, from);
+        }
+    ];
+};
+
+solve.lundon.medium.clock = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.counter(disks - 1, from, to, using);
+        },
+        function()
+        {
+            return solve.lundon.same(from, to);
+        },
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.lundon.medium.counter = function(disks, from, using, to)
+{
+    if (disks < 1)
+    {
+        return [];
+    }
+    return [
+        function()
+        {
+            return solve.cyclic.clock(disks - 1, from, to, using);
+        },
+        function()
+        {
+            return solve.lundon.same(from, to);
+        },
+        function()
+        {
+            return solve.cyclic.counter(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.lundon.same = function(from, to)
+{
+    return [from, to, to, from, from, to];
+};
+
 solve.pick = function(stacks, func, data, stack)
 {
     /*
@@ -1420,106 +1516,135 @@ solve.start = function()
     var j;
     var log2;
     var log3;
+    var m;
     var other;
+    var s;
     var shortcut;
     if (!main.random && !main.shuffle)
     {
-        if (main.restriction === 'none')
+        if (main.restriction === 'linear' && main.count.per === 3)
         {
-            func = solve.classic.three.rec;
-            first = solve.classic.three.first;
-            other = solve.classic.three.other;
-            shortcut = solve.classic.three.shortcut;
-            if (main.count.stacks === 1)
+            main.generator = solve.domino.linear(
+                main.count.disks, 0, 1, 2
+            );
+            main.minimum = Math.pow(3, main.count.disks) - 1;
+            return;
+        }
+        if (main.restriction === 'clock' && main.count.per === 3)
+        {
+            main.generator = solve.cyclic.clock(
+                main.count.disks, 0, 1, 2
+            );
+            main.minimum = solve.cyclic.moves(main.count.disks);
+            return;
+        }
+        if (main.restriction === 'counter' && main.count.per === 3)
+        {
+            main.generator = solve.cyclic.clock(
+                main.count.disks, 0, 1, 2
+            );
+            main.minimum = solve.cyclic.moves(main.count.disks, true);
+            return;
+        }
+        if (
+            main.restriction === 'different' &&
+            main.count.stacks === 1 &&
+            main.change &&
+            main.count.colors > 1
+        )
+        {
+            if (main.count.colors === 2)
             {
-                func = solve.classic.more.rec;
-                other = solve.classic.more.other;
-                main.minimum = solve.classic.more.moves(
-                    main.count.disks, main.count.towers
+                m = $M(
+                [
+                    [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
+                    [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
+                    [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                    [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
+                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                    [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
                 );
-            }
-            else if (main.antwerp)
-            {
-                if (main.count.stacks === 2)
+                s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
+                for (i = 0; i < main.count.disks - 1; i++)
                 {
-                    main.generator = solve.antwerp.three.two.solve(
-                        main.count.disks, 0, 1, 2
-                    );
-                    var minus = 11;
-                    if (main.count.disks % 2)
-                    {
-                        minus = 10;
-                    }
-                    main.minimum = (
-                        7 * Math.pow(
-                            2, main.count.disks + 1
-                        ) - 9 * main.count.disks - minus
-                    ) / 3;
+                    s = m.x(s);
                 }
-                if (main.count.stacks === 3)
+                if (!main.home && main.top === '1')
                 {
-                    main.generator = solve.antwerp.three.three.all(
-                        main.count.disks, 0, 1, 2
+                    main.generator = solve.domino.ddf(
+                        main.count.disks, 0, 1, main.count.towers - 1
                     );
-                    main.minimum = 5;
-                    if (main.count.disks > 1)
-                    {
-                        main.minimum = 12 * Math.pow(
-                            2, main.count.disks
-                        ) - (8 * main.count.disks) - 10;
-                    }
+                    main.minimum = s.elements[1];
+                }
+                if (!main.home && (main.top === '2' || main.top === 'Any'))
+                {
+                    main.generator = solve.domino.dde(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = s.elements[0];
+                }
+                if (main.home)
+                {
+                    main.generator = solve.domino.edd(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = s.elements[2];
                 }
                 return;
             }
-            else
+            if (main.count.colors === 3)
             {
-                main.minimum = solve.classic.three.moves(main.count.disks);
-                if (main.count.stacks === 2)
+                if (!main.home && (main.top === '1' || main.top === 'Any'))
                 {
-                    main.minimum *= 3;
-                }
-                if (main.count.stacks > 2)
-                {
-                    main.minimum = (
-                        main.count.stacks * main.minimum
-                    ) + solve.classic.three.moves(
+                    main.generator = solve.lundon.medium.clock(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = solve.cyclic.moves(
                         main.count.disks - 1
-                    ) + 1;
+                    ) + solve.cyclic.moves(main.count.disks - 1, true) + 3;
                 }
-            }
-            main.generator = solve.pick(
-                solve.stacks(func, first, other, shortcut),
-                solve.classic.three.pick
-            );
-        }
-        if (main.restriction === 'linear')
-        {
-            if (main.count.per === 3)
-            {
-                main.generator = solve.domino.linear(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = Math.pow(3, main.count.disks) - 1;
-            }
-        }
-        if (main.restriction === 'clock')
-        {
-            if (main.count.per === 3)
-            {
-                main.generator = solve.cyclic.clock(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = solve.cyclic.moves(main.count.disks);
-            }
-        }
-        if (main.restriction === 'counter')
-        {
-            if (main.count.per === 3)
-            {
-                main.generator = solve.cyclic.clock(
-                    main.count.disks, 0, 1, 2
-                );
-                main.minimum = solve.cyclic.moves(main.count.disks, true);
+                if (!main.home && main.top === '2')
+                {
+                    main.generator = solve.cyclic.counter(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = solve.cyclic.moves(main.count.disks, true);
+                }
+                if (!main.home && main.top === '3')
+                {
+                    main.generator = solve.cyclic.clock(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = solve.cyclic.moves(main.count.disks);
+                }
+                if (main.home && main.top === '2')
+                {
+                    main.generator = solve.lundon.home.light(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1
+                    ) + solve.cyclic.moves(main.count.disks - 1) + 4;
+                }
+                if (main.home && main.top === '3')
+                {
+                    main.generator = solve.lundon.home.dark(
+                        main.count.disks, 0, 1, main.count.towers - 1
+                    );
+                    main.minimum = solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + solve.cyclic.moves(
+                        main.count.disks - 1, true
+                    ) + 2;
+                }
+                return;
             }
         }
         if (
@@ -1597,79 +1722,72 @@ solve.start = function()
                     }
                 }
             }
-            if (main.count.stacks === 1)
+        }
+        func = solve.classic.three.rec;
+        first = solve.classic.three.first;
+        other = solve.classic.three.other;
+        shortcut = solve.classic.three.shortcut;
+        if (main.count.stacks === 1)
+        {
+            func = solve.classic.more.rec;
+            other = solve.classic.more.other;
+            main.minimum = solve.classic.more.moves(
+                main.count.disks, main.count.towers
+            );
+        }
+        else if (main.antwerp)
+        {
+            if (main.count.stacks === 2)
             {
-                if (
-                    main.variation === 'Domino Light' ||
-                    main.variation === 'Domino Dark' ||
-                    main.variation === 'Domino Home Light'
-                )
+                main.generator = solve.antwerp.three.two.solve(
+                    main.count.disks, 0, 1, 2
+                );
+                var minus = 11;
+                if (main.count.disks % 2)
                 {
-                    var m = $M(
-                    [
-                        [0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                        [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2],
-                        [0, 0, 0, 1, 1, 2, 0, 0, 0, 0, 0, 0, 3],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-                        [0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]]
-                    );
-                    var s = $V([1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1]);
-                    for (i = 0; i < main.count.disks - 1; i++)
-                    {
-                        s = m.x(s);
-                    }
-                    main.minimum = s.elements[0];
-                    if (main.variation === 'Domino Dark')
-                    {
-                        main.minimum = s.elements[1];
-                    }
-                    if (main.variation === 'Domino Home Light')
-                    {
-                        main.minimum = s.elements[2];
-                    }
+                    minus = 10;
                 }
-                if (main.variation === 'Star')
+                main.minimum = (
+                    7 * Math.pow(
+                        2, main.count.disks + 1
+                    ) - 9 * main.count.disks - minus
+                ) / 3;
+            }
+            if (main.count.stacks === 3)
+            {
+                main.generator = solve.antwerp.three.three.all(
+                    main.count.disks, 0, 1, 2
+                );
+                main.minimum = 5;
+                if (main.count.disks > 1)
                 {
-                    star.start();
-                }
-                if (main.variation === 'Lundon Light')
-                {
-                    main.minimum = solve.cyclic.moves(main.count.disks, true);
-                }
-                if (main.variation === 'Lundon Medium')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1
-                    ) + solve.cyclic.moves(main.count.disks - 1, true) + 3;
-                }
-                if (main.variation === 'Lundon Dark')
-                {
-                    main.minimum = solve.cyclic.moves(main.count.disks);
-                }
-                if (main.variation === 'Lundon Home Light')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1
-                    ) + solve.cyclic.moves(main.count.disks - 1) + 4;
-                }
-                if (main.variation === 'Lundon Home Dark')
-                {
-                    main.minimum = solve.cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + solve.cyclic.moves(
-                        main.count.disks - 1, true
-                    ) + 2;
+                    main.minimum = 12 * Math.pow(
+                        2, main.count.disks
+                    ) - (8 * main.count.disks) - 10;
                 }
             }
+            return;
         }
+        else
+        {
+            main.minimum = solve.classic.three.moves(main.count.disks);
+            if (main.count.stacks === 2)
+            {
+                main.minimum *= 3;
+            }
+            if (main.count.stacks > 2)
+            {
+                main.minimum = (
+                    main.count.stacks * main.minimum
+                ) + solve.classic.three.moves(
+                    main.count.disks - 1
+                ) + 1;
+            }
+        }
+        main.generator = solve.pick(
+            solve.stacks(func, first, other, shortcut),
+            solve.classic.three.pick
+        );
     }
 };
 

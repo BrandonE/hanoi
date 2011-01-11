@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010 Brandon Evans.
+Copyright (C) 2010-2011 Brandon Evans.
 http://www.brandonevans.org/
 */
 var main = {
@@ -137,6 +137,10 @@ main.cycle = function(num, start, end)
     while (num < start && end > start)
     {
         num += end - start + 1;
+    }
+    if (start === end)
+    {
+        num = start;
     }
     return num;
 };
@@ -825,7 +829,7 @@ main.setup = function()
     {
         message = 'The top shade can\'t be the first shade if the game ';
         message += 'should be ended on the Home tower.';
-        main.top = 2;
+        main.top = '2';
         alert(message);
     }
     if (main.top !== 'Any')
