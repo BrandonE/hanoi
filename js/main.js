@@ -537,7 +537,7 @@ main.move = function(tower, undo, redo, restoring)
     }
     $(show).css('visibility', 'visible');
     $(show).css(
-        'width', Math.ceil(($(hide).width() / $(parent).width()) * 100) + '%'
+        'width', Math.round(($(hide).width() / $(parent).width()) * 100) + '%'
     );
     $(show).css('background-color', color);
     // Only update the text if there previously was text.

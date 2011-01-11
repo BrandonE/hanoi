@@ -1432,60 +1432,6 @@ solve.start = function()
             shortcut = solve.classic.three.shortcut;
             if (main.count.stacks === 1)
             {
-                if (
-                    main.stars.length &&
-                    main.stars.length < main.count.per - 1
-                )
-                {
-                    if (1 in main.stars)
-                    {
-                        if (main.count.per === 3)
-                        {
-                            main.generator = solve.domino.linear(
-                                main.count.disks, 0, 1, 2
-                            );
-                            main.minimum = Math.pow(3, main.count.disks) - 1;
-                            return;
-                        }
-                        main.generator = solve.star.rec(
-                            main.count.disks, 0, 1, 2, main.count.towers - 1
-                        );
-                        log2 = Math.log(2.0);
-                        log3 = Math.log(3.0);
-                        bdi = Math.floor(
-                            Math.sqrt(2 * main.count.disks * log2 / log3)
-                        ) + 1;
-                        bdj = Math.floor(
-                            Math.sqrt(2 * main.count.disks * log3 / log2)
-                        ) + 1;
-                        fij = [];
-                        for (i = 0; i < bdi; i++)
-                        {
-                            for (j = 0; j < bdj; j++)
-                            {
-                                fij.push(j * log2 / log3 + i);
-                            }
-                        }
-                        fij[bdi * bdj - 1] = -1;
-                        fij.sort(
-                            function(a, b)
-                            {
-                                return a - b;
-                            }
-                        );
-                        main.minimum = 0;
-                        solve.star.fk = [];
-                        for (i = 0; i < main.count.disks + 1; i++)
-                        {
-                            main.minimum += Math.floor(
-                                Math.exp(fij[i] * log3) + 0.5
-                            );
-                            solve.star.fk.push(Math.floor(fij[i]) + 1);
-                        }
-                        main.minimum *= 2;
-                    }
-                    return;
-                }
                 func = solve.classic.more.rec;
                 other = solve.classic.more.other;
                 main.minimum = solve.classic.more.moves(
@@ -1545,30 +1491,88 @@ solve.start = function()
                 solve.stacks(func, first, other, shortcut),
                 solve.classic.three.pick
             );
-            return;
         }
-        if (main.count.per === 3)
+        if (main.restriction === 'linear')
         {
-            if (main.restriction === 'linear')
+            if (main.count.per === 3)
             {
                 main.generator = solve.domino.linear(
                     main.count.disks, 0, 1, 2
                 );
                 main.minimum = Math.pow(3, main.count.disks) - 1;
             }
-            if (main.restriction === 'clock')
+        }
+        if (main.restriction === 'clock')
+        {
+            if (main.count.per === 3)
             {
                 main.generator = solve.cyclic.clock(
                     main.count.disks, 0, 1, 2
                 );
                 main.minimum = solve.cyclic.moves(main.count.disks);
             }
-            if (main.restriction === 'counter')
+        }
+        if (main.restriction === 'counter')
+        {
+            if (main.count.per === 3)
             {
                 main.generator = solve.cyclic.clock(
                     main.count.disks, 0, 1, 2
                 );
                 main.minimum = solve.cyclic.moves(main.count.disks, true);
+            }
+        }
+        if (
+            main.stars.length &&
+            main.stars.length < main.count.per - 1
+        )
+        {
+            if (1 in main.stars)
+            {
+                if (main.count.per === 3)
+                {
+                    main.generator = solve.domino.linear(
+                        main.count.disks, 0, 1, 2
+                    );
+                    main.minimum = Math.pow(3, main.count.disks) - 1;
+                    return;
+                }
+                main.generator = solve.star.rec(
+                    main.count.disks, 0, 1, 2, main.count.towers - 1
+                );
+                log2 = Math.log(2.0);
+                log3 = Math.log(3.0);
+                bdi = Math.floor(
+                    Math.sqrt(2 * main.count.disks * log2 / log3)
+                ) + 1;
+                bdj = Math.floor(
+                    Math.sqrt(2 * main.count.disks * log3 / log2)
+                ) + 1;
+                fij = [];
+                for (i = 0; i < bdi; i++)
+                {
+                    for (j = 0; j < bdj; j++)
+                    {
+                        fij.push(j * log2 / log3 + i);
+                    }
+                }
+                fij[bdi * bdj - 1] = -1;
+                fij.sort(
+                    function(a, b)
+                    {
+                        return a - b;
+                    }
+                );
+                main.minimum = 0;
+                solve.star.fk = [];
+                for (i = 0; i < main.count.disks + 1; i++)
+                {
+                    main.minimum += Math.floor(
+                        Math.exp(fij[i] * log3) + 0.5
+                    );
+                    solve.star.fk.push(Math.floor(fij[i]) + 1);
+                }
+                main.minimum *= 2;
             }
             return;
         }
