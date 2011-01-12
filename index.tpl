@@ -2,11 +2,11 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>The Towers of Hanoi and Variations</title>
-<meta name="description" content="A page providing several variations on the
-classic Towers of Hanoi puzzle and a graphic solver." />
-<meta name="keywords" content="the, towers, of, hanoi, puzzle, classic,
-variations, disk, disks, multistack, solver" />
+<title>Towers of Hanoi Demonstration</title>
+<meta name="description" content="A page containing the puzzle, variations, and
+solutions." />
+<meta name="keywords" content="tower, towers, of, hanoi, puzzle, variation,
+variations, solution, solutions, disk, disks, stack, stacks" />
 <meta name="author" content="Brandon Evans" />
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"
 />
@@ -33,232 +33,250 @@ variations, disk, disks, multistack, solver" />
     src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
     </script>
 </div>
-<h1>The Towers of Hanoi and Variations</h1>
+<h1>Towers of Hanoi Demonstration</h1>
 <h3>
-    A page containing several variations on the classic Towers of Hanoi puzzle
-    and a graphic solver.
+    A page containing the puzzle, variations, and solutions.
 </h3>
 <p>
     <a href="http://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank">The
-    Tower of Hanoi</a> is a mathematical puzzle that has become a popular
+    Towers of Hanoi</a> is a mathematical puzzle that has become a popular
     example of the concept <a
     href="http://en.wikipedia.org/wiki/Recursion_(computer_science)"
-    target="_blank">recursion</a>. On this page, we have provided several
-    variations of the puzzle, plus solution algorithms for many of them. I made
-    this program to educate, entertain, and strive for the best solutions to
-    these variations. Please <a href="mailto:admin@brandonevans.org">contact
-    me</a> if you have feedback or contributions. You can see the stable
-    version of this page <a href="/hanoi/">here</a> and the development version
+    target="_blank">recursion</a>. On this page, we have provided the puzzle,
+    several options used to create variations of it, a method of playing these
+    games manually, and solutions to many of the combinations. We made this
+    program to educate, entertain, and strive for the best solutions to these
+    variations. Please <a href="mailto:admin@brandonevans.org">contact me</a>
+    if you have feedback or contributions. You can see the stable version of
+    this page <a href="/hanoi/">here</a> and the development version
     <a href="/dev/hanoi/">here</a>. Thanks for visiting.
 </p>
 <div class="yesscript" style="display: none">
     <div id="towers"></div>
     <div style="clear: both"></div>
-    <table style="width: 100%">
+    <fieldset>
+        <legend>Solver</legend>
+        <table>
+            <tr>
+                <td><label for="mode">Mode</label></td>
+                <td>
+                    <select id="mode">
+                        <option>Wait</option>
+                        <option>Repeat</option>
+                        <option>Increase</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="button" id="switch" value="Start" />
+                </td>
+                <td>
+                    <input type="button" id="startover" value="Start Over" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="stopped">
+                        <input type="button" id="undo" value="Undo" />
+                    </div>
+                </td>
+                <td>
+                    <div class="stopped">
+                        <input type="button" id="redo" value="Redo" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="delay">Delay</label></td>
+                <td>
+                    <input type="text" id="delay" />
+                </td>
+            </tr>
+            <tr>
+                <td>Moves</td>
+                <td>
+                    <span id="moves"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Minimum Moves</td>
+                <td>
+                    <span id="minimum"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="showlog" />
+                    <label for="showlog">Log</label>
+                </td>
+                <td>
+                    <textarea id="log" rows="5" cols="17" readonly="readonly"
+                    style="display: none"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="showexportmoves" />
+                    <label for="showexportmoves">Export Moves</label>
+                </td>
+                <td>
+                    <textarea id="exportmoves" rows="1" cols="17"
+                    readonly="readonly" style="display: none"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="showimportmoves" />
+                    <label for="showimportmoves">Import Moves</label>
+                </td>
+                <td>
+                    <textarea id="importmoves" rows="1" cols="17"
+                    style="display: none"></textarea>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <legend>Settings</legend>
+        <table>
+            <tr>
+                <td><label for="disks">Disks per Stack</label></td>
+                <td>
+                    <input type="text" id="disks" />
+                </td>
+            </tr>
+            <tr class="antwerp">
+                <td><label for="per">Towers per Stack</label></td>
+                <td>
+                    <input type="text" id="per" />
+                </td>
+            </tr>
+            <tr class="antwerp">
+                <td><label for="stacks">Stacks</label></td>
+                <td>
+                    <input type="text" id="stacks" />
+                </td>
+            </tr>
+            <tr>
+                <td><label for="colors">Colors</label></td>
+                <td>
+                    <input type="text" id="colors" />
+                </td>
+            </tr>
+            <tr class="shade">
+                <td><label for="top">Top Shade</label></td>
+                <td>
+                    <select id="top">
+                        <option>Any</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="alternate" />
+                    <label for="alternate">Alternate</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="change" />
+                    <label for="change">Change</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="random" />
+                    <label for="random">Random</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="shuffle" />
+                    <label for="shuffle">Shuffle</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox" id="antwerp" />
+                    <label for="antwerp">Antwerp</label>
+                </td>
+                <td class="shade">
+                    <input type="checkbox" id="home" />
+                    <label for="home">Home</label>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset>
+        <legend>Restrictions</legend>
+        <table>
+            <tr>
+                <td>
+                    <input type="radio" name="restriction" id="none"
+                    value="none" />
+                    <label for="none">No additional restrictions.</label>
+                </td>
+                <td>
+                    <input type="radio" name="restriction" id="linear"
+                    value="linear" /> <label for="linear">Disks can only move
+                    linearly</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="restriction" id="clock"
+                    value="clock" /> <label for="clock">Disks can only move
+                    cyclicly clockwise</label>
+                </td>
+                <td>
+                    <input type="radio" name="restriction" id="counter"
+                    value="counter" /> <label for="counter">Disks can only move
+                    cyclicly counterclockwise</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="restriction" id="different"
+                    value="different" /> <label for="different">Disks can't
+                    touch disks of a different color</label>
+                </td>
+                <td>
+                    <input type="radio" name="restriction" id="same"
+                    value="same" /> <label for="same">Disks can't touch disks
+                    of the same color</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="restriction" id="group"
+                    value="group" /> <label for="group">In any group of C =
+                    Colors disks, there can't be two of the same color
+                    disks</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="size" />
+                    <label for="size">Disks of the same size can be placed on
+                    eachother</label>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <table>
         <tr>
-            <td><label for="mode">Mode</label></td>
             <td>
-                <select id="mode">
-                    <option>Wait</option>
-                    <option>Repeat</option>
-                    <option>Increase</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td><label for="disks">Disks per Stack</label></td>
-            <td>
-                <input type="text" id="disks" />
-            </td>
-        </tr>
-        <tr class="antwerp">
-            <td><label for="per">Towers per Stack</label></td>
-            <td>
-                <input type="text" id="per" />
-            </td>
-        </tr>
-        <tr class="antwerp">
-            <td><label for="stacks">Stacks</label></td>
-            <td>
-                <input type="text" id="stacks" />
-            </td>
-        </tr>
-        <tr>
-            <td><label for="colors">Colors</label></td>
-            <td>
-                <input type="text" id="colors" />
-            </td>
-        </tr>
-        <tr>
-            <td><label for="delay">Delay</label></td>
-            <td>
-                <input type="text" id="delay" />
-            </td>
-        </tr>
-        <tr>
-            <td>Moves</td>
-            <td>
-                <span id="moves"></span>
-            </td>
-        </tr>
-        <tr>
-            <td>Minimum Moves</td>
-            <td>
-                <span id="minimum"></span>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="alternate" />
-                <label for="alternate">Alternate</label>
+                <input type="checkbox" id="showexportoptions" />
+                <label for="showexportoptions">Export Options</label>
             </td>
             <td>
-                <input type="checkbox" id="change" />
-                <label for="change">Change</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="radio" name="restriction" id="none" value="none"
-                />
-                <label for="none">No additional restrictions.</label>
-            </td>
-            <td>
-                <input type="radio" name="restriction" id="linear"
-                value="linear" /> <label for="linear">Disks can only move
-                linearly</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="radio" name="restriction" id="clock" value="clock" />
-                <label for="clock">Disks can only move cyclicly
-                clockwise</label>
-            </td>
-            <td>
-                <input type="radio" name="restriction" id="counter"
-                value="counter" /> <label for="counter">Disks can only move
-                cyclicly counterclockwise</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="radio" name="restriction" id="different"
-                value="different" /> <label for="different">Disks can't touch
-                disks of a different color</label>
-            </td>
-            <td>
-                <input type="radio" name="restriction" id="same" value="same"
-                /> <label for="same">Disks can't touch disks of the same
-                color</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="radio" name="restriction" id="group" value="group"
-                /> <label for="group">In any group of C = Colors disks, there
-                can't be two of the same color disks</label>
-            </td>
-            <td>
-                <input type="checkbox" id="size" />
-                <label for="size">Disks of the same size can be placed on
-                eachother</label>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <input type="checkbox" id="antwerp" />
-                <label for="antwerp">Antwerp</label>
-            </td>
-        </tr>
-        <tr class="shade">
-            <td><label for="top">Top Shade</label></td>
-            <td>
-                <select id="top">
-                    <option>Any</option>
-                </select>
-            </td>
-        </tr>
-        <tr class="shade">
-            <td colspan="2">
-                <input type="checkbox" id="home" />
-                <label for="home">Home</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="random" />
-                <label for="random">Random</label>
-            </td>
-            <td>
-                <input type="checkbox" id="shuffle" />
-                <label for="shuffle">Shuffle</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="showlog" />
-                <label for="showlog">Log</label>
-            </td>
-            <td>
-                <textarea id="log" rows="5" cols="17" readonly="readonly"
-                style="display: none"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="showexportmoves" />
-                <label for="showexportmoves">Export Moves</label>
-            </td>
-            <td>
-                <textarea id="exportmoves" rows="1" cols="17"
+                <textarea id="exportoptions" rows="1" cols="17"
                 readonly="readonly" style="display: none"></textarea>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="checkbox" id="showimportmoves" />
-                <label for="showimportmoves">Import Moves</label>
+                <input type="checkbox" id="showimportoptions" />
+                <label for="showimportoptions">Import Options</label>
             </td>
             <td>
-                <textarea id="importmoves" rows="1" cols="17"
+                <textarea id="importoptions" rows="1" cols="17"
                 style="display: none"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="showexportsettings" />
-                <label for="showexportsettings">Export Settings</label>
-            </td>
-            <td>
-                <textarea id="exportsettings" rows="1" cols="17"
-                readonly="readonly" style="display: none"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="showimportsettings" />
-                <label for="showimportsettings">Import Settings</label>
-            </td>
-            <td>
-                <textarea id="importsettings" rows="1" cols="17"
-                style="display: none"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="button" id="switch" value="Start" />
-            </td>
-            <td>
-                <input type="button" id="startover" value="Start Over" />
-            </td>
-        </tr>
-        <tr>
-            <td class="stopped">
-                <input type="button" id="undo" value="Undo" />
-            </td>
-            <td class="stopped">
-                <input type="button" id="redo" value="Redo" />
             </td>
         </tr>
     </table>

@@ -8,6 +8,11 @@ body
     font-family: Arial;
 }
 
+table
+{
+    width: 100%;
+}
+
 #towers
 {
     text-align: center;

@@ -508,17 +508,17 @@ main.move = function(tower, undo, redo, restoring)
         main.manual.push(arguments);
     }
     $('#moves').text(main.moves.current);
-    $('#redo').css('visibility', 'hidden');
-    $('#undo').css('visibility', 'hidden');
+    $('#redo').hide();
+    $('#undo').hide();
     // If the puzzle hasn't been solved
     if (!main.solved()) {
         // Show the redo button if there are moves to be redone.
         if (main.redo.length) {
-            $('#redo').css('visibility', 'visible');
+            $('#redo').show();
         }
         // Show the undo button if there are moves to be undone.
         if (main.steps.length) {
-            $('#undo').css('visibility', 'visible');
+            $('#undo').show();
         }
         // If the puzzle has reached an impasse, show an appropriate message.
         if (main.impasse()) {
@@ -675,9 +675,19 @@ main.setup = function()
     main.redo = [];
     main.steps = [];
     main.towers = [];
+    main.count.per = parseInt(main.count.per, 10);
+    if (isNaN(main.count.per)) {
+        alert('Invalid value for towers per stack.');
+        main.count.per = 3;
+    }
     if (main.count.per < 3) {
         alert('There must be at least three towers per stack.');
         main.count.per = 3;
+    }
+    main.count.stacks = parseInt(main.count.stacks, 10);
+    if (isNaN(main.count.stacks)) {
+        alert('Invalid value for stacks.');
+        main.count.stacks = 1;
     }
     if (main.antwerp && main.count.stacks < 2) {
         alert('There must be at least two stacks in an Antwerp styled game.');
@@ -714,16 +724,26 @@ main.setup = function()
         alert('There can\'t be more than five stacks.');
         main.count.stacks = 5;
     }
+    main.count.disks = parseInt(main.count.disks, 10);
+    if (isNaN(main.count.disks)) {
+        alert('Invalid value for disks per stack.');
+        main.count.disks = 8;
+    }
     if (main.count.disks < 1) {
-        alert('There must be at least one disk.');
+        alert('There must be at least one disk per stack.');
         main.count.disks = 1;
     }
     if (main.size) {
         maximum = Math.floor(100 / main.count.stacks);
     }
     if (main.count.disks > maximum) {
-        alert('There can\'t be more than 100 disks on one tower.');
+        alert('There can\'t be more than 100 disks per stack on one tower.');
         main.count.disks = maximum;
+    }
+    main.count.colors = parseInt(main.count.colors, 10);
+    if (isNaN(main.count.colors)) {
+        alert('Invalid value for colors.');
+        main.count.colors = 2;
     }
     if (main.count.colors < 1) {
         alert('There must be at least one color.');
@@ -788,9 +808,9 @@ main.setup = function()
             main.alternate = true;
         }
         if (main.change && main.count.per < 4) {
-            message = 'There must be at least four towers if disks can\'t ';
-            message += 'touch disks of the same color and disks change ';
-            message += 'colors.';
+            message = 'There must be at least four towers per stack if disks ';
+            message += 'can\'t touch disks of the same color and disks ';
+            message += 'change colors.';
             alert(message);
             main.count.per = 4;
         }
@@ -1195,7 +1215,7 @@ main.setup = function()
     $('#delay').val(main.delay);
     $('#disks').val(main.count.disks);
     $('#exportmoves').val('');
-    $('#exportsettings').val(
+    $('#exportoptions').val(
         JSON.stringify({
             'alternate': main.alternate,
             'antwerp': main.antwerp,
@@ -1219,12 +1239,12 @@ main.setup = function()
     $('#moves').text(main.moves.current);
     $('#per').val(main.count.per);
     $('#random').attr('checked', main.random);
-    $('#redo').css('visibility', 'hidden');
+    $('#redo').hide();
     $('#' + main.restriction).attr('checked', true);
     $('#shuffle').attr('checked', main.shuffle);
     $('#size').attr('checked', main.size);
     $('#stacks').val(main.count.stacks);
-    $('#undo').css('visibility', 'hidden');
+    $('#undo').hide();
     // Populate the top color list.
     while ($('#top').children().length > main.count.colors + 1) {
         $('#top').children().last().remove();
@@ -1321,7 +1341,6 @@ main.start = function(restarting)
     main.stopped = false;
     // Update the page accordingly.
     $('#switch').val('Stop');
-    $('#source').attr('readonly', 'readonly');
     $('.stopped').hide();
     // Restore to before manual moves were made.
     while (main.manual.length) {
@@ -1341,7 +1360,7 @@ main.start = function(restarting)
         restarting = true;
     }
     main.redo = [];
-    $('#redo').css('visibility', 'hidden');
+    $('#redo').hide();
     // If there are no steps in the generator
     if (!main.generator.length) {
         // If moves have been made, restart.
@@ -1387,11 +1406,11 @@ $(document).ready(
         main.setup();
         // Update the page accourdingly.
         $('#importmoves').val('');
-        $('#importsettings').val('');
+        $('#importoptions').val('');
         $('#showexportmoves').attr('checked', false);
-        $('#showexportsettings').attr('checked', false);
+        $('#showexportoptions').attr('checked', false);
         $('#showimportmoves').attr('checked', false);
-        $('#showimportsettings').attr('checked', false);
+        $('#showimportoptions').attr('checked', false);
         $('#showlog').attr('checked', false);
         $('.noscript').hide();
         $('.yesscript').show();
@@ -1439,8 +1458,8 @@ $(document).ready(
         );
         $('#colors').blur(
             function() {
-                var value = parseInt($('#colors').val(), 10);
-                if (main.count.colors !== value && !isNaN(value)) {
+                var value = $('#colors').val();
+                if (main.count.colors !== value) {
                     main.count.colors = value;
                     main.setup();
                 }
@@ -1448,12 +1467,13 @@ $(document).ready(
         );
         $('#delay').blur(
             function() {
-                var value = parseInt($('#delay').val(), 10);
-                if (main.delay !== value && !isNaN(value)) {
-                    main.delay = value;
-                    // The delay can't be a negative number.
-                    if (main.delay < 0) {
-                        main.delay = 0;
+                var value = $('#delay').val();
+                if (main.delay !== value) {
+                    main.delay = parseInt(value);
+                    if (isNaN(main.delay) || main.delay < 0)
+                    {
+                        alert('Invalid value for delay.');
+                        main.delay = 250;
                     }
                 }
                 $('#delay').val(main.delay);
@@ -1461,8 +1481,8 @@ $(document).ready(
         );
         $('#disks').blur(
             function() {
-                var value = parseInt($('#disks').val(), 10);
-                if (main.count.disks !== value && !isNaN(value)) {
+                var value = $('#disks').val();
+                if (main.count.disks !== value) {
                     main.count.disks = value;
                     main.setup();
                 }
@@ -1474,16 +1494,16 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#importsettings').change(
+        $('#importoptions').change(
             function() {
-                var value = JSON.parse($('#importsettings').val());
+                var value = JSON.parse($('#importoptions').val());
                 var setting;
                 for (setting in value) {
                     if (setting !== '__prototype__') {
                         main[setting] = value[setting];
                     }
                 }
-                $('#importsettings').val('');
+                $('#importoptions').val('');
                 main.setup();
             }
         );
@@ -1497,8 +1517,8 @@ $(document).ready(
         );
         $('#per').blur(
             function() {
-                var value = parseInt($('#per').val(), 10);
-                if (main.count.per !== value && !isNaN(value)) {
+                var value = $('#per').val();
+                if (main.count.per !== value) {
                     main.count.per = value;
                     main.setup();
                 }
@@ -1531,11 +1551,11 @@ $(document).ready(
                 }
             }
         );
-        $('#showexportsettings').change(
+        $('#showexportoptions').change(
             function() {
-                $('#exportsettings').hide();
-                if ($('#showexportsettings:checked').length) {
-                    $('#exportsettings').show();
+                $('#exportoptions').hide();
+                if ($('#showexportoptions:checked').length) {
+                    $('#exportoptions').show();
                 }
             }
         );
@@ -1548,12 +1568,12 @@ $(document).ready(
                 }
             }
         );
-        $('#showimportsettings').change(
+        $('#showimportoptions').change(
             function() {
-                $('#importsettings').val('');
-                $('#importsettings').hide();
-                if ($('#showimportsettings:checked').length) {
-                    $('#importsettings').show();
+                $('#importoptions').val('');
+                $('#importoptions').hide();
+                if ($('#showimportoptions:checked').length) {
+                    $('#importoptions').show();
                 }
             }
         );
@@ -1579,8 +1599,8 @@ $(document).ready(
         );
         $('#stacks').blur(
             function() {
-                var value = parseInt($('#stacks').val(), 10);
-                if (main.count.stacks !== value && !isNaN(value)) {
+                var value = $('#stacks').val();
+                if (main.count.stacks !== value) {
                     main.count.stacks = value;
                     main.setup();
                 }
