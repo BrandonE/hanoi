@@ -166,21 +166,23 @@ variations, disk, disks, multistack, solver" />
             </td>
         </tr>
         <tr>
-            <td>
+            <td colspan="2">
                 <input type="checkbox" id="antwerp" />
                 <label for="antwerp">Antwerp</label>
             </td>
-            <td>
-                <input type="checkbox" id="home" />
-                <label for="home">Home</label>
-            </td>
         </tr>
-        <tr id="shade">
+        <tr class="shade">
             <td><label for="top">Top Shade</label></td>
             <td>
                 <select id="top">
                     <option>Any</option>
                 </select>
+            </td>
+        </tr>
+        <tr class="shade">
+            <td colspan="2">
+                <input type="checkbox" id="home" />
+                <label for="home">Home</label>
             </td>
         </tr>
         <tr>

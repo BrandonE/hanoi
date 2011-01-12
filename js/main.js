@@ -1180,11 +1180,12 @@ main.setup = function()
         main.change &&
         main.restriction in {'different': 0, 'same': 0, 'group': 0}
     ) {
-        $('#shade').show();
+        $('.shade').show();
     }
     else {
-        $('#shade').hide();
+        $('.shade').hide();
         main.top = 'Any';
+        main.home = false;
     }
     // Update the page accordingly.
     $('#alternate').attr('checked', main.alternate);
