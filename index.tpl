@@ -175,7 +175,7 @@ variations, disk, disks, multistack, solver" />
                 <label for="home">Home</label>
             </td>
         </tr>
-        <tr>
+        <tr id="shade">
             <td><label for="top">Top Shade</label></td>
             <td>
                 <select id="top">
