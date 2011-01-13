@@ -55,7 +55,7 @@ variations, solution, solutions, disk, disks, stack, stacks" />
     <div id="towers"></div>
     <div style="clear: both"></div>
     <fieldset>
-        <legend>Solver</legend>
+        <legend>Solution</legend>
         <table>
             <tr>
                 <td><label for="mode">Mode</label></td>
@@ -159,9 +159,9 @@ variations, solution, solutions, disk, disks, stack, stacks" />
                 </td>
             </tr>
             <tr>
-                <td><label for="colors">Colors</label></td>
+                <td><label for="shades">Shades</label></td>
                 <td>
-                    <input type="text" id="colors" />
+                    <input type="text" id="shades" />
                 </td>
             </tr>
             <tr class="shade">
@@ -246,9 +246,9 @@ variations, solution, solutions, disk, disks, stack, stacks" />
             <tr>
                 <td>
                     <input type="radio" name="restriction" id="group"
-                    value="group" /> <label for="group">In any group of C =
-                    Colors disks, there can't be two of the same color
-                    disks</label>
+                    value="group" /> <label for="group">In any group of S =
+                    Shades disks, there can't be two disks of the same
+                    color</label>
                 </td>
                 <td>
                     <input type="checkbox" id="size" />
@@ -299,84 +299,8 @@ variations, solution, solutions, disk, disks, stack, stacks" />
     <div style="font: 1em/1.2em monospace">
         hg clone http://www.brandonevans.org/dev/hanoi/
     </div>
-    <h2>Instructions</h2>
-    <p>
-        To begin, choose a <em>Variation</em>. From here, you can select the
-        number of <em>Disks per Stack</em>, the <em>Towers per Stack</em>, and
-        the number of <em>Stacks</em>. The game will adjust after you click
-        outside of the field. You can also make it so that the puzzle randomly
-        places disks on the towers by checking <em>Random</em> as well as
-        shuffle the order of the disks by checking <em>Shuffle</em>.
-    </p>
-    <p>
-        You can use this program in two ways: manually move the disks or have
-        the program solve the puzzle. To move the disks, simply click a tower
-        and then the tower you want to move it to. Alternatively, you can press
-        the number tower you want to move from / to on the keyboard, and it
-        will move if you aren't in a text field. To have the program solve the
-        puzzle, press <em>Start</em>, and press <em>Stop</em> to stop it. You
-        can also adjust the <em>Delay</em> field to change the amount of
-        milliseconds between the moves made by the program. For technical
-        purposes, you can't manually move disks while the solution runs, and if
-        you stop the program and manually move, you will most likely cause the
-        program to make an invalid move. While the the solution isn't running,
-        you can also <em>Undo</em> and <em>Redo</em> moves.
-    </p>
-    <p>
-        To show the moves made, the program can do two things: <em>Draw</em>
-        the puzzle graphically, or <em>Log</em> the moves. By default, it draws
-        but doesn't log. You can toggle both by ticking their respective
-        checkboxes.
-    </p>
-    <p>
-        When you  have the program solve the puzzle, what happens upon the
-        completion of the moves depends on which mode you pick. If you pick
-        <em>Wait</em>, it will do nothing. If you pick <em>Repeat</em>, it will
-        start the process over again. Lastly, if you pick <em>Increase</em>, it
-        will restart and add a disk to each stack.
-    </p>
-    <p>
-        When the program solves the puzzle, it uses a snippet of
-        <a href="http://en.wikipedia.org/wiki/Javascript" target="_blank">
-        Javascript</a> code. You can view and modify said snippet by ticking
-        the <em>Source</em> checkbox. This snippet runs along with the already
-        included Javascript, which you can read <a href="js">here</a>. When you
-        press Start for the first time, it runs the snippet and makes the
-        textbox read-only. Pressing Stop and Start again will not run the code
-        again, but merely continue the solution process.
-    </p>
-    <p>
-        Often, a variation will have multiple solutions, each illustrating a
-        different method. For these variations, we have set it up so that you
-        can change which solution is used by changing the <em>solution</em>
-        variable in the snippet. The solution it uses by default is the best
-        solution we know of for the variation. This doesn't mean it is an
-        optimal solution, nor a proven one. It simply means that it solves the
-        puzzle in less moves than any other solution we know. The <em>Minimum
-        Moves</em> field computes the amount of moves this solution makes
-        whenever possible. If we haven't found a formula to compute this number
-        with, or we have no solution to the given problem, the field is marked
-        as <em>N/A</em>.
-    </p>
-    <p>
-        In <em>main.js</em>, you can find some key functions: <em>process</em>,
-        which runs one step of a solution
-        <a href="http://en.wikipedia.org/wiki/Generator_(computer_science)">
-        generator</a> at a time, <em>stacks</em>, which creates generators for
-        each stack in a game with multiple stacks, and <em>pick</em>, which
-        creates a generator that picks the stack to process at a given point.
-        For examples of these generators, see a specific
-        <a href="js/variations">variation's Javascript code</a>. All in all,
-        these tools allow you to come up with your own solutions to the
-        variations.
-    </p>
-    <p>
-        In addition, if you came up with a solution without code and want to
-        have the program repeat the process, tick the <em>Move Source</em>
-        checkbox, paste its contents into the Source box, and press start.
-    </p>
-    <h2>General Notes</h2>
-    <p>Almost all of the variations have two main rules:</p>
+    <h2>The Puzzle</h2>
+    <p>The classic Towers of Hanoi puzzle has two rules:</p>
     <ol>
         <li>Only one disk shall be moved at a time</li>
         <li>
@@ -384,32 +308,102 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         </li>
     </ol>
     <p>
-        Also, unless stated otherwise, To win, transfer all of the
-        disks to the tower farthest to the right in size order.
+        To win, following these rules, transfer all of the disks to the tower
+        farthest to the right in size order. Even in this basic case, this may
+        prove to be much more difficult than expected, and the number of moves
+        it takes to finish grows exponentially as you increase the number of
+        disks.
     </p>
-    <div id="multi">
-        <h2>Playing with Multiple Stacks</h2>
-        <p>
-            When playing with multiple stacks, the first and last towers of
-            each game join together. In affect, this adds one new rule:
-        </p>
-            <ul>
-                <li>
-                    No disk of a given stack can go on a tower that has a
-                    different colored base and peg. This doesn't refer to light
-                    and dark versions of a color.
-                </li>
-            </ul>
-        <p>
-            If, to win a normal game, you have to transfer all of the disks to
-            the tower farthest to the right in size order, you now have to
-            rotate all of the stacks clockwise.
-        </p>
-    </div>
-    <div id="placing">
-        <h2>Playing with Random and Shuffle</h2>
-        <p>
-            The <em>Random</em> option randomly places disks on the towers
+    <h2>How to Use this Page</h2>
+    <p>
+        This page provides several ways to play. These methods can be put into
+        two categories: manual and automatic ones. You can play manually by
+        clicking a tower to take off the top disk and clicking another tower to
+        place it. In addition, you can do the same thing by using the number
+        keys to indicate the tower you want to move to or from.
+    </p>
+    <p>
+        For the automatic methods, depending on what options you have provided,
+        there might be a built-in <b>Solution</b> that you can watch. To see if
+        we have implimented a solution for this setup, check the <em>Minimum
+        Moves</em> field; if it shows something other than "Unsolved", click
+        <em>Start</em> to begin the solution and <em>Stop</em> to stop it.
+        Also, if you have come up with your own solution and want to save the
+        moves you made, check <em>Export Moves</em>, copy the contents of the
+        box that appears, check <em>Import Moves</em>, paste the contents into
+        the box that appears, and press Start. It will then execute the moves
+        you did previously. The program will use this method as long as you
+        keep the Import Moves box open and it contains moves. For both of these
+        automatic methods, you can adjust the <em>Delay</em> field to change
+        the number of milliseconds the the program will wait in between moves.
+        What happens when the program finishes making the moves depends on the
+        selected <em>Mode</em>: selecting "Wait" will make it await further
+        input, "Repeat" will restart the solution with the same options
+        selected, and "Increase" will restart the solution with one additional
+        disk.
+    </p>
+    <p>
+        We have also provided some additional information fields in the
+        Solution fieldset that deserve mentioning:
+    </p>
+    <ul>
+        <li><em>Moves</em> shows the number of moves that have been made.</li>
+        <li>
+            <em>Log</em> shows the moves made. You can show them by checking
+            the checkbox.
+        </li>
+        <li>
+            <em>Minimum Moves</em> shows the smallest number of moves it takes
+            to finish a given configuration known. In other words, it shows how
+            many moves the built-in solution takes to complete, if this number
+            can be calculated (It shows "N/A" if the puzzle can be solved, but
+            it has no method of calculating the number of moves it would take).
+            This means you can get a solution in less moves than those
+            provided, as few of these configurations have a solution that has
+            been proven optimal.
+        </li>
+    </ul>
+    <p>
+        Once you get a hang of playing the game, you might want to change up
+        the <b>Settings</b>. Most programs like this one only have you adjust
+        the number of disks, whereas this one provides many other settings that
+        deserve explaining:
+    </p>
+    <ul>
+        <li>
+            <em>Towers per Stack</em> adjusts how many towers each stack can
+            use. Although increasing this number usually greatly reduces the
+            number of moves needed to win, it also makes the solution much
+            harder to prove optimal.
+        </li>
+        <li>
+            <em>Stacks</em> adjusts how many different colored stacks get
+            placed on the towers. In the default case, making this number more
+            than one changes the layout of the puzzle so that each stack has
+            its own game, and the games interlock. This introduces a new rule:
+            No disk of a given stack can go on a tower that has a
+            different colored base and peg. This still allows disk of the same
+            color but a different shade, though. Under this configuration,
+            rotate the colored stacks clockwise to win.
+        </li>
+        <li>
+            Checking <em>Antwerp</em> changes the layout of a game with
+            multiple stacks. Instead of placing towers in between the different
+            stacks, the program places them all next to eachother, and each
+            stack can go on any tower. Again, to win, you must rotate the
+            colored stacks clockwise. To enable this, you must also enable
+            <em>Disks of the same size can be placed on eachother</em> in the
+            restrictions section.
+        </li>
+        <li>
+            The <em>Shades</em> option adjusts how many shades each stack has,
+            the <em>Alternate</em> option makes the shades of the disks
+            alternate on the stacks, and the <em>Change</em> option makes the
+            shade of a disk change when moved. These settings only matter when
+            you enable certain restrictions.
+        </li>
+        <li>
+            The <em>Random</em> option randomly places disks on the towers,
             while the <em>Shuffle</em> option shuffles the order of the disks.
             These options might create initial setups that break rules for the
             given variation. However, in many cases, it's still possible to
@@ -417,8 +411,31 @@ variations, solution, solutions, disk, disks, stack, stacks" />
             point on. That said, these features are in the the testing stages,
             so there might be some cases in which they create unsolvable
             puzzles.
-        </p>
-    </div>
+        </li>
+    </ul>
+    <p>
+        Lastly, you can enable several <b>Restrictions</b>. These restrictions
+        have been labeled in an obvious way, so we won't explain what each of
+        them does. However, if you enable any of the restrictions regarding
+        color, and you have enabled <em>Change</em>, two additional settings
+        appear:
+    </p>
+    <ul>
+        <li>
+            <em>Top Shade</em> states what shade the top disk of each
+            stack must be to complete the puzzle. This value can either be
+            "Any" or a number. Initially, top disk has the shade 1. If you have
+            set <em>Shades</em> to more than 1, then the color that disk
+            changes to upon moving would be shade 2, and so on.
+        </li>
+        <li>
+            If you check the <em>Home</em> option, then to win, all the stacks
+            must return to where they started with the top disk having a
+            different shade than it originally had. For this reason, when you
+            check this option, there must be at least two <em>Shades</em>, and
+            the <em>Top Shade</em> can't be "Any" nor 1.
+        </li>
+    </ul>
 </div>
 <div class="noscript">
     <p style="text-align: center">

@@ -6,15 +6,8 @@ var main = {
     'alternate': true,
     'antwerp': false,
     'change': false,
-    'colors': [
-        ['red', 'pink', 'darkred'],
-        ['blue', 'lightblue', 'darkblue'],
-        ['yellow', 'lightyellow', 'gold'],
-        ['green', 'lightgreen', 'darkgreen'],
-        ['mediumpurple', 'lavender', 'purple']
-    ],
     'count': {
-        'colors': 2,
+        'shades': 2,
         'disks': 8,
         'per': 3,
         'towers': 3,
@@ -35,6 +28,13 @@ var main = {
     'random': false,
     'restriction': 'none',
     'running': false,
+    'shades': [
+        ['red', 'pink', 'darkred'],
+        ['blue', 'lightblue', 'darkblue'],
+        ['yellow', 'lightyellow', 'gold'],
+        ['green', 'lightgreen', 'darkgreen'],
+        ['mediumpurple', 'lavender', 'purple']
+    ],
     'shuffle': false,
     'size': false,
     'stars': {},
@@ -75,14 +75,14 @@ main.color = function(disk, undo)
     var i;
     var stack;
     if (main.change) {
-        for (i = 0; i < main.count.colors; i++) {
-            stack = main.colors[disk.stack];
+        for (i = 0; i < main.count.shades; i++) {
+            stack = main.shades[disk.stack];
             if (disk.color === stack[i]) {
                 cycle = 1;
                 if (undo) {
                     cycle = -1;
                 }
-                return stack[main.cycle(i + cycle, 0, main.count.colors - 1)];
+                return stack[main.cycle(i + cycle, 0, main.count.shades - 1)];
             }
         }
     }
@@ -249,7 +249,7 @@ main.movable = function(disk, tower, size, undo)
     color = main.color(disk, undo);
     // Find the last disk of this tower.
     last = main.towers[tower].disks[main.towers[tower].disks.length - 1];
-    medium = main.colors[disk.stack][0];
+    medium = main.shades[disk.stack][0];
     mult = main.count.per - 1;
     to = disk.stack * mult + mult;
     if (main.count.stacks > 1) {
@@ -267,15 +267,15 @@ main.movable = function(disk, tower, size, undo)
     if (main.restriction === 'group' && !size) {
         for (
             i = 0;
-            i <= main.towers[tower].disks.length - main.count.colors + 1;
+            i <= main.towers[tower].disks.length - main.count.shades + 1;
             i++
         ) {
             colors = {};
-            for (j = i; j < i + main.count.colors; j++) {
+            for (j = i; j < i + main.count.shades; j++) {
                 current = color;
                 if (
-                    i <= main.towers[tower].disks.length - main.count.colors ||
-                    j < i + main.count.colors - 1
+                    i <= main.towers[tower].disks.length - main.count.shades ||
+                    j < i + main.count.shades - 1
                 ) {
                     current = main.towers[tower].disks[j].color;
                 }
@@ -650,6 +650,7 @@ main.setup = function()
     var k;
     var maximum = 100;
     var message;
+    var moves;
     var multistack;
     var num;
     var offset = 0;
@@ -740,24 +741,24 @@ main.setup = function()
         alert('There can\'t be more than 100 disks per stack on one tower.');
         main.count.disks = maximum;
     }
-    main.count.colors = parseInt(main.count.colors, 10);
-    if (isNaN(main.count.colors)) {
-        alert('Invalid value for colors.');
-        main.count.colors = 2;
+    main.count.shades = parseInt(main.count.shades, 10);
+    if (isNaN(main.count.shades)) {
+        alert('Invalid value for shades.');
+        main.count.shades = 2;
     }
-    if (main.count.colors < 1) {
-        alert('There must be at least one color.');
-        main.count.colors = 1;
+    if (main.count.shades < 1) {
+        alert('There must be at least one shade.');
+        main.count.shades = 1;
     }
-    if (main.home && main.count.colors < 2) {
-        message = 'There must be at least two colors if the game should end ';
+    if (main.home && main.count.shades < 2) {
+        message = 'There must be at least two shades if the game should end ';
         message += 'on the Home tower.';
         alert(message);
-        main.count.colors = 2;
+        main.count.shades = 2;
     }
-    if (main.count.colors > 3) {
-        alert('There can\'t be more than 3 colors.');
-        main.count.colors = 3;
+    if (main.count.shades > 3) {
+        alert('There can\'t be more than 3 shades.');
+        main.count.shades = 3;
     }
     if (main.home && (main.top === 'Any' || main.top === '1')) {
         message = 'The top shade can\'t be the first shade if the game ';
@@ -767,7 +768,7 @@ main.setup = function()
     }
     if (main.top !== 'Any') {
         if (main.top !== '1' && !main.change) {
-            message = 'Disks must change colors when moved if the top shade ';
+            message = 'Disks must change shades when moved if the top shade ';
             message += 'isn\'t the first shade.';
             alert(message);
             main.change = true;
@@ -786,20 +787,20 @@ main.setup = function()
             alert(message);
             main.alternate = false;
         }
-        if (main.count.colors > main.count.per) {
+        if (main.count.shades > main.count.per) {
             message = 'There must be at least as many towers per stack as ';
-            message += 'colors if disks can\'t touch disks of a different ';
+            message += 'shades if disks can\'t touch disks of a different ';
             message += 'color.';
             alert(message);
-            main.count.per = main.cont.colors;
+            main.count.per = main.count.shades;
         }
     }
     if (main.restriction in {'same': 0, 'group': 0}) {
-        if (main.count.colors < 2) {
-            message = 'There must be at least two colors if disks can\'t ';
+        if (main.count.shades < 2) {
+            message = 'There must be at least two shades if disks can\'t ';
             message += 'touch disks of the same color.';
             alert(message);
-            main.count.colors = 2;
+            main.count.shades = 2;
         }
         if (!main.alternate) {
             message = 'The disks must alternate if disks can\'t touch disks ';
@@ -810,17 +811,17 @@ main.setup = function()
         if (main.change && main.count.per < 4) {
             message = 'There must be at least four towers per stack if disks ';
             message += 'can\'t touch disks of the same color and disks ';
-            message += 'change colors.';
+            message += 'change shades.';
             alert(message);
             main.count.per = 4;
         }
     }
-    if (main.restriction === 'group' && main.count.colors >= main.count.per) {
-        message = 'There must be more towers per stack than colors if in any ';
-        message += 'group of C = Colors disks, there can\'t be two of the ';
-        message += 'same color disks.';
+    if (main.restriction === 'group' && main.count.shades >= main.count.per) {
+        message = 'There must be more towers per stack than shades if in any ';
+        message += 'group of S = Shades disks, there can\'t be two disks of ';
+        message += 'of the same color.';
         alert(message);
-        main.count.per = main.count.colors + 1;
+        main.count.per = main.count.shades + 1;
     }
     do {
         main.count.towers = (
@@ -890,7 +891,7 @@ main.setup = function()
             base and peg the same as the stack.
             */
             if (remainder) {
-                base = main.colors[(i - remainder) / denom][0];
+                base = main.shades[(i - remainder) / denom][0];
                 peg = base;
             }
             else {
@@ -900,7 +901,7 @@ main.setup = function()
                     Make the base the same color as the stack that is from this
                     tower.
                     */
-                    base = main.colors[color][0];
+                    base = main.shades[color][0];
                 }
                 color = main.cycle(i - denom, 0, towers) / denom;
                 /*
@@ -908,7 +909,7 @@ main.setup = function()
                 the stack that should move to this tower.
                 */
                 if (i < towers + 1) {
-                    peg = main.colors[color][0];
+                    peg = main.shades[color][0];
                 }
             }
         }
@@ -951,7 +952,7 @@ main.setup = function()
             // Force a tower to be empty.
             tower = Math.floor(Math.random() * random.length);
             random.splice(tower, 1);
-            if (main.count.colors > 2) {
+            if (main.count.shades > 2) {
                 // Force a tower to contain one disk at maximum.
                 tower = Math.floor(Math.random() * random.length);
                 random[tower].limit = 1;
@@ -962,9 +963,9 @@ main.setup = function()
             size = main.count.disks - j - 1;
             color = 0;
             if (main.alternate) {
-                color = size % main.count.colors;
+                color = size % main.count.shades;
             }
-            color = main.colors[i][color];
+            color = main.shades[i][color];
             /*
             Assume that we should place the disks on the specified
             tower.
@@ -1027,11 +1028,11 @@ main.setup = function()
         for (i = 0; i < main.count.towers; i++) {
             for (
                 j = 0;
-                j <= main.towers[i].disks.length - main.count.colors;
+                j <= main.towers[i].disks.length - main.count.shades;
                 j++
             ) {
                 colors = {};
-                for (k = j; k < j + main.count.colors; k++) {
+                for (k = j; k < j + main.count.shades; k++) {
                     current = main.towers[i].disks[k];
                     while (current.color in colors) {
                         current.color = main.color(current);
@@ -1192,7 +1193,23 @@ main.setup = function()
             }
         }
     }
-    solve.start();
+    moves = $('#importmoves').val();
+    if (moves) {
+        try
+        {
+            main.generator = JSON.parse(moves);
+            main.minimum = 'Imported';
+        }
+        catch (err)
+        {
+            alert(err);
+            main.generator = [];
+        }
+        $('#importmoves').val(JSON.stringify(main.generator));
+    }
+    if (!main.generator.length) {
+        solve.start();
+    }
     if (!main.generator.length) {
         main.minimum = 'Unsolved';
     }
@@ -1211,7 +1228,6 @@ main.setup = function()
     $('#alternate').attr('checked', main.alternate);
     $('#antwerp').attr('checked', main.antwerp);
     $('#change').attr('checked', main.change);
-    $('#colors').val(main.count.colors);
     $('#delay').val(main.delay);
     $('#disks').val(main.count.disks);
     $('#exportmoves').val('');
@@ -1241,15 +1257,16 @@ main.setup = function()
     $('#random').attr('checked', main.random);
     $('#redo').hide();
     $('#' + main.restriction).attr('checked', true);
+    $('#shades').val(main.count.shades);
     $('#shuffle').attr('checked', main.shuffle);
     $('#size').attr('checked', main.size);
     $('#stacks').val(main.count.stacks);
     $('#undo').hide();
-    // Populate the top color list.
-    while ($('#top').children().length > main.count.colors + 1) {
+    // Populate the top shade list.
+    while ($('#top').children().length > main.count.shades + 1) {
         $('#top').children().last().remove();
     }
-    while ($('#top').children().length < main.count.colors + 1) {
+    while ($('#top').children().length < main.count.shades + 1) {
         num = $('#top').children().length;
         $(
             '<option />', {
@@ -1258,15 +1275,6 @@ main.setup = function()
         ).appendTo('#top');
     }
     $('#top').val(main.top);
-    // Show additional information if necessary.
-    $('#multi').hide();
-    $('#placing').hide();
-    if (main.count.stacks > 1 && !main.antwerp) {
-        $('#multi').show();
-    }
-    if (main.random || main.shuffle) {
-        $('#placing').show();
-    }
 };
 
 main.solved = function()
@@ -1321,7 +1329,7 @@ main.solved = function()
             main.top !== 'Any' &&
             main.towers[target].disks[
                 main.towers[target].disks.length - 1
-            ].color !== main.colors[i][main.top - 1]
+            ].color !== main.shades[i][main.top - 1]
         ) {
             solved = false;
             break;
@@ -1367,9 +1375,6 @@ main.start = function(restarting)
         if (main.moves.current) {
             main.restart();
             return;
-        }
-        if ($('#importmoves').val()) {
-            main.generator = JSON.parse($('#importmoves').val());
         }
         if (!main.generator.length) {
             alert('Error: No moves to be made.');
@@ -1456,22 +1461,12 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#colors').blur(
-            function() {
-                var value = $('#colors').val();
-                if (main.count.colors !== value) {
-                    main.count.colors = value;
-                    main.setup();
-                }
-            }
-        );
         $('#delay').blur(
             function() {
                 var value = $('#delay').val();
                 if (main.delay !== value) {
-                    main.delay = parseInt(value);
-                    if (isNaN(main.delay) || main.delay < 0)
-                    {
+                    main.delay = parseInt(value, 10);
+                    if (isNaN(main.delay) || main.delay < 0) {
                         alert('Invalid value for delay.');
                         main.delay = 250;
                     }
@@ -1491,6 +1486,11 @@ $(document).ready(
         $('#home').change(
             function() {
                 main.home = ($('#home:checked').length);
+                main.setup();
+            }
+        );
+        $('#importmoves').change(
+            function() {
                 main.setup();
             }
         );
@@ -1543,6 +1543,15 @@ $(document).ready(
                 }
             }
         );
+        $('#shades').blur(
+            function() {
+                var value = $('#shades').val();
+                if (main.count.shades !== value) {
+                    main.count.shades = value;
+                    main.setup();
+                }
+            }
+        );
         $('#showexportmoves').change(
             function() {
                 $('#exportmoves').hide();
@@ -1561,7 +1570,11 @@ $(document).ready(
         );
         $('#showimportmoves').change(
             function() {
-                $('#importmoves').val('');
+                if ($('#importmoves').val())
+                {
+                    $('#importmoves').val('');
+                    main.setup();
+                }
                 $('#importmoves').hide();
                 if ($('#showimportmoves:checked').length) {
                     $('#importmoves').show();
@@ -1570,7 +1583,6 @@ $(document).ready(
         );
         $('#showimportoptions').change(
             function() {
-                $('#importoptions').val('');
                 $('#importoptions').hide();
                 if ($('#showimportoptions:checked').length) {
                     $('#importoptions').show();

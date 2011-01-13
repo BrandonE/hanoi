@@ -3165,12 +3165,12 @@ solve.start = function()
         if (
             main.restriction === 'different' &&
             main.change &&
-            main.count.colors > 1
+            main.count.shades > 1
         ) {
             if (main.count.stacks > 1) {
                 return;
             }
-            if (main.count.colors === 2) {
+            if (main.count.shades === 2) {
                 group = solve.different.two.three;
                 m = $M(
                 [
@@ -3213,7 +3213,7 @@ solve.start = function()
                 }
                 return;
             }
-            if (main.count.colors === 3) {
+            if (main.count.shades === 3) {
                 group = solve.different.three.three;
                 if (main.home) {
                     if (main.top === '2') {
@@ -3267,7 +3267,7 @@ solve.start = function()
             if (main.antwerp) {
                 return;
             }
-            if (!main.change && main.count.colors === 2) {
+            if (!main.change && main.count.shades === 2) {
                 group = solve.none.three;
                 if (main.count.per === 3 || main.count.stacks > 1) {
                     main.generator = solve.pick(
@@ -3287,7 +3287,7 @@ solve.start = function()
             }
             if (
                 !main.change &&
-                main.count.colors === 3 &&
+                main.count.shades === 3 &&
                 main.restriction === 'same'
             ) {
                 group = solve.none.three;
@@ -3325,7 +3325,7 @@ solve.start = function()
                     main.minimum *= main.count.stacks + 1;
                 }
             }
-            if (main.change && main.count.colors === 2) {
+            if (main.change && main.count.shades === 2) {
                 group = solve.same.change.two.three;
                 if (main.home) {
                     main.generator = group.eddd(
