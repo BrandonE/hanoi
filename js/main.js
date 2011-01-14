@@ -455,7 +455,7 @@ main.move = function(tower, undo, redo, restoring)
                 }
             }
             $('#log').val(log.join(',\n'));
-            $('#exportmoves').val(JSON.stringify(main.steps));
+            $('#export').val(JSON.stringify(main.steps));
         }
         // Show the top disk of this tower.
         show = '#disk' + tower + '-' + main.towers[tower].disks.length;
@@ -650,7 +650,7 @@ main.setup = function()
     var k;
     var maximum = 100;
     var message;
-    var moves = $('#importmoves').val();
+    var moves = $('#import').val();
     var multistack;
     var num;
     var offset = 0;
@@ -854,7 +854,6 @@ main.setup = function()
             (multistack && i % denom in main.stars) ||
             (!multistack && i in main.stars)
         );
-        $('#star' + i).attr('checked', checked);
         delete main.stars[i];
         if (checked) {
             main.stars[i] = 0;
@@ -1201,7 +1200,7 @@ main.setup = function()
             alert(err);
             main.generator = [];
         }
-        $('#importmoves').val(JSON.stringify(main.generator));
+        $('#import').val(JSON.stringify(main.generator));
     }
     if (!main.generator.length) {
         solve.start();
@@ -1224,11 +1223,8 @@ main.setup = function()
     $('#alternate').attr('checked', main.alternate);
     $('#antwerp').attr('checked', main.antwerp);
     $('#change').attr('checked', main.change);
-    $('#delay').val(main.delay);
-    $('#disks').val(main.count.disks);
-    $('#exportmoves').val('');
-    $('#exportoptions').val(
-        JSON.stringify({
+    $('#configuration').val(
+        location.href.split('?')[0] + '?' + Base64.encode(JSON.stringify({
             'alternate': main.alternate,
             'antwerp': main.antwerp,
             'change': main.change,
@@ -1242,8 +1238,11 @@ main.setup = function()
             'size': main.size,
             'stars': main.stars,
             'top': main.top
-        })
+        }))
     );
+    $('#delay').val(main.delay);
+    $('#disks').val(main.count.disks);
+    $('#export').val('');
     $('#home').attr('checked', main.home);
     $('#log').val('');
     $('#minimum').text(main.minimum);
@@ -1271,6 +1270,10 @@ main.setup = function()
         ).appendTo('#top');
     }
     $('#top').val(main.top);
+    for (i = 0; i < main.count.towers; i++) {
+        checked = (i % denom in main.stars);
+        $('#star' + i).attr('checked', checked);
+    }
 };
 
 main.solved = function()
@@ -1404,14 +1407,22 @@ main.stop = function(stay)
 
 $(document).ready(
     function() {
+        try {
+            var value = JSON.parse(Base64.decode(location.href.split('?')[1]));
+            var setting;
+            for (setting in value) {
+                if (setting !== '__prototype__') {
+                    main[setting] = value[setting];
+                }
+            }
+        }
+        catch (err) {
+        }
         main.setup();
-        // Update the page accourdingly.
-        $('#importmoves').val('');
-        $('#importoptions').val('');
-        $('#showexportmoves').attr('checked', false);
-        $('#showexportoptions').attr('checked', false);
-        $('#showimportmoves').attr('checked', false);
-        $('#showimportoptions').attr('checked', false);
+        // Update the page accordingly.
+        $('#import').val('');
+        $('#showexport').attr('checked', false);
+        $('#showimport').attr('checked', false);
         $('#showlog').attr('checked', false);
         $('.noscript').hide();
         $('.yesscript').show();
@@ -1485,21 +1496,8 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#importmoves').change(
+        $('#import').change(
             function() {
-                main.setup();
-            }
-        );
-        $('#importoptions').change(
-            function() {
-                var value = JSON.parse($('#importoptions').val());
-                var setting;
-                for (setting in value) {
-                    if (setting !== '__prototype__') {
-                        main[setting] = value[setting];
-                    }
-                }
-                $('#importoptions').val('');
                 main.setup();
             }
         );
@@ -1548,40 +1546,24 @@ $(document).ready(
                 }
             }
         );
-        $('#showexportmoves').change(
+        $('#showexport').change(
             function() {
-                $('#exportmoves').hide();
-                if ($('#showexportmoves:checked').length) {
-                    $('#exportmoves').show();
+                $('#export').hide();
+                if ($('#showexport:checked').length) {
+                    $('#export').show();
                 }
             }
         );
-        $('#showexportoptions').change(
+        $('#showimport').change(
             function() {
-                $('#exportoptions').hide();
-                if ($('#showexportoptions:checked').length) {
-                    $('#exportoptions').show();
-                }
-            }
-        );
-        $('#showimportmoves').change(
-            function() {
-                if ($('#importmoves').val())
+                if ($('#import').val())
                 {
-                    $('#importmoves').val('');
+                    $('#import').val('');
                     main.setup();
                 }
-                $('#importmoves').hide();
-                if ($('#showimportmoves:checked').length) {
-                    $('#importmoves').show();
-                }
-            }
-        );
-        $('#showimportoptions').change(
-            function() {
-                $('#importoptions').hide();
-                if ($('#showimportoptions:checked').length) {
-                    $('#importoptions').show();
+                $('#import').hide();
+                if ($('#showimport:checked').length) {
+                    $('#import').show();
                 }
             }
         );

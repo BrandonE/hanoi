@@ -11,9 +11,10 @@ variations, solution, solutions, disk, disks, stack, stacks" />
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"
 />
 <link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/lib/base64.js"></script>
 <script type="text/javascript" src="js/lib/jquery.js"></script>
-<script type="text/javascript" src="js/lib/mobile.js"></script>
 <script type="text/javascript" src="js/lib/json2.js"></script>
+<script type="text/javascript" src="js/lib/mobile.js"></script>
 <script type="text/javascript" src="js/lib/sylvester.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/solve.js"></script>
@@ -111,27 +112,27 @@ variations, solution, solutions, disk, disks, stack, stacks" />
                     <label for="showlog">Log</label>
                 </td>
                 <td>
-                    <textarea id="log" rows="5" cols="17" readonly="readonly"
+                    <textarea id="log" rows="5" cols="30" readonly="readonly"
                     style="display: none"></textarea>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <input type="checkbox" id="showexportmoves" />
-                    <label for="showexportmoves">Export Moves</label>
+                    <input type="checkbox" id="showexport" />
+                    <label for="showexport">Export Moves</label>
                 </td>
                 <td>
-                    <textarea id="exportmoves" rows="1" cols="17"
+                    <textarea id="export" rows="1" cols="30"
                     readonly="readonly" style="display: none"></textarea>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <input type="checkbox" id="showimportmoves" />
-                    <label for="showimportmoves">Import Moves</label>
+                    <input type="checkbox" id="showimport" />
+                    <label for="showimport">Import Moves</label>
                 </td>
                 <td>
-                    <textarea id="importmoves" rows="1" cols="17"
+                    <textarea id="import" rows="1" cols="30"
                     style="display: none"></textarea>
                 </td>
             </tr>
@@ -258,28 +259,10 @@ variations, solution, solutions, disk, disks, stack, stacks" />
             </tr>
         </table>
     </fieldset>
-    <table>
-        <tr>
-            <td>
-                <input type="checkbox" id="showexportoptions" />
-                <label for="showexportoptions">Export Options</label>
-            </td>
-            <td>
-                <textarea id="exportoptions" rows="1" cols="17"
-                readonly="readonly" style="display: none"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" id="showimportoptions" />
-                <label for="showimportoptions">Import Options</label>
-            </td>
-            <td>
-                <textarea id="importoptions" rows="1" cols="17"
-                style="display: none"></textarea>
-            </td>
-        </tr>
-    </table>
+    <p>
+        URL for this configuration: <textarea id="configuration" rows="1"
+        cols="30"></textarea>
+    </p>
     <h2>Latest Changeset</h2>
     <p>Posted by [var]user[/var] on [var]date[/var]:</p>
     <div style="font: 1em/1.2em monospace">
@@ -435,6 +418,16 @@ variations, solution, solutions, disk, disks, stack, stacks" />
             the <em>Top Shade</em> can't be "Any" nor 1.
         </li>
     </ul>
+    <p>
+        If you don't set any additional restrictions, you can also select
+        <em>Star Towers</em>. To make a tower a star tower, check the checkbox
+        on top of it. If you have selected star towers, moves must either be
+        from or to them.
+    </p>
+    <p>
+        Finally, if you want to share the options you have set, copy the
+        <em>URL for this configuration</em>.
+    </p>
 </div>
 <div class="noscript">
     <p style="text-align: center">
