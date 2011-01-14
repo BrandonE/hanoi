@@ -556,6 +556,28 @@ solve.linear.three.iter = function(disks, from, using, to, clock)
     ];
 };
 
+solve.linear.three.rec = function(disks, from, using, to)
+{
+    if (disks < 1) {
+        return [];
+    }
+    return [
+        function() {
+            return solve.linear.three.rec(disks - 1, from, using, to);
+        },
+        from,
+        using,
+        function() {
+            return solve.linear.three.rec(disks - 1, to, using, from);
+        },
+        using,
+        to,
+        function() {
+            return solve.linear.three.rec(disks - 1, from, using, to);
+        }
+    ];
+}
+
 solve.linear.three.moves = function(disks)
 {
     return Math.pow(3, disks) - 1;
@@ -3140,7 +3162,7 @@ solve.start = function()
                 return;
             }
             group = solve.linear.three;
-            main.generator = group.iter(main.count.disks, 0, 1, 2);
+            main.generator = group.rec(main.count.disks, 0, 1, 2);
             main.minimum = group.moves(main.count.disks);
             return;
         }
