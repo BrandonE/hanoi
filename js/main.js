@@ -1020,7 +1020,7 @@ main.setup = function()
                     main.towers[main.cycle(j)].disks.shuffle();
                 }
             }
-            while (main.solved());            
+            while (main.solved());
         }
     }
     if (main.alternate && main.change) {
@@ -1100,6 +1100,7 @@ main.setup = function()
                     'type': 'checkbox'
                 }
             ).appendTo(element);
+            $('#star' + i).data('tower', i);
             $(
                 '<div />', {
                     'class': 'move',
@@ -1137,14 +1138,12 @@ main.setup = function()
                     'id': 'peg' + i
                 }
             ).appendTo('#move' + i);
-            $('#star' + i).data('tower', i);
             $(
-                '<label />', {
+                '<div />', {
                     'id': 'label' + i,
-                    'for': 'star' + i,
                     'text': (i + 1)
                 }
-            ).appendTo(element);
+            ).appendTo('#move' + i);
         }
         $(element).show();
         $(element).css('visibility', 'visible');
