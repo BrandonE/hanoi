@@ -41,14 +41,13 @@ from mercurial import ui, hg
 import suit
 from rulebox import templating
 templating.var.source = open('index.py').read()
-repo = repo = hg.repository(ui.ui(), '.')
-for rev in repo:
-    templating.var.date = repo[rev].date()[0]
-    templating.var.description = escape(
-        Markup(repo[rev].description()).unescape()
-    ).replace('\n', '<br />')
-    templating.var.user = repo[rev].user()
-templating.var.date = time.ctime(templating.var.date)
+repo = hg.repository(ui.ui(), '.')
+rev = repo[len(repo) - 1]
+templating.var.date = time.ctime(rev.date()[0])
+templating.var.description = escape(
+    Markup(rev.description()).unescape()
+).replace('\n', '<br />')
+templating.var.user = rev.user()
 string = suit.execute(
     templating.rules,
     open(

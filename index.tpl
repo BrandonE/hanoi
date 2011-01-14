@@ -38,9 +38,9 @@ variations, solution, solutions, disk, disks, stack, stacks" />
     A page containing the puzzle, variations, and solutions.
 </h3>
 <p>
-    <a href="http://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank">The
-    Towers of Hanoi</a> is a mathematical puzzle that has become a popular
-    example of the concept <a
+    Wikipedia describes <a href="http://en.wikipedia.org/wiki/Tower_of_Hanoi"
+    target="_blank">The Towers of Hanoi</a> as a mathematical puzzle that has
+    become a popular example of the concept of <a
     href="http://en.wikipedia.org/wiki/Recursion_(computer_science)"
     target="_blank">recursion</a>. On this page, we have provided the puzzle,
     several options used to create variations of it, a method of playing these
@@ -325,7 +325,7 @@ variations, solution, solutions, disk, disks, stack, stacks" />
     <p>
         For the automatic methods, depending on what options you have provided,
         there might be a built-in <b>Solution</b> that you can watch. To see if
-        we have implimented a solution for this setup, check the <em>Minimum
+        we have implemented a solution for this setup, check the <em>Minimum
         Moves</em> field; if it shows something other than "Unsolved", click
         <em>Start</em> to begin the solution and <em>Stop</em> to stop it.
         Also, if you have come up with your own solution and want to save the
@@ -389,10 +389,10 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         <li>
             Checking <em>Antwerp</em> changes the layout of a game with
             multiple stacks. Instead of placing towers in between the different
-            stacks, the program places them all next to eachother, and each
+            stacks, the program places them all next to each other, and each
             stack can go on any tower. Again, to win, you must rotate the
             colored stacks clockwise. To enable this, you must also enable
-            <em>Disks of the same size can be placed on eachother</em> in the
+            <em>Disks of the same size can be placed on each other</em> in the
             restrictions section.
         </li>
         <li>
@@ -408,9 +408,8 @@ variations, solution, solutions, disk, disks, stack, stacks" />
             These options might create initial setups that break rules for the
             given variation. However, in many cases, it's still possible to
             solve the puzzle if you don't make any illegal moves from that
-            point on. That said, these features are in the the testing stages,
-            so there might be some cases in which they create unsolvable
-            puzzles.
+            point on. That said, we're still working on these features, so
+            there might be some cases in which they create unsolvable puzzles.
         </li>
     </ul>
     <p>

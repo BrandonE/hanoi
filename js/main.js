@@ -650,7 +650,7 @@ main.setup = function()
     var k;
     var maximum = 100;
     var message;
-    var moves;
+    var moves = $('#importmoves').val();
     var multistack;
     var num;
     var offset = 0;
@@ -1193,15 +1193,12 @@ main.setup = function()
             }
         }
     }
-    moves = $('#importmoves').val();
     if (moves) {
-        try
-        {
+        try {
             main.generator = JSON.parse(moves);
             main.minimum = 'Imported';
         }
-        catch (err)
-        {
+        catch (err) {
             alert(err);
             main.generator = [];
         }
