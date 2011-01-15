@@ -553,7 +553,7 @@ solve.linear.antwerp.two.three.big = function(disks, x, y, z)
         z,
         function() {
             return solve.linear.antwerp.two.three.big(disks - 1, x, y, z);
-        },
+        }
     ];
 };
 
@@ -587,7 +587,7 @@ solve.linear.antwerp.two.three.compress = function(disks, x, y, z)
                         return solve.linear.antwerp.two.three.big(
                             disks - 1, x, y, z
                         );
-                    },
+                    }
                 ];
             }
             return [];
@@ -720,7 +720,7 @@ solve.linear.three.rec = function(disks, from, using, to)
             return solve.linear.three.rec(disks - 1, from, using, to);
         }
     ];
-}
+};
 
 solve.none.antwerp.three.three.all = function(disks, x, y, z)
 {
@@ -3301,10 +3301,8 @@ solve.start = function()
             if (main.count.per > 3) {
                 return;
             }
-            if (main.count.stacks > 1)
-            {
-                if (!main.antwerp)
-                {
+            if (main.count.stacks > 1) {
+                if (!main.antwerp) {
                     return;
                 }
                 main.generator = solve.linear.antwerp.two.three.solve(

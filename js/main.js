@@ -1556,8 +1556,7 @@ $(document).ready(
         );
         $('#showimport').change(
             function() {
-                if ($('#import').val())
-                {
+                if ($('#import').val()) {
                     $('#import').val('');
                     main.setup();
                 }
