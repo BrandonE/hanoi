@@ -60,7 +60,10 @@ var solve = {
         }
     },
     'star': {
-        'fk': []
+        'fk': [],
+        'using': {
+            'four': {}
+        }
     }
 };
 
@@ -3252,14 +3255,14 @@ solve.stacks = function(func, first, other, shortcut)
     return stacks;
 };
 
-solve.star.rec = function(disks, from, using, extra, to)
+solve.star.using.four.rec = function(disks, from, using, extra, to)
 {
     if (disks < 1) {
         return [];
     }
     return [
         function() {
-            return solve.star.rec(
+            return solve.star.using.four.rec(
                 disks - solve.star.fk[disks], from, using, to, extra
             );
         },
@@ -3269,7 +3272,7 @@ solve.star.rec = function(disks, from, using, extra, to)
             );
         },
         function() {
-            return solve.star.rec(
+            return solve.star.using.four.rec(
                 disks - solve.star.fk[disks], extra, using, from, to
             );
         }
@@ -3539,7 +3542,7 @@ solve.start = function()
             if (star === 2) {
                 using = 1;
             }
-            main.generator = group.rec(
+            main.generator = group.using.four.rec(
                 disks, 0, star, using, main.count.towers - 1
             );
             log2 = Math.log(2.0);

@@ -766,20 +766,6 @@ main.setup = function()
         main.top = '2';
         alert(message);
     }
-    if (main.top !== 'Any') {
-        if (main.top !== '1' && !main.change) {
-            message = 'Disks must change shades when moved if the top shade ';
-            message += 'isn\'t the first shade.';
-            alert(message);
-            main.change = true;
-        }
-        if (main.restriction in {'linear': 0, 'clock': 0, 'counter': 0}) {
-            message = 'There must be no additional restrictions on disk ';
-            message += 'movement if the top shade can\'t be any shade.';
-            alert(message);
-            main.restriction = 'none';
-        }
-    }
     if (main.restriction === 'different') {
         if (main.alternate) {
             message = 'The disks can\'t alternate if disks can\'t touch ';
@@ -1269,7 +1255,7 @@ main.setup = function()
     }
     $('#top').val(main.top);
     for (i = 0; i < main.count.towers; i++) {
-        checked = (i % denom in main.stars);
+        checked = (i in main.stars);
         $('#star' + i).attr('checked', checked);
     }
 };
