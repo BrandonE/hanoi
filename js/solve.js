@@ -1278,14 +1278,14 @@ solve.none.three.pick = function(stack, data)
     var to;
     var tower;
     var using;
-    if ('count' in data) {
+    if (!('count' in data)) {
         if (main.count.disks % 2 === 0) {
             stack = main.count.stacks - 1;
         }
         data.count = 0;
         data.phase = 'break';
     }
-    if ('shortcut' in data) {
+    if (!('shortcut' in data)) {
         data.shortcut = true;
     }
     mult = main.count.per - 1;
