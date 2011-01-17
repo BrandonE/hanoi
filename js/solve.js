@@ -1282,7 +1282,7 @@ solve.none.three.pick = function(stack, data)
         if (main.count.disks % 2 === 0) {
             stack = main.count.stacks - 1;
         }
-        data.count = 0;
+        data.count = 1;
         data.phase = 'break';
     }
     if (!('shortcut' in data)) {
@@ -1324,48 +1324,42 @@ solve.none.three.pick = function(stack, data)
         stack--;
         if (stack === 0) {
             data.phase = 'build';
-            to = main.cycle(mult * stack + mult);
-            data.count = main.towers[to].disks.length;
+            data.count = main.towers[to].disks.length + 1;
         }
     }
     else if (
         (
-            data.phase === 'break' ||
-            data.phase === 'build'
-        ) &&
-        main.towers[tower].disks.length > data.count &&
-        (
-            solve.xor(
-                stack === 0,
-                (
-                    solve.xor(
-                        main.count.disks % 2 === 0 || data.phase === 'build',
-                        main.towers[tower].disks.length % 2 === 0
-                    )
-                )
-            ) ||
-            main.towers[tower].disks.length === main.count.disks
-        ) &&
-        (
-            data.phase === 'break' ||
-            main.ordered(tower)
-        )
+            (
+                data.phase === 'break' ||
+                data.phase === 'build'
+            ) &&
+            main.towers[tower].disks.length === data.count &&
+            (
+                data.phase === 'break' ||
+                main.ordered(tower)
+            ) &&
+            (
+                data.phase === 'break' ||
+                main.towers[using].disks.length === main.count.disks - data.count
+            )
+        ) ||
+        main.towers[tower].disks.length === main.count.disks
     ) {
         stack--;
         if (stack < 0) {
             stack = main.count.stacks - 1;
+            data.count++;
         }
-        if (main.towers[1].disks.length === main.count.disks) {
+        if (stack === 0) {
+            data.count++;
+        }
+        if (
+            data.phase === 'break' &&
+            main.towers[1].disks.length === main.count.disks
+        ) {
             data.phase = 'build';
-            tower = to;
+            data.count = 1;
         }
-        using = mult * stack + 1;
-        to = main.cycle(mult * stack + mult);
-        tower = using;
-        if (data.phase === 'build') {
-            tower = to;
-        }
-        data.count = main.towers[tower].disks.length;
     }
     return {
         'stack': stack,
@@ -3285,8 +3279,8 @@ solve.start = function()
     var bdj;
     var disks = main.count.disks;
     var fij;
-    var first;
-    var func;
+    var first = solve.none.three.first;
+    var func = solve.none.three.rec;
     var group;
     var i;
     var j;
@@ -3294,9 +3288,10 @@ solve.start = function()
     var log3;
     var m;
     var minus;
-    var other;
+    var other = solve.none.three.other;
+    var pick = solve.none.three.pick;
     var s;
-    var shortcut;
+    var shortcut = solve.none.three.shortcut;
     var star;
     var using;
     if (!main.random && !main.shuffle) {
@@ -3304,8 +3299,8 @@ solve.start = function()
             if (main.count.per > 3) {
                 return;
             }
-            if (main.count.stacks > 1) {
-                if (!main.antwerp) {
+            if (main.count.stacks > 1 && main.antwerp) {
+                if (main.count.stacks !== 2) {
                     return;
                 }
                 main.generator = solve.linear.antwerp.two.three.solve(
@@ -3315,8 +3310,12 @@ solve.start = function()
                 return;
             }
             group = solve.linear.three;
-            main.generator = group.rec(disks, 0, 1, 2);
-            main.minimum = group.moves(disks);
+            main.generator = solve.pick(
+                solve.stacks(group.rec, other, other),
+                pick,
+                {'shortcut': false}
+            );
+            main.minimum = group.moves(disks) * main.count.stacks;
             return;
         }
         if (main.restriction === 'clock') {
@@ -3439,14 +3438,13 @@ solve.start = function()
                 return;
             }
             if (!main.change && main.count.shades === 2) {
-                group = solve.none.three;
                 if (main.count.per === 3 || main.count.stacks > 1) {
                     main.generator = solve.pick(
-                        solve.stacks(group.rec, group.first, group.other),
-                        group.pick,
+                        solve.stacks(func, first, other),
+                        pick,
                         {'shortcut': false}
                     );
-                    main.minimum = group.moves(disks);
+                    main.minimum = solve.none.three.moves(disks);
                     if (main.count.stacks > 1) {
                         main.minimum *= main.count.stacks + 1;
                     }
@@ -3461,14 +3459,13 @@ solve.start = function()
                 main.count.shades === 3 &&
                 main.restriction === 'same'
             ) {
-                group = solve.none.three;
                 main.generator = solve.pick(
                     solve.stacks(
                         solve.same.stay.three.three.ddd,
-                        group.first,
-                        group.other
+                        first,
+                        other
                     ),
-                    group.pick,
+                    pick,
                     {'shortcut': false}
                 );
                 m = $M(
@@ -3574,11 +3571,6 @@ solve.start = function()
             main.minimum *= 2;
             return;
         }
-        group = solve.none.three;
-        func = group.rec;
-        first = group.first;
-        other = group.other;
-        shortcut = group.shortcut;
         if (main.count.stacks === 1) {
             func = solve.none.more.rec;
             other = solve.none.more.other;
@@ -3606,6 +3598,7 @@ solve.start = function()
             return;
         }
         else {
+            group = solve.none.three;
             main.minimum = group.moves(disks);
             if (main.count.stacks === 2) {
                 main.minimum *= 3;
@@ -3618,12 +3611,7 @@ solve.start = function()
         }
         main.generator = solve.pick(
             solve.stacks(func, first, other, shortcut),
-            group.pick
+            pick
         );
     }
-};
-
-solve.xor = function(a, b)
-{
-    return ((a || b) && !(a && b));
 };

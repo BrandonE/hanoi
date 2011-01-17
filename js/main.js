@@ -320,12 +320,20 @@ main.movable = function(disk, tower, size, undo)
         }
     }
     /*
-    If the movement is linear and the target tower isn't adjacent to this one,
+    If the movement is linear and the target tower isn't next to this one,
     fail.
     */
     if (
         main.restriction === 'linear' &&
         Math.abs(tower - disk.tower) > 1 &&
+        (
+            disk.tower + 1 !== main.count.towers ||
+            tower !== to
+        ) &&
+        (
+            disk.tower - 1 !== -1 ||
+            tower !== main.count.towers - 1
+        ) &&
         !size
     ) {
         return false;
@@ -1452,26 +1460,20 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#delay').blur(
+        $('#delay').change(
             function() {
-                var value = $('#delay').val();
-                if (main.delay !== value) {
-                    main.delay = parseInt(value, 10);
-                    if (isNaN(main.delay) || main.delay < 0) {
-                        alert('Invalid value for delay.');
-                        main.delay = 250;
-                    }
+                main.delay = parseInt($('#delay').val(), 10);
+                if (isNaN(main.delay) || main.delay < 0) {
+                    alert('Invalid value for delay.');
+                    main.delay = 250;
                 }
                 $('#delay').val(main.delay);
             }
         );
-        $('#disks').blur(
+        $('#disks').change(
             function() {
-                var value = $('#disks').val();
-                if (main.count.disks !== value) {
-                    main.count.disks = value;
-                    main.setup();
-                }
+                main.count.disks = $('#disks').val();
+                main.setup();
             }
         );
         $('#home').change(
@@ -1493,13 +1495,10 @@ $(document).ready(
                 }
             }
         );
-        $('#per').blur(
+        $('#per').change(
             function() {
-                var value = $('#per').val();
-                if (main.count.per !== value) {
-                    main.count.per = value;
-                    main.setup();
-                }
+                main.count.per = $('#per').val();
+                main.setup();
             }
         );
         $('#random').change(
@@ -1521,13 +1520,10 @@ $(document).ready(
                 }
             }
         );
-        $('#shades').blur(
+        $('#shades').change(
             function() {
-                var value = $('#shades').val();
-                if (main.count.shades !== value) {
-                    main.count.shades = value;
-                    main.setup();
-                }
+                main.count.shades = $('#shades').val();
+                main.setup();
             }
         );
         $('#showexport').change(
@@ -1570,13 +1566,10 @@ $(document).ready(
                 main.setup();
             }
         );
-        $('#stacks').blur(
+        $('#stacks').change(
             function() {
-                var value = $('#stacks').val();
-                if (main.count.stacks !== value) {
-                    main.count.stacks = value;
-                    main.setup();
-                }
+                main.count.stacks = $('#stacks').val();
+                main.setup();
             }
         );
         $('#startover').click(
