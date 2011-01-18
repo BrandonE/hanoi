@@ -3224,7 +3224,7 @@ solve.start = function()
             main.change &&
             main.count.shades > 1
         ) {
-            if (main.count.stacks > 1) {
+            if (main.antwerp) {
                 return;
             }
             if (main.count.shades === 2) {
@@ -3250,21 +3250,41 @@ solve.start = function()
                     s = m.x(s);
                 }
                 if (main.home) {
+                    if (main.count.stacks !== 1) {
+                        return;
+                    }
                     main.generator = group.edd(disks, 0, 1, to);
                     main.minimum = s.elements[2];
                     return;
                 }
                 if (main.top === '1') {
-                    main.generator = group.ddf(disks, 0, 1, to);
-                    main.minimum = s.elements[1];
+                    if (main.count.stacks === 1) {
+                        main.generator = group.ddf(disks, 0, 1, to);
+                        main.minimum = s.elements[1];
+                        return;
+                    }
+                    group = solve.linear.three;
+                    func = group.rec;
+                    main.generator = solve.pick(
+                        [func(disks, 0, 1, 2)].concat(
+                            solve.multi.three(func)
+                        )
+                    );
+                    main.minimum = group.moves(disks) * main.count.stacks;
                 }
                 if (main.top === '2' || main.top === 'Any') {
+                    if (main.count.stacks !== 1) {
+                        return;
+                    }
                     main.generator = group.dde(disks, 0, 1, to);
                     main.minimum = s.elements[0];
                 }
                 return;
             }
             if (main.count.shades === 3) {
+                if (main.count.stacks !== 1) {
+                    return;
+                }
                 group = solve.different.three.three;
                 if (main.home) {
                     if (main.top === '2') {
