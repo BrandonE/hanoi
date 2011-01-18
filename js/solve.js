@@ -5,9 +5,17 @@ http://www.brandonevans.org/
 var solve = {
     'cyclic': {
         'three': {
+            'clock': {},
+            'counter': {},
             'seq': {
-                'clock': [0, 2, 7],
-                'counter': [0, 1, 5]
+                'clock': {
+                    'longer': [0, 2, 10],
+                    'shorter': [0, 2, 7]
+                },
+                'counter': {
+                    'longer': [0, 1, 5],
+                    'shorter': [0, 1, 5]
+                }
             }
         }
     },
@@ -79,54 +87,123 @@ solve.binomial = function(x, y)
     return ans;
 };
 
-solve.cyclic.three.clock = function(disks, from, using, to)
+solve.cyclic.three.clock.longer = function(disks, from, using, to)
 {
     if (disks < 1) {
         return [];
     }
     return [
         function() {
-            return solve.cyclic.three.clock(disks - 1, from, using, to);
+            return solve.cyclic.three.clock.longer(disks - 1, from, using, to);
         },
         from,
         using,
         function() {
-            return solve.cyclic.three.counter(disks - 1, to, using, from);
+            return solve.cyclic.three.clock.longer(disks - 1, to, from, using);
+        },
+        function() {
+            return solve.cyclic.three.clock.longer(disks - 1, using, to, from);
         },
         using,
         to,
         function() {
-            return solve.cyclic.three.clock(disks - 1, from, using, to);
+            return solve.cyclic.three.clock.longer(disks - 1, from, using, to);
         }
     ];
 };
 
-solve.cyclic.three.counter = function(disks, from, using, to)
+
+solve.cyclic.three.clock.shorter = function(disks, from, using, to)
 {
     if (disks < 1) {
         return [];
     }
     return [
         function() {
-            return solve.cyclic.three.clock(disks - 1, from, to, using);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, from, using, to
+            );
         },
         from,
+        using,
+        function() {
+            return solve.cyclic.three.counter.shorter(
+                disks - 1, to, using, from
+            );
+        },
+        using,
         to,
         function() {
-            return solve.cyclic.three.clock(disks - 1, using, from, to);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, from, using, to
+            );
         }
     ];
 };
 
-solve.cyclic.three.moves = function(disks, counter)
+solve.cyclic.three.counter.longer = function(disks, from, using, to)
+{
+    if (disks < 1) {
+        return [];
+    }
+    return [
+        function() {
+            return solve.cyclic.three.clock.longer(disks - 1, from, to, using);
+        },
+        from,
+        to,
+        function() {
+            return solve.cyclic.three.clock.longer(disks - 1, using, from, to);
+        }
+    ];
+};
+
+solve.cyclic.three.counter.shorter = function(disks, from, using, to)
+{
+    if (disks < 1) {
+        return [];
+    }
+    return [
+        function() {
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, from, to, using
+            );
+        },
+        from,
+        to,
+        function() {
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, using, from, to
+            );
+        }
+    ];
+};
+
+solve.cyclic.three.moves = function(disks, counter, longer)
 {
     var i;
+    var item;
     var seq = solve.cyclic.three.seq.clock;
     if (counter) {
         seq = solve.cyclic.three.seq.counter;
     }
+    if (longer) {
+        seq = seq.longer;
+    }
+    else {
+        seq = seq.shorter;
+    }
     for (i = seq.length; i < disks + 1; i++) {
-        seq.push((3 * seq[i - 1]) - (2 * seq[i - 3]));
+        if (longer) {
+            item = (4 * seq[i - 1]) + 1;
+            if (!counter) {
+                item++;
+            }
+            seq.push(item);
+        }
+        else {
+            seq.push((3 * seq[i - 1]) - (2 * seq[i - 3]));
+        }
     }
     return seq[disks];
 };
@@ -138,14 +215,18 @@ solve.different.three.three.home.dark = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.counter(disks - 1, from, to, using);
+            return solve.cyclic.three.counter.shorter(
+                disks - 1, from, to, using
+            );
         },
         from,
         to,
         to,
         from,
         function() {
-            return solve.cyclic.three.counter(disks - 1, using, to, from);
+            return solve.cyclic.three.counter.shorter(
+                disks - 1, using, to, from
+            );
         }
     ];
 };
@@ -157,13 +238,17 @@ solve.different.three.three.home.light = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.clock(disks - 1, from, to, using);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, from, to, using
+            );
         },
         solve.different.three.three.same(from, to),
         to,
         from,
         function() {
-            return solve.cyclic.three.clock(disks - 1, using, to, from);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, using, to, from
+            );
         }
     ];
 };
@@ -175,13 +260,17 @@ solve.different.three.three.medium.clock = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.counter(disks - 1, from, to, using);
+            return solve.cyclic.three.counter.shorter(
+                disks - 1, from, to, using
+            );
         },
         function() {
             return solve.different.three.three.same(from, to);
         },
         function() {
-            return solve.cyclic.three.clock(disks - 1, using, from, to);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, using, from, to
+            );
         }
     ];
 };
@@ -193,13 +282,17 @@ solve.different.three.three.medium.counter = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.clock(disks - 1, from, to, using);
+            return solve.cyclic.three.clock.shorter(
+                disks - 1, from, to, using
+            );
         },
         function() {
             return solve.different.three.three.same(from, to);
         },
         function() {
-            return solve.cyclic.three.counter(disks - 1, using, from, to);
+            return solve.cyclic.three.counter.shorter(
+                disks - 1, using, from, to
+            );
         }
     ];
 };
@@ -3202,12 +3295,23 @@ solve.start = function()
             return;
         }
         if (main.restriction === 'clock') {
-            if (main.count.per > 3 || main.count.stacks > 1) {
+            if (main.count.per > 3 || main.antwerp) {
                 return;
             }
             group = solve.cyclic.three;
-            main.generator = group.clock(disks, 0, 1, 2);
-            main.minimum = group.moves(disks);
+            if (main.count.stacks === 1) {
+                stacks = [group.clock.shorter(disks, 0, 1, to)];
+                main.minimum = group.moves(disks);
+            }
+            else {
+                stacks = [
+                    solve.none.three.first(group.counter.longer)
+                ].concat(solve.multi.three(group.clock.longer));
+                main.minimum = (group.moves(disks, true, true) * 2) + (
+                    group.moves(disks, false, true) * (main.count.stacks - 1)
+                );
+            }
+            main.generator = solve.pick(stacks);
             return;
         }
         if (main.restriction === 'counter') {
@@ -3215,7 +3319,7 @@ solve.start = function()
                 return;
             }
             group = solve.cyclic.three;
-            main.generator = group.counter(disks, 0, 1, 2);
+            main.generator = group.counter.shorter(disks, 0, 1, 2);
             main.minimum = group.moves(disks, true);
             return;
         }
@@ -3257,7 +3361,12 @@ solve.start = function()
                     main.minimum = s.elements[2];
                     return;
                 }
-                if (main.top === '1') {
+                if (
+                    main.top === '1' ||
+                    (
+                        main.top === 'Any' && main.count.stacks !== 1
+                    )
+                ) {
                     if (main.count.stacks === 1) {
                         main.generator = group.ddf(disks, 0, 1, to);
                         main.minimum = s.elements[1];
@@ -3272,7 +3381,12 @@ solve.start = function()
                     );
                     main.minimum = group.moves(disks) * main.count.stacks;
                 }
-                if (main.top === '2' || main.top === 'Any') {
+                if (
+                    main.top === '2' ||
+                    (
+                        main.top === 'Any' && main.count.stacks === 1
+                    )
+                ) {
                     if (main.count.stacks !== 1) {
                         return;
                     }
@@ -3282,11 +3396,11 @@ solve.start = function()
                 return;
             }
             if (main.count.shades === 3) {
-                if (main.count.stacks !== 1) {
-                    return;
-                }
                 group = solve.different.three.three;
                 if (main.home) {
+                    if (main.count.stacks !== 1) {
+                        return;
+                    }
                     if (main.top === '2') {
                         main.generator = group.home.light(disks, 0, 1, to);
                         main.minimum = solve.cyclic.three.moves(
@@ -3303,21 +3417,51 @@ solve.start = function()
                     }
                     return;
                 }
-                if (main.top === '1' || main.top === 'Any') {
+                if (
+                    main.top === '1' ||
+                    (
+                        main.top === 'Any' && main.count.stacks === 1
+                    )
+                ) {
+                    if (main.count.stacks !== 1) {
+                        return;
+                    }
                     main.generator = group.medium.clock(disks, 0, 1, to);
                     main.minimum = solve.cyclic.three.moves(
                         disks - 1
                     ) + solve.cyclic.three.moves(disks - 1, true) + 3;
                 }
                 if (main.top === '2') {
+                    if (main.count.stacks !== 1) {
+                        return;
+                    }
                     main.generator = solve.cyclic.three.counter(
                         disks, 0, 1, to
                     );
                     main.minimum = solve.cyclic.three.moves(disks, true);
                 }
-                if (main.top === '3') {
-                    main.generator = solve.cyclic.three.clock(disks, 0, 1, to);
-                    main.minimum = solve.cyclic.three.moves(disks);
+                if (
+                    main.top === '3' ||
+                    (
+                        main.top === 'Any' && main.count.stacks !== 1
+                    )
+                ) {
+                    group = solve.cyclic.three;
+                    if (main.count.stacks === 1) {
+                        stacks = [group.clock.shorter(disks, 0, 1, to)];
+                        main.minimum = group.moves(disks);
+                    }
+                    else {
+                        stacks = [
+                            solve.none.three.first(group.counter.longer)
+                        ].concat(solve.multi.three(group.clock.longer));
+                        main.minimum = (group.moves(disks, true, true) * 2) + (
+                            group.moves(disks, false, true) * (
+                                main.count.stacks - 1
+                            )
+                        );
+                    }
+                    main.generator = solve.pick(stacks);
                 }
                 return;
             }
