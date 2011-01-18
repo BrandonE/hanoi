@@ -734,11 +734,11 @@ solve.multi.four = function(func)
     for (i = 1; i < main.count.stacks; i++) {
         stacks.push([
             func(
-                    main.count.disks,
-                    mult * stack,
-                    mult * stack + 1,
-                    mult * stack + 2,
-                    mult * stack + mult
+                main.count.disks,
+                mult * i,
+                mult * i + 1,
+                mult * i + 2,
+                mult * i + mult
             )
         ]);
     }
@@ -752,7 +752,7 @@ solve.multi.more = function(func)
     var stacks = [];
     for (i = 1; i < main.count.stacks; i++) {
         stacks.push([
-            func(main.count.disks, (mult * stack), (mult * stack + mult))
+            func(main.count.disks, (mult * i), (mult * i + mult))
         ]);
     }
     return stacks;
@@ -1118,7 +1118,7 @@ solve.none.more.rec = function(disks, from, to, towers)
     if (towers === undefined) {
         towers = [];
         for (i = from; i <= to; i++) {
-            towers.push(i);
+            towers.push(main.cycle(i));
         }
     }
     if (disks < 1 || towers.length < 2) {
@@ -1286,9 +1286,9 @@ solve.pick = function(stacks, shortcut, stack, phase, disks)
 
     Returns: list - The generator.
     */
+    var i;
     var mult;
     var to;
-    var tower;
     var using;
     if (stack === undefined) {
         stack = 0;
@@ -1305,11 +1305,10 @@ solve.pick = function(stacks, shortcut, stack, phase, disks)
     // A stack only needs to be picked if there is more than one stack.
     if (main.count.stacks > 1) {
         mult = main.count.per - 1;
-        using = mult * stack + 1;
         to = main.cycle(mult * stack + mult);
-        tower = using;
-        if (phase === 'build') {
-            tower = to;
+        using = 0;
+        for (i = mult * stack + 1; i < mult * stack + mult; i++) {
+            using += main.towers[i].disks.length;
         }
         if (
             phase === 'shortcut' &&
@@ -1345,23 +1344,20 @@ solve.pick = function(stacks, shortcut, stack, phase, disks)
         }
         else if (
             (
-                (
-                    phase === 'break' ||
-                    phase === 'build'
-                ) &&
-                main.towers[tower].disks.length === disks &&
-                (
-                    phase === 'break' ||
-                    main.ordered(tower)
-                ) &&
-                (
-                    phase === 'break' ||
-                    main.towers[using].disks.length === (
-                        main.count.disks - disks
-                    )
-                )
+                phase === 'break' &&
+                using === disks
             ) ||
-            main.towers[tower].disks.length === main.count.disks
+            (
+                phase === 'build' &&
+                (
+                    (
+                        main.ordered(to) &&
+                        main.towers[to].disks.length >= disks &&
+                        using == main.count.disks - disks
+                    ) ||
+                    main.towers[to].disks.length === main.count.disks
+                )
+            )
         ) {
             stack--;
             if (stack < 0) {
