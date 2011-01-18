@@ -776,48 +776,6 @@ solve.multi.three = function(func)
     return stacks;
 };
 
-solve.none.antwerp.three.three.all = function(disks, x, y, z)
-{
-    if (disks < 1) {
-        return [];
-    }
-    if (disks === 1) {
-        return [z, x, y, z, x, z, x, y, z, x];
-    }
-    return [
-        function() {
-            return solve.none.antwerp.three.three.compress(disks - 1, x, z, y);
-        },
-        x,
-        z,
-        function() {
-            return solve.none.antwerp.three.three.one(disks - 1, y, x, z);
-        },
-        y,
-        x,
-        function() {
-            return solve.none.antwerp.three.three.one(disks - 1, z, y, x);
-        },
-        z,
-        y,
-        z,
-        y,
-        function() {
-            return solve.none.antwerp.three.three.one(disks - 1, x, z, y);
-        },
-        x,
-        z,
-        function() {
-            return solve.none.antwerp.three.three.one(disks - 1, y, x, z);
-        },
-        y,
-        x,
-        function() {
-            return solve.none.antwerp.three.three.extract(disks - 1, z, y, x);
-        }
-    ];
-};
-
 solve.none.antwerp.three.three.compress = function(disks, x, y, z)
 {
     if (disks < 1) {
@@ -879,6 +837,48 @@ solve.none.antwerp.three.three.one = function(disks, x, y, z)
         z,
         function() {
             return solve.none.antwerp.three.three.one(disks - 1, y, x, z);
+        }
+    ];
+};
+
+solve.none.antwerp.three.three.solve = function(disks, x, y, z)
+{
+    if (disks < 1) {
+        return [];
+    }
+    if (disks === 1) {
+        return [z, x, y, z, x, z, x, y, z, x];
+    }
+    return [
+        function() {
+            return solve.none.antwerp.three.three.compress(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function() {
+            return solve.none.antwerp.three.three.one(disks - 1, y, x, z);
+        },
+        y,
+        x,
+        function() {
+            return solve.none.antwerp.three.three.one(disks - 1, z, y, x);
+        },
+        z,
+        y,
+        z,
+        y,
+        function() {
+            return solve.none.antwerp.three.three.one(disks - 1, x, z, y);
+        },
+        x,
+        z,
+        function() {
+            return solve.none.antwerp.three.three.one(disks - 1, y, x, z);
+        },
+        y,
+        x,
+        function() {
+            return solve.none.antwerp.three.three.extract(disks - 1, z, y, x);
         }
     ];
 };
@@ -3454,7 +3454,7 @@ solve.start = function()
                 ) / 3;
             }
             if (main.count.stacks === 3) {
-                main.generator = group.three.three.all(disks, 0, 1, 2);
+                main.generator = group.three.three.solve(disks, 0, 1, 2);
                 main.minimum = 5;
                 if (disks > 1) {
                     main.minimum = 12 * Math.pow(2, disks) - (8 * disks) - 10;
