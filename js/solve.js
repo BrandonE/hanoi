@@ -31,6 +31,7 @@ var solve = {
         },
         'three': {}
     },
+    'multi': {},
     'none': {
         'antwerp': {
             'three': {
@@ -725,6 +726,67 @@ solve.linear.three.rec = function(disks, from, using, to)
     ];
 };
 
+solve.multi.four = function(func)
+{
+    var i;
+    var mult = main.count.per - 1;
+    var stacks = [];
+    for (i = 1; i < main.count.stacks; i++) {
+        stacks.push([
+            func(
+                    main.count.disks,
+                    mult * stack,
+                    mult * stack + 1,
+                    mult * stack + 2,
+                    mult * stack + mult
+            )
+        ]);
+    }
+    return stacks;
+};
+
+solve.multi.more = function(func)
+{
+    var i;
+    var j;
+    var mult = main.count.per - 1;
+    var stacks = [];
+    var towers;
+    for (i = 1; i < main.count.stacks; i++) {
+        towers = [];
+        for (j = mult * stack; j <= mult * stack + mult; j++) {
+            towers.push(i);
+        }
+        stacks.push([
+            func(
+                    main.count.disks,
+                    towers,
+                    (mult * stack),
+                    (mult * stack + mult)
+            )
+        ]);
+    }
+    return stacks;
+};
+
+solve.multi.three = function(func)
+{
+    var i;
+    var mult = main.count.per - 1;
+    var stacks = [];
+    for (i = 1; i < main.count.stacks; i++) {
+        stacks.push([
+            func(
+                main.count.disks,
+                mult * i,
+                mult * i + 1,
+                mult * i + mult
+            )
+        ]);
+    }
+    return stacks;
+};
+
 solve.none.antwerp.three.three.all = function(disks, x, y, z)
 {
     if (disks < 1) {
@@ -947,47 +1009,9 @@ solve.none.antwerp.two.three.spare = function(disks, x, y, z)
     ];
 };
 
-solve.none.four.first = function(func, stack)
-{
-    var from;
-    var extra;
-    var mult;
-    var to;
-    var using;
-    mult = main.count.per - 1;
-    from = mult * stack;
-    using = mult * stack + 1;
-    extra = mult * stack + 2;
-    to = mult * stack + mult;
-    return [
-        function() {
-            return func(main.count.disks, from, to, extra, using);
-        },
-        function() {
-            return func(main.count.disks, using, from, extra, to);
-        }
-    ];
-};
-
 solve.none.four.k = function(disks)
 {
     return Math.round(Math.sqrt(2 * disks));
-};
-
-solve.none.four.other = function(func, stack)
-{
-    var mult = main.count.per - 1;
-    return [
-        function() {
-            return func(
-                main.count.disks,
-                mult * stack,
-                mult * stack + 1,
-                mult * stack + 2,
-                mult * stack + mult
-            );
-        }
-    ];
 };
 
 solve.none.four.rec = function(disks, from, using, extra, to)
@@ -1008,35 +1032,6 @@ solve.none.four.rec = function(disks, from, using, extra, to)
         },
         function() {
             return solve.none.four.rec(disks - k, using, from, extra, to);
-        }
-    ];
-};
-
-solve.none.four.shortcut = function(func, stack)
-{
-    var from;
-    var extra;
-    var mult;
-    var to;
-    var using;
-    mult = main.count.per - 1;
-    from = mult * stack;
-    using = mult * stack + 1;
-    extra = mult * stack + 2;
-    to = mult * stack + mult;
-    return [
-        function() {
-            return func(main.count.disks - 1, from, using, extra, to);
-        },
-        from,
-        using,
-        function() {
-            return func(main.count.disks - 1, to, using, extra, from);
-        },
-        using,
-        to,
-        function() {
-            return func(main.count.disks - 1, from, using, extra, to);
         }
     ];
 };
@@ -1123,23 +1118,6 @@ solve.none.more.moves = function(disks, towers)
     return ant;
 };
 
-solve.none.more.other = function(func, stack)
-{
-    var i;
-    var mult = main.count.per - 1;
-    var towers = [];
-    for (i = mult * stack; i <= mult * stack + mult; i++) {
-        towers.push(i);
-    }
-    return [
-        function() {
-            return func(
-                main.count.disks, towers, (mult * stack), (mult * stack + mult)
-            );
-        }
-    ];
-};
-
 solve.none.more.rec = function(disks, towers, from, to)
 {
     var i;
@@ -1185,22 +1163,14 @@ solve.none.more.rec = function(disks, towers, from, to)
     ];
 };
 
-solve.none.three.first = function(func, stack)
+solve.none.three.first = function(func)
 {
-    var from;
-    var mult;
-    var to;
-    var using;
-    mult = main.count.per - 1;
-    from = mult * stack;
-    using = mult * stack + 1;
-    to = mult * stack + mult;
     return [
         function() {
-            return func(main.count.disks, from, to, using);
+            return func(main.count.disks, 0, 2, 1);
         },
         function() {
-            return func(main.count.disks, using, from, to);
+            return func(main.count.disks, 1, 0, 2);
         }
     ];
 };
@@ -1257,116 +1227,6 @@ solve.none.three.moves = function(disks)
     return Math.pow(2, disks) - 1;
 };
 
-solve.none.three.other = function(func, stack)
-{
-    var mult = main.count.per - 1;
-    return [
-        function() {
-            return func(
-                main.count.disks,
-                mult * stack,
-                mult * stack + 1,
-                mult * stack + mult
-            );
-        }
-    ];
-};
-
-solve.none.three.pick = function(stack, data)
-{
-    var mult;
-    var to;
-    var tower;
-    var using;
-    if (!('count' in data)) {
-        if (main.count.disks % 2 === 0) {
-            stack = main.count.stacks - 1;
-        }
-        data.count = 1;
-        data.phase = 'break';
-    }
-    if (!('shortcut' in data)) {
-        data.shortcut = true;
-    }
-    mult = main.count.per - 1;
-    using = mult * stack + 1;
-    to = main.cycle(mult * stack + mult);
-    tower = using;
-    if (data.phase === 'build') {
-        tower = to;
-    }
-    if (
-        data.phase === 'shortcut' &&
-        main.towers[0].disks.length === main.count.disks
-    ) {
-        data.phase = 'base';
-        stack = main.count.stacks - 1;
-    }
-    if (data.phase === 'last' && main.towers[0].disks.length === 1) {
-        data.phase = 'shortcut';
-        stack = 0;
-        if (main.count.disks === 1) {
-            data.phase = 'base';
-            stack = main.count.stacks - 1;
-        }
-    }
-    if (
-        data.phase === 'break' &&
-        data.shortcut &&
-        main.count.stacks > 2 &&
-        main.towers[1].disks.length === 1 &&
-        main.towers[1].disks[0].size === main.count.disks - 1
-    ) {
-        data.phase = 'last';
-        stack = main.count.stacks - 1;
-    }
-    else if (data.phase === 'base' && main.towers[to].disks.length === 1) {
-        stack--;
-        if (stack === 0) {
-            data.phase = 'build';
-            data.count = main.towers[to].disks.length + 1;
-        }
-    }
-    else if (
-        (
-            (
-                data.phase === 'break' ||
-                data.phase === 'build'
-            ) &&
-            main.towers[tower].disks.length === data.count &&
-            (
-                data.phase === 'break' ||
-                main.ordered(tower)
-            ) &&
-            (
-                data.phase === 'break' ||
-                main.towers[using].disks.length === main.count.disks - data.count
-            )
-        ) ||
-        main.towers[tower].disks.length === main.count.disks
-    ) {
-        stack--;
-        if (stack < 0) {
-            stack = main.count.stacks - 1;
-            data.count++;
-        }
-        if (stack === 0) {
-            data.count++;
-        }
-        if (
-            data.phase === 'break' &&
-            main.towers[1].disks.length === main.count.disks
-        ) {
-            data.phase = 'build';
-            data.count = 1;
-        }
-    }
-    return {
-        'stack': stack,
-        'data': data
-    };
-};
-
 solve.none.three.rec = function(disks, from, using, to, limit)
 {
     if (!limit) {
@@ -1387,34 +1247,26 @@ solve.none.three.rec = function(disks, from, using, to, limit)
     ];
 };
 
-solve.none.three.shortcut = function(func, stack)
+solve.none.three.shortcut = function(func)
 {
-    var from;
-    var mult;
-    var to;
-    var using;
-    mult = main.count.per - 1;
-    from = mult * stack;
-    using = mult * stack + 1;
-    to = mult * stack + mult;
     return [
         function() {
-            return func(main.count.disks - 1, from, using, to);
+            return func(main.count.disks - 1, 0, 1, 2);
         },
-        from,
-        using,
+        0,
+        1,
         function() {
-            return func(main.count.disks - 1, to, using, from);
+            return func(main.count.disks - 1, 2, 1, 0);
         },
-        using,
-        to,
+        1,
+        2,
         function() {
-            return func(main.count.disks - 1, from, using, to);
+            return func(main.count.disks - 1, 0, 1, 2);
         }
     ];
 };
 
-solve.pick = function(stacks, func, data, stack)
+solve.pick = function(stacks, shortcut, stack, phase, disks)
 {
     /*
     Create a generator that returns the moves from the stacks in the order that
@@ -1423,29 +1275,113 @@ solve.pick = function(stacks, func, data, stack)
     ``stacks``
         list - The generators for each stack.
 
-    ``func``
-        func - The function used to pick the stack to return a move from.
-
-    ``data``
-        dict - Data for the function to use (Optional. Default: {}).
+    ``shortcut``
+        bool - Whether or not this should pick using the shortcut.
 
     ``stack``
         int - The current picked stack (Optional. Default: 0).
 
+    ``phase``
+        str - The phase of picking (Optional. Default: 'break').
+
+    ``disks``
+        int - The amount of disks to track (Optional. Default: 1).
+
     Returns: list - The generator.
     */
-    var result;
-    if (data === undefined) {
-        data = {};
-    }
+    var mult;
+    var to;
+    var tower;
+    var using;
     if (stack === undefined) {
         stack = 0;
+        if (main.count.disks % 2 === 0) {
+            stack = main.count.stacks - 1;
+        }
+    }
+    if (phase === undefined) {
+        phase = 'break';
+    }
+    if (disks === undefined) {
+        disks = 1;
     }
     // A stack only needs to be picked if there is more than one stack.
     if (main.count.stacks > 1) {
-        result = func(stack, data);
-        stack = result.stack;
-        data = result.data;
+        mult = main.count.per - 1;
+        using = mult * stack + 1;
+        to = main.cycle(mult * stack + mult);
+        tower = using;
+        if (phase === 'build') {
+            tower = to;
+        }
+        if (
+            phase === 'shortcut' &&
+            main.towers[0].disks.length === main.count.disks
+        ) {
+            phase = 'base';
+            stack = main.count.stacks - 1;
+        }
+        if (phase === 'last' && main.towers[0].disks.length === 1) {
+            phase = 'shortcut';
+            stack = 0;
+            if (main.count.disks === 1) {
+                phase = 'base';
+                stack = main.count.stacks - 1;
+            }
+        }
+        if (
+            phase === 'break' &&
+            shortcut &&
+            main.count.stacks > 2 &&
+            main.towers[1].disks.length === 1 &&
+            main.towers[1].disks[0].size === main.count.disks - 1
+        ) {
+            phase = 'last';
+            stack = main.count.stacks - 1;
+        }
+        else if (phase === 'base' && main.towers[to].disks.length === 1) {
+            stack--;
+            if (stack === 0) {
+                phase = 'build';
+                disks = main.towers[to].disks.length + 1;
+            }
+        }
+        else if (
+            (
+                (
+                    phase === 'break' ||
+                    phase === 'build'
+                ) &&
+                main.towers[tower].disks.length === disks &&
+                (
+                    phase === 'break' ||
+                    main.ordered(tower)
+                ) &&
+                (
+                    phase === 'break' ||
+                    main.towers[using].disks.length === (
+                        main.count.disks - disks
+                    )
+                )
+            ) ||
+            main.towers[tower].disks.length === main.count.disks
+        ) {
+            stack--;
+            if (stack < 0) {
+                stack = main.count.stacks - 1;
+                disks++;
+            }
+            if (stack === 0) {
+                disks++;
+            }
+            if (
+                phase === 'break' &&
+                main.towers[1].disks.length === main.count.disks
+            ) {
+                phase = 'build';
+                disks = 1;
+            }
+        }
     }
     main.exhaust(stacks[stack]);
     /*
@@ -1456,7 +1392,7 @@ solve.pick = function(stacks, func, data, stack)
         return [
             main.next(stacks[stack]),
             function() {
-                return solve.pick(stacks, func, data, stack);
+                return solve.pick(stacks, shortcut, stack, phase, disks);
             }
         ];
     }
@@ -3204,51 +3140,6 @@ solve.same.stay.two.three.dddd = function(disks, from, using, extra, to)
     ];
 };
 
-solve.stacks = function(func, first, other, shortcut)
-{
-    /*
-    Create the generators for all of the stacks.
-
-    ``func``
-        func - The function used to generate the moves for a single stack game.
-
-    ``first``
-        func - The function used to generate the moves for the first stack.
-
-    ``other``
-        func - The function used to generate the moves for the other stacks.
-
-    ``shortcut``
-        func - The function used to generate the moves for the first stack
-        using a shortcut (Optional).
-
-    Returns: list - The generators for each stack.
-    */
-    var i;
-    var stacks = [];
-    for (i = 0; i < main.count.stacks; i++) {
-        // If this is the first stack and not the only stack
-        if (!i && main.count.stacks > 1) {
-            /*
-            If a shortcut was provided and there are more than two stacks, use
-            it.
-            */
-            if (shortcut && main.count.stacks > 2) {
-                stacks.push(shortcut(func, i));
-            }
-            // Else, use the first function.
-            else {
-                stacks.push(first(func, i));
-            }
-        }
-        // Else, use the other function.
-        else {
-            stacks.push(other(func, i));
-        }
-    }
-    return stacks;
-};
-
 solve.star.using.four.rec = function(disks, from, using, extra, to)
 {
     if (disks < 1) {
@@ -3279,19 +3170,16 @@ solve.start = function()
     var bdj;
     var disks = main.count.disks;
     var fij;
-    var first = solve.none.three.first;
     var func = solve.none.three.rec;
-    var group;
+    var group = solve.none.three;
     var i;
     var j;
     var log2;
     var log3;
     var m;
     var minus;
-    var other = solve.none.three.other;
-    var pick = solve.none.three.pick;
     var s;
-    var shortcut = solve.none.three.shortcut;
+    var stacks = [];
     var star;
     var using;
     if (!main.random && !main.shuffle) {
@@ -3310,10 +3198,11 @@ solve.start = function()
                 return;
             }
             group = solve.linear.three;
+            func = group.rec;
             main.generator = solve.pick(
-                solve.stacks(group.rec, other, other),
-                pick,
-                {'shortcut': false}
+                [func(disks, 0, 1, 2)].concat(
+                    solve.multi.three(func)
+                )
             );
             main.minimum = group.moves(disks) * main.count.stacks;
             return;
@@ -3439,11 +3328,15 @@ solve.start = function()
             }
             if (!main.change && main.count.shades === 2) {
                 if (main.count.per === 3 || main.count.stacks > 1) {
-                    main.generator = solve.pick(
-                        solve.stacks(func, first, other),
-                        pick,
-                        {'shortcut': false}
-                    );
+                    if (main.count.stacks === 1) {
+                        stacks = [func(disks, 0, 1, 2)];
+                    }
+                    else {
+                        stacks = [solve.none.three.first(func)].concat(
+                            solve.multi.three(func)
+                        );
+                    }
+                    main.generator = solve.pick(stacks);
                     main.minimum = solve.none.three.moves(disks);
                     if (main.count.stacks > 1) {
                         main.minimum *= main.count.stacks + 1;
@@ -3459,15 +3352,16 @@ solve.start = function()
                 main.count.shades === 3 &&
                 main.restriction === 'same'
             ) {
-                main.generator = solve.pick(
-                    solve.stacks(
-                        solve.same.stay.three.three.ddd,
-                        first,
-                        other
-                    ),
-                    pick,
-                    {'shortcut': false}
-                );
+                func = solve.same.stay.three.three.ddd;
+                if (main.count.stacks === 1) {
+                    stacks = [func(disks, 0, 1, 2)];
+                }
+                else {
+                    stacks = [solve.none.three.first(func)].concat(
+                        solve.multi.three(func)
+                    );
+                }
+                main.generator = solve.pick(stacks);
                 m = $M(
                     [
                         [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -3572,8 +3466,7 @@ solve.start = function()
             return;
         }
         if (main.count.stacks === 1) {
-            func = solve.none.more.rec;
-            other = solve.none.more.other;
+            stacks = [solve.none.three.rec(disks, 0, 1, 2)];
             main.minimum = solve.none.more.moves(disks, main.count.towers);
         }
         else if (main.antwerp) {
@@ -3598,20 +3491,19 @@ solve.start = function()
             return;
         }
         else {
-            group = solve.none.three;
             main.minimum = group.moves(disks);
             if (main.count.stacks === 2) {
+                stacks = [group.first(func)];
                 main.minimum *= 3;
             }
             if (main.count.stacks > 2) {
+                stacks = [group.shortcut(func)];
                 main.minimum = (
                     main.count.stacks * main.minimum
                 ) + group.moves(disks - 1) + 1;
             }
+            stacks = stacks.concat(solve.multi.three(func));
         }
-        main.generator = solve.pick(
-            solve.stacks(func, first, other, shortcut),
-            pick
-        );
+        main.generator = solve.pick(stacks, true);
     }
 };
