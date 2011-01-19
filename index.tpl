@@ -236,12 +236,12 @@ variations, solution, solutions, disk, disks, stack, stacks" />
                 <td>
                     <input type="radio" name="restriction" id="different"
                     value="different" /> <label for="different">Disks can't
-                    touch disks of a different color</label>
+                    touch disks of a different shade</label>
                 </td>
                 <td>
                     <input type="radio" name="restriction" id="same"
                     value="same" /> <label for="same">Disks can't touch disks
-                    of the same color</label>
+                    of the same shade</label>
                 </td>
             </tr>
             <tr>
@@ -249,7 +249,7 @@ variations, solution, solutions, disk, disks, stack, stacks" />
                     <input type="radio" name="restriction" id="group"
                     value="group" /> <label for="group">In any group of S =
                     Shades disks, there can't be two disks of the same
-                    color</label>
+                    shade</label>
                 </td>
                 <td>
                     <input type="checkbox" id="size" />
@@ -399,7 +399,7 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         Lastly, you can enable several <b>Restrictions</b>. These restrictions
         have been labeled in an obvious way, so we won't explain what each of
         them does. However, if you enable any of the restrictions regarding
-        color, and you have enabled <em>Change</em>, two additional settings
+        shade, and you have enabled <em>Change</em>, two additional settings
         appear:
     </p>
     <ul>

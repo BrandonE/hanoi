@@ -105,10 +105,6 @@ main.cycle = function(num, start, end)
 
     Returns: int - The new number.
     */
-    num = parseInt(num, 10);
-    if (isNaN(num)) {
-        return num;
-    }
     // If no range is provided, assume we are cycling through the towers.
     if (start === undefined) {
         start = 0;
@@ -116,15 +112,16 @@ main.cycle = function(num, start, end)
     if (end === undefined) {
         end = main.count.towers - 1;
     }
+    num = parseInt(num, 10);
+    if (isNaN(num) || start > end) {
+        return num;
+    }
     // Decrease the number where necessary.
-    while (num > end && (end > start || num < start)) {
-        num += start - 1;
-        if (end > start) {
-            num -= end;
-        }
+    while (num > end) {
+        num += start - end - 1;
     }
     // Increase the number where necessary.
-    while (num < start && end > start) {
+    while (num < start) {
         num += end - start + 1;
     }
     if (start === end) {
@@ -236,6 +233,7 @@ main.movable = function(disk, tower, size, undo)
     var last;
     var medium;
     var mult;
+    var next;
     var to;
     // If this disk doesn't exist or the tower is undefined, you can't move it.
     if (!disk || tower === undefined) {
@@ -251,6 +249,7 @@ main.movable = function(disk, tower, size, undo)
     last = main.towers[tower].disks[main.towers[tower].disks.length - 1];
     medium = main.shades[disk.stack][0];
     mult = main.count.per - 1;
+    from = disk.stack * mult;
     to = disk.stack * mult + mult;
     if (main.count.stacks > 1) {
         to = main.cycle(to);
@@ -261,8 +260,19 @@ main.movable = function(disk, tower, size, undo)
     if (main.restriction === 'counter') {
         cycle = -1;
     }
-    if (cycle !== undefined && undo) {
-        cycle = -cycle;
+    if (cycle !== undefined) {
+        if (undo) {
+            cycle = -cycle;
+        }
+        if (cycle === 1 && disk.tower === to) {
+            next = from;
+        }
+        else if (cycle === -1 && disk.tower === from) {
+            next = to;
+        }
+        else {
+            next = main.cycle(disk.tower + cycle);
+        }
     }
     if (main.restriction === 'group' && !size) {
         for (
@@ -343,14 +353,8 @@ main.movable = function(disk, tower, size, undo)
     fail.
     */
     if (
-        cycle !== undefined &&
-        tower !== main.cycle(
-            main.cycle(
-                disk.tower + cycle,
-                disk.stack * mult,
-                to
-            )
-        ) &&
+        next !== undefined &&
+        tower !== next &&
         !size
     ) {
         return false;
@@ -777,14 +781,14 @@ main.setup = function()
     if (main.restriction === 'different') {
         if (main.alternate) {
             message = 'The disks can\'t alternate if disks can\'t touch ';
-            message += 'disks of a different color.';
+            message += 'disks of a different shade.';
             alert(message);
             main.alternate = false;
         }
         if (main.count.shades > main.count.per) {
             message = 'There must be at least as many towers per stack as ';
             message += 'shades if disks can\'t touch disks of a different ';
-            message += 'color.';
+            message += 'shade.';
             alert(message);
             main.count.per = main.count.shades;
         }
@@ -792,19 +796,19 @@ main.setup = function()
     if (main.restriction in {'same': 0, 'group': 0}) {
         if (main.count.shades < 2) {
             message = 'There must be at least two shades if disks can\'t ';
-            message += 'touch disks of the same color.';
+            message += 'touch disks of the same shade.';
             alert(message);
             main.count.shades = 2;
         }
         if (!main.alternate) {
             message = 'The disks must alternate if disks can\'t touch disks ';
-            message += 'of the same color.';
+            message += 'of the same shade.';
             alert(message);
             main.alternate = true;
         }
         if (main.change && main.count.per < 4) {
             message = 'There must be at least four towers per stack if disks ';
-            message += 'can\'t touch disks of the same color and disks ';
+            message += 'can\'t touch disks of the same shade and disks ';
             message += 'change shades.';
             alert(message);
             main.count.per = 4;
@@ -813,7 +817,7 @@ main.setup = function()
     if (main.restriction === 'group' && main.count.shades >= main.count.per) {
         message = 'There must be more towers per stack than shades if in any ';
         message += 'group of S = Shades disks, there can\'t be two disks of ';
-        message += 'of the same color.';
+        message += 'of the same shade.';
         alert(message);
         main.count.per = main.count.shades + 1;
     }

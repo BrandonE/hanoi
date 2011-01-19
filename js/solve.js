@@ -1446,7 +1446,7 @@ solve.pick = function(stacks, shortcut, stack, phase, disks)
                     (
                         main.ordered(to) &&
                         main.towers[to].disks.length >= disks &&
-                        using == main.count.disks - disks
+                        using === main.count.disks - disks
                     ) ||
                     main.towers[to].disks.length === main.count.disks
                 )
@@ -3260,6 +3260,7 @@ solve.start = function()
     var group = solve.none.three;
     var i;
     var j;
+    var last = main.count.towers - 1;
     var log2;
     var log3;
     var m;
@@ -3268,7 +3269,6 @@ solve.start = function()
     var stacks = [];
     var star;
     var using;
-    var to = main.count.towers - 1;
     if (!main.random && !main.shuffle) {
         if (main.restriction === 'linear') {
             if (main.count.per > 3) {
@@ -3300,7 +3300,7 @@ solve.start = function()
             }
             group = solve.cyclic.three;
             if (main.count.stacks === 1) {
-                stacks = [group.clock.shorter(disks, 0, 1, to)];
+                stacks = [group.clock.shorter(disks, 0, 1, 2)];
                 main.minimum = group.moves(disks);
             }
             else {
@@ -3315,12 +3315,23 @@ solve.start = function()
             return;
         }
         if (main.restriction === 'counter') {
-            if (main.count.per > 3 || main.count.stacks > 1) {
+            if (main.count.per > 3 || main.antwerp) {
                 return;
             }
             group = solve.cyclic.three;
-            main.generator = group.counter.shorter(disks, 0, 1, 2);
-            main.minimum = group.moves(disks, true);
+            if (main.count.stacks === 1) {
+                stacks = [group.counter.shorter(disks, 0, 1, 2)];
+                main.minimum = group.moves(disks, true);
+            }
+            else {
+                stacks = [
+                    solve.none.three.first(group.clock.shorter)
+                ].concat(solve.multi.three(group.counter.shorter));
+                main.minimum = (group.moves(disks) * 2) + (
+                    group.moves(disks, true) * (main.count.stacks - 1)
+                );
+            }
+            main.generator = solve.pick(stacks);
             return;
         }
         if (
@@ -3357,7 +3368,7 @@ solve.start = function()
                     if (main.count.stacks !== 1) {
                         return;
                     }
-                    main.generator = group.edd(disks, 0, 1, to);
+                    main.generator = group.edd(disks, 0, 1, last);
                     main.minimum = s.elements[2];
                     return;
                 }
@@ -3368,7 +3379,7 @@ solve.start = function()
                     )
                 ) {
                     if (main.count.stacks === 1) {
-                        main.generator = group.ddf(disks, 0, 1, to);
+                        main.generator = group.ddf(disks, 0, 1, last);
                         main.minimum = s.elements[1];
                         return;
                     }
@@ -3390,7 +3401,7 @@ solve.start = function()
                     if (main.count.stacks !== 1) {
                         return;
                     }
-                    main.generator = group.dde(disks, 0, 1, to);
+                    main.generator = group.dde(disks, 0, 1, last);
                     main.minimum = s.elements[0];
                 }
                 return;
@@ -3402,13 +3413,13 @@ solve.start = function()
                         return;
                     }
                     if (main.top === '2') {
-                        main.generator = group.home.light(disks, 0, 1, to);
+                        main.generator = group.home.light(disks, 0, 1, last);
                         main.minimum = solve.cyclic.three.moves(
                             disks - 1
                         ) + solve.cyclic.three.moves(disks - 1) + 4;
                     }
                     if (main.top === '3') {
-                        main.generator = group.home.dark(disks, 0, 1, to);
+                        main.generator = group.home.dark(disks, 0, 1, last);
                         main.minimum = solve.cyclic.three.moves(
                             disks - 1, true
                         ) + solve.cyclic.three.moves(
@@ -3426,7 +3437,7 @@ solve.start = function()
                     if (main.count.stacks !== 1) {
                         return;
                     }
-                    main.generator = group.medium.clock(disks, 0, 1, to);
+                    main.generator = group.medium.clock(disks, 0, 1, last);
                     main.minimum = solve.cyclic.three.moves(
                         disks - 1
                     ) + solve.cyclic.three.moves(disks - 1, true) + 3;
@@ -3436,7 +3447,7 @@ solve.start = function()
                         return;
                     }
                     main.generator = solve.cyclic.three.counter(
-                        disks, 0, 1, to
+                        disks, 0, 1, last
                     );
                     main.minimum = solve.cyclic.three.moves(disks, true);
                 }
@@ -3448,7 +3459,7 @@ solve.start = function()
                 ) {
                     group = solve.cyclic.three;
                     if (main.count.stacks === 1) {
-                        stacks = [group.clock.shorter(disks, 0, 1, to)];
+                        stacks = [group.clock.shorter(disks, 0, 1, last)];
                         main.minimum = group.moves(disks);
                     }
                     else {
@@ -3473,7 +3484,7 @@ solve.start = function()
             if (!main.change && main.count.shades === 2) {
                 if (main.count.per === 3 || main.count.stacks > 1) {
                     if (main.count.stacks === 1) {
-                        stacks = [func(disks, 0, 1, to)];
+                        stacks = [func(disks, 0, 1, last)];
                     }
                     else {
                         stacks = [solve.none.three.first(func)].concat(
@@ -3488,7 +3499,7 @@ solve.start = function()
                     return;
                 }
                 main.generator = solve.same.stay.two.three.dddd(
-                    disks, 0, 1, 2, to
+                    disks, 0, 1, 2, last
                 );
             }
             if (
@@ -3498,7 +3509,7 @@ solve.start = function()
             ) {
                 func = solve.same.stay.three.three.ddd;
                 if (main.count.stacks === 1) {
-                    stacks = [func(disks, 0, 1, to)];
+                    stacks = [func(disks, 0, 1, last)];
                 }
                 else {
                     stacks = [solve.none.three.first(func)].concat(
@@ -3534,21 +3545,21 @@ solve.start = function()
             if (main.change && main.count.shades === 2) {
                 group = solve.same.change.two.three;
                 if (main.home) {
-                    main.generator = group.eddd(disks, 0, 1, 2, to);
+                    main.generator = group.eddd(disks, 0, 1, 2, last);
                     return;
                 }
                 if (main.top === '1') {
-                    main.generator = group.dddf(disks, 0, 1, 2, to);
+                    main.generator = group.dddf(disks, 0, 1, 2, last);
                 }
                 if (main.top === '2' || main.top === 'Any') {
-                    main.generator = group.ddde(disks, 0, 1, 2, to);
+                    main.generator = group.ddde(disks, 0, 1, 2, last);
                 }
             }
             return;
         }
         if (
             main.stars.length &&
-            main.stars.length < to
+            main.stars.length < last
         ) {
             star = false;
             for (i = 1; i < main.count.per - 1; i++) {
@@ -3571,7 +3582,7 @@ solve.start = function()
             if (star === 2) {
                 using = 1;
             }
-            main.generator = group.using.four.rec(disks, 0, star, using, to);
+            main.generator = group.using.four.rec(disks, 0, star, using, last);
             log2 = Math.log(2.0);
             log3 = Math.log(3.0);
             bdi = Math.floor(
@@ -3602,7 +3613,7 @@ solve.start = function()
             return;
         }
         if (main.count.stacks === 1) {
-            stacks = [solve.none.more.rec(disks, 0, to)];
+            stacks = [solve.none.more.rec(disks, 0, last)];
             main.minimum = solve.none.more.moves(disks, main.count.towers);
         }
         else if (main.antwerp) {
