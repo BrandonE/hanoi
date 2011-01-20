@@ -37,7 +37,7 @@ var main = {
     ],
     'shuffle': false,
     'size': false,
-    'stars': {},
+    'stars': [],
     'steps': [],
     'stopped': true,
     'top': 'Any',
@@ -278,7 +278,7 @@ main.movable = function(disk, tower, size, undo)
             i <= main.towers[tower].disks.length - main.count.shades + 1;
             i++
         ) {
-            colors = {};
+            colors = [];
             for (j = i; j < i + main.count.shades; j++) {
                 current = color;
                 if (
@@ -287,10 +287,10 @@ main.movable = function(disk, tower, size, undo)
                 ) {
                     current = main.towers[tower].disks[j].color;
                 }
-                if (current in colors) {
+                if (colors.indexOf(current) !== - 1) {
                     return false;
                 }
-                colors[current] = 0;
+                colors.push(current);
             }
         }
     }
@@ -360,18 +360,17 @@ main.movable = function(disk, tower, size, undo)
     // If there are star towers and this move is not from nor to one, fail.
     if (
         main.stars.length &&
-        !(disk.tower in main.stars) &&
-        !(tower in main.stars) &&
+        main.stars.indexOf(disk.tower) === -1 &&
+        main.stars.indexOf(tower) === -1 &&
         !size
     ) {
         return false;
     }
-    colors = {'grey': 0};
-    colors[main.shades[disk.stack][0]] = 0;
+    colors = ['grey', main.shades[disk.stack][0]];
     // If this disk doesn't belong on this tower, fail.
     if (
-        !(main.towers[tower].base in colors) &&
-        !(main.towers[tower].peg in colors) &&
+        colors.indexOf(main.towers[tower].base) === -1 &&
+        colors.indexOf(main.towers[tower].peg) === -1 &&
         !size
     ) {
         return false;
@@ -791,7 +790,7 @@ main.setup = function()
             main.count.per = main.count.shades;
         }
     }
-    if (main.restriction in {'same': 0, 'group': 0}) {
+    if (['same', 'group'].indexOf(main.restriction) !== -1) {
         if (main.count.shades < 2) {
             message = 'There must be at least two shades if disks can\'t ';
             message += 'touch disks of the same shade.';
@@ -841,24 +840,20 @@ main.setup = function()
     while (main.count.towers > 25);
     // If the tower count has changed, remove all star towers.
     if (old !== main.count.towers) {
-        main.stars = {};
+        main.stars = [];
     }
     denom = main.count.per - 1;
     for (i = 0; i < main.count.towers; i++) {
         multistack = (main.count.stacks > 1 && !main.antwerp);
         checked = (
-            (multistack && i % denom in main.stars) ||
-            (!multistack && i in main.stars)
+            (multistack && main.stars.indexOf(i % denom) !== -1) ||
+            (!multistack && main.stars.indexOf(i) !== -1)
         );
-        delete main.stars[i];
-        if (checked) {
-            main.stars[i] = 0;
+        if (main.stars.indexOf(i) !== - 1) {
+            main.stars.splice(main.stars.indexOf(i), 1);
         }
-    }
-    main.stars.length = 0;
-    for (i in main.stars) {
-        if (i !== '__prototype__' && i !== 'length') {
-            main.stars.length++;
+        if (checked) {
+            main.stars.push(i);
         }
     }
     if (main.stars.length && main.restriction !== 'none') {
@@ -1026,13 +1021,13 @@ main.setup = function()
                 j <= main.towers[i].disks.length - main.count.shades;
                 j++
             ) {
-                colors = {};
+                colors = [];
                 for (k = j; k < j + main.count.shades; k++) {
                     current = main.towers[i].disks[k];
-                    while (current.color in colors) {
+                    while (colors.indexOf(current.color) !== - 1) {
                         current.color = main.color(current);
                     }
-                    colors[current.color] = 0;
+                    colors.push(current.color);
                 }
             }
         }
@@ -1206,7 +1201,7 @@ main.setup = function()
     }
     if (
         main.change &&
-        main.restriction in {'different': 0, 'same': 0, 'group': 0}
+        ['different', 'same', 'group'].indexOf(main.restriction) !== -1
     ) {
         $('.shade').show();
     }
@@ -1265,7 +1260,7 @@ main.setup = function()
     }
     $('#top').val(main.top);
     for (i = 0; i < main.count.towers; i++) {
-        checked = (i in main.stars);
+        checked = (main.stars.indexOf(i) !== -1);
         $('#star' + i).attr('checked', checked);
     }
 };
@@ -1628,9 +1623,11 @@ $(document).ready(
                 if (main.count.stacks > 1 && !main.antwerp) {
                     star %= main.count.per - 1;
                 }
-                delete main.stars[star];
+                if (main.stars.indexOf(star) !== - 1) {
+                    main.stars.splice(main.stars.indexOf(star), 1);
+                }
                 if ($('#star' + tower + ':checked').length) {
-                    main.stars[star] = 0;
+                    main.stars.push(star);
                 }
                 main.setup();
             }

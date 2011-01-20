@@ -87,10 +87,7 @@ solve.binomial = function(x, y)
 
 solve.cyclic.more.clock = function(disks, from, to, towers)
 {
-    var cycle = 1;
-    var denom = main.count.per - 1;
-    var home = from;
-    var i;
+    var direction = 1;
     var moves = [];
     var tower = from;
     var using = from;
@@ -98,32 +95,26 @@ solve.cyclic.more.clock = function(disks, from, to, towers)
         return [];
     }
     if (towers === undefined) {
-        home -= home % denom;
-        towers = {};
-        for (i = home; i <= home + denom; i++) {
-            towers[main.cycle(i)] = 0;
-        }
+        towers = solve.towers(from);
     }
     if (main.restriction === 'counter') {
-        cycle = -1;
+        direction = -1;
     }
     do {
-        using = main.cycle(using + cycle);
+        using = main.cycle(using + direction);
     }
-    while (!(using in towers));
-    tower = main.cycle(from + cycle);
+    while (towers.indexOf(using) === -1);
+    tower = main.cycle(from + direction);
     while (tower !== to) {
-        while (!(tower in towers)) {
-            tower = main.cycle(tower + cycle);
+        while (towers.indexOf(tower) === -1) {
+            tower = main.cycle(tower + direction);
         }
         moves.push(tower);
         do {
-            tower = main.cycle(tower + cycle);
+            tower = main.cycle(tower + direction);
         }
-        while (!(tower in towers));
-        if (tower in towers) {
-            moves.push(tower);
-        }
+        while (towers.indexOf(tower) === -1);
+        moves.push(tower);
     }
     return [
         function() {
@@ -160,10 +151,7 @@ solve.cyclic.more.clock = function(disks, from, to, towers)
 
 solve.cyclic.more.counter = function(disks, from, to, towers)
 {
-    var cycle = 1;
-    var denom = main.count.per - 1;
-    var home = from;
-    var i;
+    var direction = 1;
     var moves = [];
     var tower = from;
     var using = from;
@@ -171,31 +159,25 @@ solve.cyclic.more.counter = function(disks, from, to, towers)
         return [];
     }
     if (towers === undefined) {
-        home -= home % denom;
-        towers = {};
-        for (i = home; i <= home + main.count.per - 1; i++) {
-            towers[main.cycle(i)] = 0;
-        }
+        towers = solve.towers(from);
     }
     if (main.restriction === 'counter') {
-        cycle = -1;
+        direction = -1;
     }
     do {
-        using = main.cycle(using - cycle);
+        using = main.cycle(using - direction);
     }
-    while (!(using in towers));
+    while (towers.indexOf(using) === -1);
     while (tower !== to) {
-        while (!(tower in towers)) {
-            tower = main.cycle(tower + cycle);
+        while (towers.indexOf(tower) === -1) {
+            tower = main.cycle(tower + direction);
         }
         moves.push(tower);
         do {
-            tower = main.cycle(tower + cycle);
+            tower = main.cycle(tower + direction);
         }
-        while (!(tower in towers));
-        if (tower in towers) {
-            moves.push(tower);
-        }
+        while (towers.indexOf(tower) === -1);
+        moves.push(tower);
     }
     return [
         function() {
@@ -847,6 +829,53 @@ solve.linear.antwerp.two.three.solve = function(disks, x, y, z)
     ];
 };
 
+solve.linear.more = function(disks, from, to, towers)
+{
+    var direction = 1;
+    var first;
+    var moves = [];
+    var tower = from;
+    if (disks < 1) {
+        return [];
+    }
+    if (towers === undefined) {
+        towers = solve.towers(from);
+    }
+    if (to === towers[0]) {
+        direction = -1;
+    }
+    while (tower !== to) {
+        while (towers.indexOf(tower) === -1) {
+            tower = main.cycle(tower + direction);
+        }
+        moves.push(tower);
+        do {
+            tower = main.cycle(tower + direction);
+        }
+        while (towers.indexOf(tower) === -1);
+        moves.push(tower);
+    }
+    first = moves.splice(0, 2);
+    return [
+        function() {
+            return solve.linear.more(disks - 1, from, to, towers);
+        },
+        first,
+        function() {
+            return solve.linear.more(disks - 1, to, from, towers);
+        },
+        moves,
+        function() {
+            return solve.linear.more(disks - 1, from, to, towers);
+        }
+    ];
+};
+
+solve.linear.moves = function(disks)
+{
+    return (Math.pow(3, disks) - 1) * (1 + ((main.count.per - 3) * .5));
+};
+
 solve.linear.three.iter = function(disks, from, using, to, clock)
 {
     var frower = from;
@@ -875,11 +904,6 @@ solve.linear.three.iter = function(disks, from, using, to, clock)
             return solve.linear.three.iter(disks, from, using, to, clock + 1);
         }
     ];
-};
-
-solve.linear.three.moves = function(disks)
-{
-    return Math.pow(3, disks) - 1;
 };
 
 solve.linear.three.rec = function(disks, from, using, to)
@@ -1307,10 +1331,7 @@ solve.none.more.rec = function(disks, from, to, towers)
     var tower;
     var using;
     if (towers === undefined) {
-        towers = [];
-        for (i = from; i <= from + main.count.per - 1; i++) {
-            towers.push(main.cycle(i));
-        }
+        towers = solve.towers(from);
     }
     if (disks < 1 || towers.length < 2) {
         return [];
@@ -3369,10 +3390,7 @@ solve.start = function()
     var using;
     if (!main.random && !main.shuffle) {
         if (main.restriction === 'linear') {
-            if (main.count.per > 3) {
-                return;
-            }
-            if (main.count.stacks > 1 && main.antwerp) {
+            if (main.antwerp) {
                 if (main.count.stacks !== 2) {
                     return;
                 }
@@ -3382,11 +3400,11 @@ solve.start = function()
                 main.minimum = 10 * Math.pow(3, disks - 1) - (4 * disks) - 2;
                 return;
             }
-            group = solve.linear.three;
-            func = group.rec;
+            group = solve.linear;
+            func = group.more;
             main.generator = solve.pick(
-                [func(disks, 0, 1, 2)].concat(
-                    solve.multi.three(func)
+                [func(disks, 0, main.count.per - 1)].concat(
+                    solve.multi.more(func)
                 )
             );
             main.minimum = group.moves(disks) * main.count.stacks;
@@ -3396,18 +3414,17 @@ solve.start = function()
             if (main.antwerp) {
                 return;
             }
-            group = solve.cyclic.more;
+            group = solve.cyclic;
             if (main.count.stacks === 1) {
-                stacks = [group.clock(disks, 0, last)];
+                stacks = [group.more.clock(disks, 0, last)];
                 if (main.count.per === 3) {
                     main.minimum = solve.cyclic.moves(disks);
                 }
             }
             else {
                 stacks = [
-                    solve.none.more.first(group.counter)
-                ].concat(solve.multi.more(group.clock));
-                group = solve.cyclic;
+                    solve.none.more.first(group.more.counter)
+                ].concat(solve.multi.more(group.more.clock));
                 if (main.count.per === 3) {
                     main.minimum = (group.moves(disks, true, true) * 2) + (
                         group.moves(disks, false, true) * (
@@ -3423,18 +3440,17 @@ solve.start = function()
             if (main.antwerp) {
                 return;
             }
-            group = solve.cyclic.more;
+            group = solve.cyclic;
             if (main.count.stacks === 1) {
-                stacks = [group.counter(disks, 0, last)];
+                stacks = [group.more.counter(disks, 0, last)];
                 if (main.count.per === 3) {
                     main.minimum = solve.cyclic.moves(disks, true);
                 }
             }
             else {
                 stacks = [
-                    solve.none.more.first(group.clock)
-                ].concat(solve.multi.more(group.counter));
-                group = solve.cyclic;
+                    solve.none.more.first(group.more.clock)
+                ].concat(solve.multi.more(group.more.counter));
                 if (main.count.per === 3) {
                     main.minimum = (group.moves(disks) * 2) + (
                         group.moves(disks, true) * (main.count.stacks - 1)
@@ -3482,38 +3498,30 @@ solve.start = function()
                     main.minimum = s.elements[2];
                     return;
                 }
-                if (
-                    main.top === '1' ||
-                    (
-                        main.top === 'Any' && main.count.stacks !== 1
-                    )
-                ) {
-                    if (main.count.stacks === 1) {
+                if (main.count.stacks === 1) {
+                    if (main.top === '2' || main.top === 'Any') {
+                        main.generator = group.dde(disks, 0, 1, last);
+                        main.minimum = s.elements[0];
+                    }
+                    if (main.top === '1') {
                         main.generator = group.ddf(disks, 0, 1, last);
                         main.minimum = s.elements[1];
+                    }
+                    return;
+                }
+                if (main.top !== 'Any') {
+                    if (solve.xor(main.top === '1', main.count.per % 2)) {
                         return;
                     }
-                    group = solve.linear.three;
-                    func = group.rec;
-                    main.generator = solve.pick(
-                        [func(disks, 0, 1, 2)].concat(
-                            solve.multi.three(func)
-                        )
-                    );
-                    main.minimum = group.moves(disks) * main.count.stacks;
                 }
-                if (
-                    main.top === '2' ||
-                    (
-                        main.top === 'Any' && main.count.stacks === 1
+                group = solve.linear;
+                func = group.more;
+                main.generator = solve.pick(
+                    [func(disks, 0, main.count.per - 1)].concat(
+                        solve.multi.more(func)
                     )
-                ) {
-                    if (main.count.stacks !== 1) {
-                        return;
-                    }
-                    main.generator = group.dde(disks, 0, 1, last);
-                    main.minimum = s.elements[0];
-                }
+                );
+                main.minimum = group.moves(disks) * main.count.stacks;
                 return;
             }
             if (main.count.shades === 3) {
@@ -3671,9 +3679,8 @@ solve.start = function()
             main.stars.length &&
             main.stars.length < last
         ) {
-            star = false;
             for (i = 1; i < main.count.per - 1; i++) {
-                if (i in main.stars) {
+                if (main.stars.indexOf(i) !== -1) {
                     star = i;
                     break;
                 }
@@ -3682,9 +3689,14 @@ solve.start = function()
                 return;
             }
             if (main.count.per === 3) {
-                group = solve.linear.three;
-                main.generator = group.iter(disks, 0, 1, 2);
-                main.minimum = group.moves(disks);
+                group = solve.linear;
+                func = group.more;
+                main.generator = solve.pick(
+                    [func(disks, 0, main.count.per - 1)].concat(
+                        solve.multi.more(func)
+                    )
+                );
+                main.minimum = group.moves(disks) * main.count.stacks;
                 return;
             }
             group = solve.star;
@@ -3763,4 +3775,19 @@ solve.start = function()
         }
         main.generator = solve.pick(stacks, true);
     }
+};
+
+solve.towers = function(from) {
+    var denom = main.count.per - 1;
+    from -= from % denom;
+    var towers = [];
+    for (i = from; i <= from + denom; i++) {
+        towers.push(main.cycle(i));
+    }
+    return towers;
+}
+
+solve.xor = function(a, b)
+{
+    return ((a || b) && !(a && b));
 };
