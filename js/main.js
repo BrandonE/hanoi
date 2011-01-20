@@ -231,7 +231,6 @@ main.movable = function(disk, tower, size, undo)
     var i;
     var j;
     var last;
-    var medium;
     var mult;
     var next;
     var to;
@@ -247,7 +246,6 @@ main.movable = function(disk, tower, size, undo)
     color = main.color(disk, undo);
     // Find the last disk of this tower.
     last = main.towers[tower].disks[main.towers[tower].disks.length - 1];
-    medium = main.shades[disk.stack][0];
     mult = main.count.per - 1;
     from = disk.stack * mult;
     to = disk.stack * mult + mult;
@@ -368,12 +366,12 @@ main.movable = function(disk, tower, size, undo)
     ) {
         return false;
     }
+    colors = {'grey': 0};
+    colors[main.shades[disk.stack][0]] = 0;
     // If this disk doesn't belong on this tower, fail.
     if (
-        main.towers[tower].base !== 'grey' &&
-        main.towers[tower].base !== medium &&
-        main.towers[tower].peg !== 'grey' &&
-        main.towers[tower].peg !== medium &&
+        !(main.towers[tower].base in colors) &&
+        !(main.towers[tower].peg in colors) &&
         !size
     ) {
         return false;
@@ -1372,7 +1370,7 @@ main.start = function(restarting)
             return;
         }
         if (!main.generator.length) {
-            alert('Error: No moves to be made.');
+            alert('No moves to be made.');
             main.stop();
         }
     }
