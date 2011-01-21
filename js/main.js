@@ -651,10 +651,10 @@ main.setup = function()
     var current;
     var denom;
     var disk;
+    var disks;
     var element;
     var height = 20;
     var i;
-    var index;
     var j;
     var k;
     var maximum = 100;
@@ -671,7 +671,7 @@ main.setup = function()
     var size;
     var stack;
     var stackable;
-    var stacks = [0];
+    var stacks = [];
     var tower;
     var towers;
     var width;
@@ -911,108 +911,123 @@ main.setup = function()
         });
     }
     // Place a stack on the appropriate towers.
-    if (main.count.stacks > 1) {
-        for (i = 1; i < main.count.towers; i++) {
-            if (
-                (
-                    main.antwerp &&
-                    i < main.count.stacks
-                ) ||
-                (
-                    !main.antwerp &&
-                    i % denom === 0
-                )
-            ) {
-                stacks.push(i);
-            }
-        }
-    }
-    for (i = 0; i < stacks.length; i++) {
-        stack = stacks[i];
-        random = [];
-        // Initially allow disks to be randomly placed on all towers.
-        for (j = stack; j < stack + main.count.per; j++) {
-            random.push({'tower': j});
-        }
+    for (i = 0; i < main.count.towers; i++) {
         if (
-            !main.alternate &&
-            main.change &&
-            main.restriction === 'different'
+            i === 0 ||
+            (
+                (main.count.stacks > 1) &&
+                (
+                    (
+                        main.antwerp &&
+                        i < main.count.stacks
+                    ) ||
+                    (
+                        !main.antwerp &&
+                        i % denom === 0
+                    )
+                )
+            )
         ) {
-            // Force a tower to be empty.
-            tower = Math.floor(Math.random() * random.length);
-            random.splice(tower, 1);
-            if (main.count.shades > 2) {
-                // Force a tower to contain one disk at maximum.
+            disks = [];
+            random = [];
+            // Initially allow disks to be randomly placed on all towers.
+            for (j = i; j < i + main.count.per; j++) {
+                random.push({'tower': j});
+            }
+            if (
+                !main.alternate &&
+                main.change &&
+                main.restriction === 'different'
+            ) {
+                // Force a tower to be empty.
                 tower = Math.floor(Math.random() * random.length);
-                random[tower].limit = 1;
-            }
-        }
-        for (j = 0; j < main.count.disks; j++) {
-            // The size of disks should shrink as you add them.
-            size = main.count.disks - j - 1;
-            color = 0;
-            if (main.alternate) {
-                color = size % main.count.shades;
-            }
-            color = main.shades[i][color];
-            /*
-            Assume that we should place the disks on the specified
-            tower.
-            */
-            tower = stack;
-            index = null;
-            /*
-            If the disks should be randomly placed on the towers, do so without
-            automatically solving the puzzle.
-            */
-            do {
-                if (index !== null) {
-                    main.towers[tower].disks.pop();
+                random.splice(tower, 1);
+                if (main.count.shades > 2) {
+                    // Force a tower to contain one disk at maximum.
+                    tower = Math.floor(Math.random() * random.length);
+                    random[tower].limit = 1;
                 }
-                if (main.random) {
-                    index = Math.floor(Math.random() * random.length);
-                    tower = main.cycle(random[index].tower);
+            }
+            for (j = 0; j < main.count.disks; j++) {
+                // The size of disks should shrink as you add them.
+                size = main.count.disks - j - 1;
+                color = 0;
+                if (main.alternate) {
+                    color = size % main.count.shades;
                 }
+                color = main.shades[stacks.length][color];
                 // Add the disk.
-                main.towers[tower].disks.push({
+                disks.push({
                     'color': color,
                     'size': size,
-                    'stack': i,
-                    'tower': tower
+                    'stack': stacks.length
                 });
             }
-            while (
-                main.solved() &&
-                (
-                    main.count.disks === 1 ||
-                    !main.shuffle
-                )
-            );
-            /*
-            If this tower already contains the amount of disks it's allowed to,
-            remove it from the towers it can be randomly placed on.
-            */
-            if (
-                main.random &&
-                main.towers[tower].disks.length === random[index].limit
-            ) {
-                random.splice(index, 1);
-            }
-        }
-        /*
-        If the disks should be shuffled, do so without automatically solving
-        the puzzle.
-        */
-        if (main.shuffle) {
-            do {
-                for (j = stack; j < stack + main.count.per; j++) {
-                    main.towers[main.cycle(j)].disks.shuffle();
-                }
-            }
-            while (main.solved());
+            stacks.push({
+                'disks': disks,
+                'random': random,
+                'tower': i
+            });
         }
     }
+    while (stacks.length) {
+        i = Math.floor(Math.random() * stacks.length);
+        stack = stacks[i];
+        disks = stack.disks;
+        random = stack.random;
+        tower = stack.tower;
+        disk = disks.shift();
+        j = null;
+        /*
+        If the disks should be randomly placed on the towers, do so without
+        automatically solving the puzzle.
+        */
+        do {
+            if (j !== null) {
+                main.towers[tower].disks.pop();
+            }
+            if (main.random) {
+                j = Math.floor(Math.random() * random.length);
+                tower = main.cycle(random[j].tower);
+            }
+            // Add the disk.
+            disk.tower = tower;
+            main.towers[tower].disks.push(disk);
+        }
+        while (
+            main.solved() &&
+            (
+                main.count.disks === 1 ||
+                !main.shuffle
+            )
+        );
+        /*
+        If this tower already contains the amount of disks it's allowed to,
+        remove it from the towers it can be randomly placed on.
+        */
+        if (
+            main.random &&
+            main.towers[tower].disks.length === random[j].limit
+        ) {
+            random.splice(j, 1);
+        }
+        if (!disks.length) {
+            stacks.splice(i, 1);
+        }
+    }
+    /*
+    If the disks should be shuffled, do so without automatically solving
+    the puzzle.
+    */
+    if (main.shuffle) {
+        do {
+            for (i = 0; i < main.count.towers; i++) {
+                main.towers[main.cycle(i)].disks.shuffle();
+            }
+        }
+        while (main.solved());
+    }
+    /*
     if (main.alternate && main.change) {
         // Cycle the colors of each stack.
         for (i = 0; i < main.count.towers; i++) {
@@ -1032,6 +1047,7 @@ main.setup = function()
             }
         }
     }
+    */
     i = 0;
     // Initially hide all of the towers and disks.
     while ($('#tower' + i).length !== 0) {
