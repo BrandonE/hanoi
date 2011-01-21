@@ -857,10 +857,10 @@ main.setup = function()
         }
     }
     if (main.stars.length && main.restriction !== 'none') {
-        message = 'There must be no additional restrictions if there are ';
-        message += 'stars.';
+        message = 'There must be no star towers if there are additional ';
+        message += 'restrictions.';
         alert(message);
-        main.restriction = 'none';
+        main.stars = [];
     }
     main.minimum = 'N/A';
     denom = main.count.per - 1;
