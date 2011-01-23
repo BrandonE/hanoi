@@ -1,3 +1,4 @@
+[trim]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,8 +60,8 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         <legend>Solution</legend>
         <table>
             <tr>
-                <td><label for="mode">Mode</label></td>
-                <td>
+                <td width="50%"><label for="mode">Mode</label></td>
+                <td width="50%">
                     <select id="mode">
                         <option>Wait</option>
                         <option>Repeat</option>
@@ -142,8 +143,8 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         <legend>Settings</legend>
         <table>
             <tr>
-                <td><label for="disks">Disks per Stack</label></td>
-                <td>
+                <td width="50%"><label for="disks">Disks per Stack</label></td>
+                <td width="50%">
                     <input type="text" id="disks" />
                 </td>
             </tr>
@@ -209,12 +210,12 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         <legend>Restrictions</legend>
         <table>
             <tr>
-                <td>
+                <td width="50%">
                     <input type="radio" name="restriction" id="none"
                     value="none" />
                     <label for="none">No additional restrictions.</label>
                 </td>
-                <td>
+                <td width="50%">
                     <input type="radio" name="restriction" id="linear"
                     value="linear" /> <label for="linear">Disks can only move
                     linearly</label>
@@ -263,11 +264,20 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         URL for this configuration: <textarea id="configuration" rows="1"
         cols="30"></textarea>
     </p>
-    <h2>Latest Changeset</h2>
-    <p>Posted by [var]user[/var] on [var]date[/var]:</p>
+    <h2>Development</h2>
+    [loop value="value" iterable="repo"]
+    [if condition="value.second"]
+    <p><a id="showother" href="#null">See the other revisions</a></p>
+    <div id="other">
+    [/if]
+    <p>Posted by [var]value.user[/var] on [var]value.date[/var]:</p>
     <div style="font: 1em/1.2em monospace">
-        [var entities="false"]description[/var]
+        [var entities="false"]value.description[/var]
     </div>
+    [if condition="value.last"]
+    </div>
+    [/if]
+    [/loop]
     <p>
         To get the Mercurial repository for the stable version of this page,
         run:
@@ -445,9 +455,9 @@ variations, solution, solutions, disk, disks, stack, stacks" />
     Stockmeyer and Steve Minsker for their papers on several variations as well
     as other contributions, Alex Munroe for his example of a custom built
     generator as well as other assistance, Chris Santiago for design help,
-    James Rhodes and Ian Rahimi for support, and my sister, Lindsay Evans, for
-    proposing an alternative solution to the Classic multiple stacks problem,
-    and for being supportive with all of my endeavors.
+    James Rhodes, Ian Rahimi, and Samuel Sieb for support, and my sister,
+    Lindsay Evans, for proposing an alternative solution to the Classic
+    multiple stacks problem, and for being supportive with all of my endeavors.
 </p>
 <div style="text-align: center">
     <p>
@@ -478,3 +488,4 @@ variations, solution, solutions, disk, disks, stack, stacks" />
 </div>
 </body>
 </html>
+[/trim]

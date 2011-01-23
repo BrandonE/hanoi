@@ -42,12 +42,19 @@ import suit
 from rulebox import templating
 templating.var.source = open('index.py').read()
 repo = hg.repository(ui.ui(), '.')
-rev = repo[len(repo) - 1]
-templating.var.date = time.ctime(rev.date()[0])
-templating.var.description = escape(
-    Markup(rev.description()).unescape()
-).replace('\n', '<br />')
-templating.var.user = rev.user()
+templating.var.repo = []
+for index, rev in enumerate(repo):
+    rev = repo[index]
+    templating.var.repo.append({
+        'date': time.ctime(rev.date()[0]),
+        'description': escape(
+            Markup(rev.description()).unescape()
+        ).replace('\n', '<br />'),
+        'last': (index == 0 and len(repo) != 1),
+        'second': (index == len(repo) - 2),
+        'user': rev.user()
+    })
+templating.var.repo.reverse()
 string = suit.execute(
     templating.rules,
     open(

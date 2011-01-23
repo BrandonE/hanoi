@@ -282,7 +282,7 @@ solve.different.three.three.home.dark = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.counter.shorter(
+            return solve.cyclic.three.counter(
                 disks - 1, from, to, using
             );
         },
@@ -291,7 +291,7 @@ solve.different.three.three.home.dark = function(disks, from, using, to)
         to,
         from,
         function() {
-            return solve.cyclic.three.counter.shorter(
+            return solve.cyclic.three.counter(
                 disks - 1, using, to, from
             );
         }
@@ -305,7 +305,7 @@ solve.different.three.three.home.light = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.clock.shorter(
+            return solve.cyclic.three.clock(
                 disks - 1, from, to, using
             );
         },
@@ -313,7 +313,7 @@ solve.different.three.three.home.light = function(disks, from, using, to)
         to,
         from,
         function() {
-            return solve.cyclic.three.clock.shorter(
+            return solve.cyclic.three.clock(
                 disks - 1, using, to, from
             );
         }
@@ -327,7 +327,7 @@ solve.different.three.three.medium.clock = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.counter.shorter(
+            return solve.cyclic.three.counter(
                 disks - 1, from, to, using
             );
         },
@@ -335,7 +335,7 @@ solve.different.three.three.medium.clock = function(disks, from, using, to)
             return solve.different.three.three.same(from, to);
         },
         function() {
-            return solve.cyclic.three.clock.shorter(
+            return solve.cyclic.three.clock(
                 disks - 1, using, from, to
             );
         }
@@ -349,7 +349,7 @@ solve.different.three.three.medium.counter = function(disks, from, using, to)
     }
     return [
         function() {
-            return solve.cyclic.three.clock.shorter(
+            return solve.cyclic.three.clock(
                 disks - 1, from, to, using
             );
         },
@@ -357,7 +357,7 @@ solve.different.three.three.medium.counter = function(disks, from, using, to)
             return solve.different.three.three.same(from, to);
         },
         function() {
-            return solve.cyclic.three.counter.shorter(
+            return solve.cyclic.three.counter(
                 disks - 1, using, from, to
             );
         }
@@ -3595,16 +3595,16 @@ solve.start = function()
                         main.top === 'Any' && main.count.stacks !== 1
                     )
                 ) {
-                    group = solve.cyclic.three;
+                    group = solve.cyclic;
                     if (main.count.stacks === 1) {
-                        stacks = [group.clock.shorter(disks, 0, 1, to)];
+                        stacks = [group.three.clock(disks, 0, 1, to)];
                         main.minimum = group.moves(disks);
                     }
                     else {
                         stacks = [
-                            solve.none.three.first(group.counter.longer)
+                            solve.none.three.first(group.three.counter)
                         ].concat(
-                            solve.multi.three(group.clock.longer, 0, 1, to)
+                            solve.multi.three(group.three.clock, 0, 1, to)
                         );
                         main.minimum = (group.moves(disks, true, true) * 2) + (
                             group.moves(disks, false, true) * (

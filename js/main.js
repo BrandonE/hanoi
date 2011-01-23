@@ -44,20 +44,6 @@ var main = {
     'towers': []
 };
 
-Array.prototype.shuffle = function()
-{
-    var i = this.length;
-    var p;
-    var t;
-    while (i--) {
-        p = parseInt(Math.random() * this.length, 10);
-        t = this[i];
-        this[i] = this[p];
-        this[p] = t;
-    }
-    return this;
-};
-
 main.color = function(disk, undo)
 {
     /*
@@ -203,6 +189,45 @@ main.impasse = function()
         }
     }
     return true;
+};
+
+main.limit = function(home, limit) {
+    /*
+    Force a tower for a stack to limit the number disks placed on it.
+
+    ``home``
+        int - The home tower of the stack.
+
+    ``limit``
+        int - The amount of disks to limit the tower to.
+    */
+    var i;
+    var mult = 1;
+    var offset = 0;
+    var tower;
+    if (home) {
+        offset = 1;
+    }
+    if (home / main.count.per === main.count.stacks - 1) {
+        mult = 2;
+    }
+    for (i = home; i < home + main.count.per; i++) {
+        tower = main.towers[main.cycle(i)];
+        if ('limit' in tower && tower.limit === limit) {
+            return;
+        }
+    }
+    do {
+        tower = main.towers[
+            main.cycle(
+                home + offset + Math.floor(
+                    Math.random() * (main.count.per - (offset * 2))
+                )
+            )
+        ];
+    }
+    while ('limit' in tower);
+    tower.limit = limit;
 };
 
 main.movable = function(disk, tower, size, undo)
@@ -628,7 +653,7 @@ main.run = function(restarting)
             if (!restarting) {
                 main.move(main.next(main.generator));
             }
-            setTimeout(main.run, main.delay);
+            setTimeout(main.run, main.delay, false);
             return;
         }
         if (main.mode === 'Wait') {
@@ -666,7 +691,6 @@ main.setup = function()
     var old = main.count.towers;
     var peg;
     var remainder;
-    var random = [];
     var scale = 10;
     var size;
     var stack;
@@ -788,6 +812,18 @@ main.setup = function()
             message += 'shade.';
             alert(message);
             main.count.per = main.count.shades;
+        }
+        if (
+            main.random &&
+            main.count.shades > 2 &&
+            main.count.stacks > 1 &&
+            !main.size
+        ) {
+            message = 'Disks must be placed on eachother in a game with more ';
+            message += 'than two shades and one stack in which the disks ';
+            message += 'should be randomly placed on the towers.';
+            alert(message);
+            main.size = true;
         }
     }
     if (['same', 'group'].indexOf(main.restriction) !== -1) {
@@ -929,23 +965,17 @@ main.setup = function()
             )
         ) {
             disks = [];
-            random = [];
-            // Initially allow disks to be randomly placed on all towers.
-            for (j = i; j < i + main.count.per; j++) {
-                random.push({'tower': j});
-            }
             if (
-                !main.alternate &&
                 main.change &&
-                main.restriction === 'different'
+                main.restriction === 'different' &&
+                main.count.shades > 1 &&
+                (
+                    !main.antwerp || !i
+                )
             ) {
-                // Force a tower to be empty.
-                tower = Math.floor(Math.random() * random.length);
-                random.splice(tower, 1);
+                main.limit(i, 0);
                 if (main.count.shades > 2) {
-                    // Force a tower to contain one disk at maximum.
-                    tower = Math.floor(Math.random() * random.length);
-                    random[tower].limit = 1;
+                    main.limit(i, 1);
                 }
             }
             for (j = 0; j < main.count.disks; j++) {
@@ -965,34 +995,49 @@ main.setup = function()
             }
             stacks.push({
                 'disks': disks,
-                'random': random,
                 'tower': i
             });
         }
     }
+    current = 0;
     while (stacks.length) {
-        i = Math.floor(Math.random() * stacks.length);
+        i = current;
+        if (main.shuffle) {
+            i = Math.floor(Math.random() * stacks.length);
+        }
         stack = stacks[i];
         disks = stack.disks;
-        random = stack.random;
-        tower = stack.tower;
-        disk = disks.shift();
-        j = null;
+        tower = main.towers[stack.tower];
+        j = 0;
+        if (main.shuffle) {
+            j = Math.floor(Math.random() * disks.length);
+        }
+        disk = disks[j];
+        tower.disks.push(disk);
         /*
         If the disks should be randomly placed on the towers, do so without
         automatically solving the puzzle.
         */
         do {
-            if (j !== null) {
-                main.towers[tower].disks.pop();
-            }
+            tower.disks.pop();
+            k = stack.tower;
             if (main.random) {
-                j = Math.floor(Math.random() * random.length);
-                tower = main.cycle(random[j].tower);
+                do {
+                    k = main.cycle(
+                        stack.tower + Math.floor(
+                            Math.random() * main.count.per
+                        )
+                    )
+                    tower = main.towers[k];
+                }
+                while (
+                    ('limit' in tower && tower.disks.length >= tower.limit) ||
+                    (!main.movable(disk, k, true) && !main.shuffle)
+                );
             }
             // Add the disk.
-            disk.tower = tower;
-            main.towers[tower].disks.push(disk);
+            disk.tower = k;
+            tower.disks.push(disk);
         }
         while (
             main.solved() &&
@@ -1001,31 +1046,30 @@ main.setup = function()
                 !main.shuffle
             )
         );
-        /*
-        If this tower already contains the amount of disks it's allowed to,
-        remove it from the towers it can be randomly placed on.
-        */
-        if (
-            main.random &&
-            main.towers[tower].disks.length === random[j].limit
-        ) {
-            random.splice(j, 1);
-        }
+        disks.splice(j, 1);
         if (!disks.length) {
             stacks.splice(i, 1);
+        }
+        current++;
+        if (current > stacks.length - 1) {
+            current = 0;
         }
     }
     /*
     If the disks should be shuffled, do so without automatically solving
     the puzzle.
     */
-    if (main.shuffle) {
-        do {
-            for (i = 0; i < main.count.towers; i++) {
-                main.towers[main.cycle(i)].disks.shuffle();
+    if (main.shuffle && main.solved()) {
+        towers = [];
+        for (i = 0; i < main.count.towers; i++) {
+            if (main.towers[i].disks) {
+                towers.push(i);
             }
         }
-        while (main.solved());
+        disks = main.towers[Math.floor(Math.random() * towers.length)].disks;
+        disk = Math.floor(Math.random() * (disks.length - 1));
+        disks.push(disks[disk]);
+        disks.splice(disk, 1);
     }
     /*
     if (main.alternate && main.change) {
@@ -1426,6 +1470,7 @@ $(document).ready(
         main.setup();
         // Update the page accordingly.
         $('#import').val('');
+        $('#other').hide();
         $('#showexport').attr('checked', false);
         $('#showimport').attr('checked', false);
         $('#showlog').attr('checked', false);
@@ -1564,6 +1609,16 @@ $(document).ready(
                 $('#log').hide();
                 if ($('#showlog:checked').length) {
                     $('#log').show();
+                }
+            }
+        );
+        $('#showother').click(
+            function() {
+                if ($('#other').css('display') == 'none') {
+                    $('#other').show();
+                }
+                else {
+                    $('#other').hide();
                 }
             }
         );
