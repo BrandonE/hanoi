@@ -103,17 +103,17 @@ solve.cyclic.more.clock = function(disks, from, to, towers)
     do {
         using = main.cycle(using + direction);
     }
-    while (towers.indexOf(using) === -1);
+    while (towers.index(using) === -1);
     tower = main.cycle(from + direction);
     while (tower !== to) {
-        while (towers.indexOf(tower) === -1) {
+        while (towers.index(tower) === -1) {
             tower = main.cycle(tower + direction);
         }
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
         }
-        while (towers.indexOf(tower) === -1);
+        while (towers.index(tower) === -1);
         moves.push(tower);
     }
     return [
@@ -167,16 +167,16 @@ solve.cyclic.more.counter = function(disks, from, to, towers)
     do {
         using = main.cycle(using - direction);
     }
-    while (towers.indexOf(using) === -1);
+    while (towers.index(using) === -1);
     while (tower !== to) {
-        while (towers.indexOf(tower) === -1) {
+        while (towers.index(tower) === -1) {
             tower = main.cycle(tower + direction);
         }
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
         }
-        while (towers.indexOf(tower) === -1);
+        while (towers.index(tower) === -1);
         moves.push(tower);
     }
     return [
@@ -845,14 +845,14 @@ solve.linear.more = function(disks, from, to, towers)
         direction = -1;
     }
     while (tower !== to) {
-        while (towers.indexOf(tower) === -1) {
+        while (towers.index(tower) === -1) {
             tower = main.cycle(tower + direction);
         }
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
         }
-        while (towers.indexOf(tower) === -1);
+        while (towers.index(tower) === -1);
         moves.push(tower);
     }
     first = moves.splice(0, 2);
@@ -3702,7 +3702,7 @@ solve.start = function()
             main.stars.length < main.count.towers - 1
         ) {
             for (i = 1; i < main.count.per - 2; i++) {
-                if (main.stars.indexOf(i) !== -1) {
+                if (main.stars.index(i) !== -1) {
                     star = i;
                     break;
                 }
