@@ -2,6 +2,9 @@
 Copyright (C) 2010-2011 Brandon Evans.
 http://www.brandonevans.org/
 */
+var $M;
+var $V;
+var main;
 var solve = {
     'cyclic': {
         'more': {},
@@ -102,8 +105,7 @@ solve.cyclic.more.clock = function(disks, from, to, towers)
     }
     do {
         using = main.cycle(using + direction);
-    }
-    while (towers.index(using) === -1);
+    } while (towers.index(using) === -1);
     tower = main.cycle(from + direction);
     while (tower !== to) {
         while (towers.index(tower) === -1) {
@@ -112,8 +114,7 @@ solve.cyclic.more.clock = function(disks, from, to, towers)
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
-        }
-        while (towers.index(tower) === -1);
+        } while (towers.index(tower) === -1);
         moves.push(tower);
     }
     return [
@@ -166,8 +167,7 @@ solve.cyclic.more.counter = function(disks, from, to, towers)
     }
     do {
         using = main.cycle(using - direction);
-    }
-    while (towers.index(using) === -1);
+    } while (towers.index(using) === -1);
     while (tower !== to) {
         while (towers.index(tower) === -1) {
             tower = main.cycle(tower + direction);
@@ -175,8 +175,7 @@ solve.cyclic.more.counter = function(disks, from, to, towers)
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
-        }
-        while (towers.index(tower) === -1);
+        } while (towers.index(tower) === -1);
         moves.push(tower);
     }
     return [
@@ -200,8 +199,7 @@ solve.cyclic.moves = function(disks, counter, longer)
     }
     if (longer) {
         seq = seq.longer;
-    }
-    else {
+    } else {
         seq = seq.shorter;
     }
     for (i = seq.length; i < disks + 1; i++) {
@@ -211,8 +209,7 @@ solve.cyclic.moves = function(disks, counter, longer)
                 item++;
             }
             seq.push(item);
-        }
-        else {
+        } else {
             seq.push((3 * seq[i - 1]) - (2 * seq[i - 3]));
         }
     }
@@ -851,8 +848,7 @@ solve.linear.more = function(disks, from, to, towers)
         moves.push(tower);
         do {
             tower = main.cycle(tower + direction);
-        }
-        while (towers.index(tower) === -1);
+        } while (towers.index(tower) === -1);
         moves.push(tower);
     }
     first = moves.splice(0, 2);
@@ -1414,8 +1410,7 @@ solve.none.three.iter = function(disks, from, using, to, clock)
             frower = to;
             tower = using;
         }
-    }
-    else {
+    } else {
         tower = using;
         if (clock % 3 === 1) {
             frower = to;
@@ -1557,15 +1552,13 @@ solve.pick = function(stacks, shortcut, stack, phase, disks)
         ) {
             phase = 'last';
             stack = main.count.stacks - 1;
-        }
-        else if (phase === 'base' && main.towers[to].disks.length === 1) {
+        } else if (phase === 'base' && main.towers[to].disks.length === 1) {
             stack--;
             if (stack === 0) {
                 phase = 'build';
                 disks = main.towers[to].disks.length + 1;
             }
-        }
-        else if (
+        } else if (
             (
                 phase === 'break' &&
                 using === disks
@@ -3072,8 +3065,7 @@ solve.same.stay.two.three.bbab = function(disks, from, using, extra, to, clock)
     }
     if (disks % 2) {
         total = Math.pow(3, Math.floor((disks - 1) / 2)) * 4;
-    }
-    else {
+    } else {
         total = Math.pow(3, Math.floor(disks / 2)) * 2;
     }
     total -= 2;
@@ -3432,8 +3424,7 @@ solve.start = function()
                 if (main.count.per === 3) {
                     main.minimum = solve.cyclic.moves(disks);
                 }
-            }
-            else {
+            } else {
                 stacks = [
                     solve.none.more.first(group.more.counter)
                 ].concat(
@@ -3460,8 +3451,7 @@ solve.start = function()
                 if (main.count.per === 3) {
                     main.minimum = solve.cyclic.moves(disks, true);
                 }
-            }
-            else {
+            } else {
                 stacks = [
                     solve.none.more.first(group.more.clock)
                 ].concat(
@@ -3599,8 +3589,7 @@ solve.start = function()
                     if (main.count.stacks === 1) {
                         stacks = [group.three.clock(disks, 0, 1, to)];
                         main.minimum = group.moves(disks);
-                    }
-                    else {
+                    } else {
                         stacks = [
                             solve.none.three.first(group.three.counter)
                         ].concat(
@@ -3625,8 +3614,7 @@ solve.start = function()
                 if (main.count.per === 3 || main.count.stacks > 1) {
                     if (main.count.stacks === 1) {
                         stacks = [func(disks, 0, 1, to)];
-                    }
-                    else {
+                    } else {
                         stacks = [solve.none.three.first(func)].concat(
                             solve.multi.three(func, 0, 1, to)
                         );
@@ -3650,8 +3638,7 @@ solve.start = function()
                 func = solve.same.stay.three.three.ddd;
                 if (main.count.stacks === 1) {
                     stacks = [func(disks, 0, 1, to)];
-                }
-                else {
+                } else {
                     stacks = [solve.none.three.first(func)].concat(
                         solve.multi.three(func, 0, 1, to)
                     );
@@ -3762,8 +3749,7 @@ solve.start = function()
         if (main.count.stacks === 1) {
             stacks = [solve.none.more.rec(disks, 0, to, solve.towers())];
             main.minimum = solve.none.more.moves(disks, main.count.towers);
-        }
-        else if (main.antwerp) {
+        } else if (main.antwerp) {
             group = solve.none.antwerp;
             if (main.count.stacks === 2) {
                 main.generator = group.two.three.solve(disks, 0, 1, 2);
@@ -3783,8 +3769,7 @@ solve.start = function()
                 }
             }
             return;
-        }
-        else {
+        } else {
             main.minimum = group.moves(disks);
             if (main.count.stacks === 2) {
                 stacks = [group.first(func)];
@@ -3803,6 +3788,7 @@ solve.start = function()
 };
 
 solve.towers = function() {
+    var i;
     var towers = [];
     for (i = 0; i < main.count.per; i++) {
         towers.push(i);
