@@ -2,10 +2,6 @@
 Copyright (C) 2010-2011 Brandon Evans.
 http://www.brandonevans.org/
 */
-var $;
-var alert;
-var Base64;
-var location;
 var main = {
     'alternate': true,
     'antwerp': false,
@@ -47,8 +43,6 @@ var main = {
     'top': 'Any',
     'towers': []
 };
-var setTimeout;
-var solve;
 
 Array.prototype.index = function(value)
 {
