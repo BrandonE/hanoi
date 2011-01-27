@@ -2,9 +2,6 @@
 Copyright (C) 2010-2011 Brandon Evans.
 http://www.brandonevans.org/
 */
-var $M;
-var $V;
-var main;
 var solve = {
     'cyclic': {
         'more': {},

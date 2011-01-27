@@ -55,6 +55,18 @@ Array.prototype.index = function(value)
     return -1;
 };
 
+Array.prototype.shuffle = function()
+{
+    var i = this.length;
+    while (i--) {
+        var p = parseInt(Math.random() * this.length, 10);
+        var t = this[i];
+        this[i] = this[p];
+        this[p] = t;
+    }
+    return this;
+};
+
 main.color = function(disk, undo)
 {
     /*
@@ -201,12 +213,12 @@ main.impasse = function()
     return true;
 };
 
-main.limit = function(home, limit) {
+main.limit = function(stack, limit) {
     /*
     Force a tower for a stack to limit the number disks placed on it.
 
-    ``home``
-        int - The home tower of the stack.
+    ``stack``
+        int - The stack.
 
     ``limit``
         int - The amount of disks to limit the tower to.
@@ -215,14 +227,14 @@ main.limit = function(home, limit) {
     var mult = 1;
     var offset = 0;
     var tower;
-    if (home) {
+    if (stack) {
         offset = 1;
     }
-    if (home / main.count.per === main.count.stacks - 1) {
+    if (stack === main.count.stacks - 1) {
         mult = 2;
     }
-    for (i = home; i < home + main.count.per; i++) {
-        tower = main.towers[main.cycle(i)];
+    for (i = 0; i < main.count.per; i++) {
+        tower = main.towers[main.cycle(stack + i)];
         if ('limit' in tower && tower.limit === limit) {
             return;
         }
@@ -230,7 +242,7 @@ main.limit = function(home, limit) {
     do {
         tower = main.towers[
             main.cycle(
-                home + offset + Math.floor(
+                (stack * main.count.per) + offset + Math.floor(
                     Math.random() * (main.count.per - (offset * 2))
                 )
             )
@@ -239,10 +251,10 @@ main.limit = function(home, limit) {
     tower.limit = limit;
 };
 
-main.movable = function(disk, tower, size, stay, undo)
+main.movable = function(disk, tower, additional, size, stay, undo)
 {
     /*
-    Check if the disk is movable to a given tower.
+    Check if the disk can be moved to a given tower.
 
     ``disk``
         dict - The properties of the disk to be moved.
@@ -250,8 +262,11 @@ main.movable = function(disk, tower, size, stay, undo)
     ``tower``
         int - The tower to move it to.
 
+    ``additional``
+        bool - Whether or not we should ignore the additional restrictions.
+
     ``size``
-        bool - Whether or not we're only checking size rules.
+        bool - Whether or not we should ignore the size restrictions.
 
     ``stay``
         bool - Whether or not this disk's color should stay the same.
@@ -335,21 +350,23 @@ main.movable = function(disk, tower, size, stay, undo)
     // If there are disks on this tower
     if (length) {
         // If this disk is larger than the last disk, fail.
-        if (disk.size > last.size) {
+        if (disk.size > last.size && !size) {
             return false;
         }
         /*
         If this disk is the same size as the last disk, and this is prohibited,
         fail.
         */
-        if (!main.size && last.size === disk.size) {
+        if (!main.size && last.size === disk.size && !additional) {
             return false;
         }
         /*
         If this disk is the same color as the last disk, and this is
         prohibited, fail.
         */
-        if (main.restriction === 'same' && last.color === color && !size) {
+        if (
+            main.restriction === 'same' && last.color === color && !additional
+        ) {
             return false;
         }
         /*
@@ -360,7 +377,7 @@ main.movable = function(disk, tower, size, stay, undo)
             main.restriction === 'different' &&
             last.color !== color &&
             last.stack === disk.stack &&
-            !size
+            !additional
         ) {
             return false;
         }
@@ -380,7 +397,7 @@ main.movable = function(disk, tower, size, stay, undo)
             disk.tower - 1 !== -1 ||
             tower !== main.count.towers - 1
         ) &&
-        !size
+        !additional
     ) {
         return false;
     }
@@ -391,7 +408,7 @@ main.movable = function(disk, tower, size, stay, undo)
     if (
         next !== undefined &&
         tower !== next &&
-        !size
+        !additional
     ) {
         return false;
     }
@@ -400,7 +417,7 @@ main.movable = function(disk, tower, size, stay, undo)
         main.stars.length &&
         main.stars.index(disk.tower) === -1 &&
         main.stars.index(tower) === -1 &&
-        !size
+        !additional
     ) {
         return false;
     }
@@ -408,8 +425,7 @@ main.movable = function(disk, tower, size, stay, undo)
     // If this disk doesn't belong on this tower, fail.
     if (
         colors.index(main.towers[tower].base) === -1 &&
-        colors.index(main.towers[tower].peg) === -1 &&
-        !size
+        colors.index(main.towers[tower].peg) === -1
     ) {
         return false;
     }
@@ -457,7 +473,7 @@ main.move = function(tower, undo, redo, restoring)
     }
     // If a disk has been popped off a tower
     if (main.popped) {
-        if (!main.movable(main.popped, tower, false, false, undo)) {
+        if (!main.movable(main.popped, tower, false, false, false, undo)) {
             // Show an error message with the real tower numbers.
             alert(
                 'Invalid move: ' + (main.popped.tower + 1) + '-' + (tower + 1)
@@ -667,16 +683,17 @@ main.setup = function()
     var calc;
     var checked;
     var color;
-    var current;
     var denom;
     var disk;
     var disks;
     var element;
+    var group;
     var height = 20;
     var i;
+    var index;
     var j;
     var k;
-    var last;
+    var l;
     var maximum = 100;
     var message;
     var moves = $('#import').val();
@@ -686,12 +703,10 @@ main.setup = function()
     var old = main.count.towers;
     var peg;
     var remainder;
-    var same;
     var scale = 10;
+    var shades;
     var size;
-    var stack;
     var stackable;
-    var stacks = [];
     var tower;
     var towers;
     var width;
@@ -932,15 +947,7 @@ main.setup = function()
                 }
             }
         }
-        // Add the tower.
-        main.towers.push({
-            'base': base,
-            'disks': [],
-            'peg': peg
-        });
-    }
-    // Place a stack on the appropriate towers.
-    for (i = 0; i < main.count.towers; i++) {
+        disks = [];
         if (
             i === 0 ||
             (
@@ -957,20 +964,6 @@ main.setup = function()
                 )
             )
         ) {
-            disks = [];
-            if (
-                main.change &&
-                main.restriction === 'different' &&
-                main.count.shades > 1 &&
-                (
-                    !main.antwerp || !i
-                )
-            ) {
-                main.limit(i, 0);
-                if (main.count.shades > 2) {
-                    main.limit(i, 1);
-                }
-            }
             for (j = 0; j < main.count.disks; j++) {
                 // The size of disks should shrink as you add them.
                 size = main.count.disks - j - 1;
@@ -978,103 +971,116 @@ main.setup = function()
                 if (main.alternate) {
                     color = size % main.count.shades;
                 }
-                color = main.shades[stacks.length][color];
+                color = main.shades[i / denom][color];
                 // Add the disk.
                 disks.push({
                     'color': color,
                     'size': size,
-                    'stack': stacks.length
+                    'stack': i / denom,
+                    'tower': i
                 });
             }
-            stacks.push({
-                'disks': disks,
-                'tower': i
-            });
         }
-    }
-    current = 0;
-    while (stacks.length) {
-        i = current;
         if (main.shuffle) {
-            i = Math.floor(Math.random() * stacks.length);
-        }
-        stack = stacks[i];
-        disks = stack.disks;
-        tower = main.towers[stack.tower];
-        j = 0;
-        if (main.shuffle) {
-            j = Math.floor(Math.random() * disks.length);
-        }
-        disk = disks[j];
-        tower.disks.push(disk);
-        /*
-        If the disks should be randomly placed on the towers, do so without
-        automatically solving the puzzle.
-        */
-        do {
-            tower.disks.pop();
-            k = stack.tower;
-            if (main.random) {
-                do {
-                    k = main.cycle(
-                        stack.tower + Math.floor(
-                            Math.random() * main.count.per
-                        )
-                    );
-                    tower = main.towers[k];
-                } while (
-                    ('limit' in tower && tower.disks.length >= tower.limit) ||
-                    (!main.movable(disk, k, false, true) && !main.shuffle)
-                );
+            disks.shuffle();
+            if (['same', 'group'].index(main.restriction) !== -1) {
+                shades = main.count.shades;
+                if (main.restriction === 'same') {
+                    shades = 2;
+                }
+                color = disks.length % shades;
+                if (!color) {
+                    color = shades;
+                }
+                color = Math.floor(Math.random() * color);
+                for (j = 0; j < disks.length; j++) {
+                    if (disks[j].color === main.shades[i / denom][color]) {
+                        disks.splice(0, 0, disks[j]);
+                        disks.splice(j + 1, 1);
+                    }
+                }
+                for (j = 0; j < disks.length; j++) {
+                    for (k = j; k < disks.length; k++) {
+                        group = [];
+                        for (l = 0; l < shades - 1; l++) {
+                            if (j - l < 0) {
+                                break;
+                            }
+                            group.push(disks[j - l].color);
+                        }
+                        for (l = 0; l < main.shades.length; l++) {
+                            if (disks[k].color === main.shades[i / denom][l]) {
+                                color = l;
+                                break;
+                            }
+                        }
+                        if (
+                            group.index(disks[k].color) === -1 &&
+                            (
+                                color < shades - (disks.length % shades) + 1 ||
+                                j + 1 >= shades - 1
+                            )
+                        ) {
+                            disks.splice(j + 1, 0, disks[k]);
+                            disks.splice(k + 1, 1);
+                            break;
+                        }
+                    }
+                }
             }
-            // Add the disk.
-            disk.tower = k;
-            tower.disks.push(disk);
-        } while (
-            main.solved() &&
-            (
-                main.count.disks === 1 ||
-                !main.shuffle
-            )
-        );
-        disks.splice(j, 1);
-        if (!disks.length) {
-            stacks.splice(i, 1);
         }
-        current++;
-        if (current > stacks.length - 1) {
-            current = 0;
-        }
+        main.towers.push({
+            'base': base,
+            'disks': disks,
+            'peg': peg
+        });
     }
     for (i = 0; i < main.count.stacks; i++) {
-        // Top color
-        same = true;
-        for (j = i; j < i + main.count.per; j++) {
-            last = main.towers[j].disks[main.towers[j].disks.length - 1];
-            if (!last || (last.color !== same && same !== true)) {
-                same = false;
-                break;
+        if (
+            main.change &&
+            main.restriction === 'different' &&
+            main.count.shades > 1 &&
+            (
+                !main.antwerp || !i
+            )
+        ) {
+            main.limit(i, 0);
+            if (main.count.shades > 2) {
+                main.limit(i, 1);
             }
-            same = last.color;
         }
-        if (same && !main.change && !main.shuffle) {
-            if (main.restriction === 'same') {
-                alert('OK');
-            }
-            if (main.restriction === 'group') {
-                alert('NOK');
-            }
+    }
+    if (main.random) {
+        for (i = 0; i < 1000; i++) {
+            do {
+                disk = main.towers[
+                    Math.floor(Math.random() * main.count.towers)
+                ].disks.pop();
+            } while (!disk);
+            do {
+                index = main.cycle(
+                    disk.tower + Math.floor(
+                        Math.random() * main.count.per
+                    )
+                );
+                tower = main.towers[index];
+            } while (
+                ('limit' in tower && tower.disks.length >= tower.limit) ||
+                (!main.movable(disk, index, false, main.shuffle, true)) ||
+                (
+                    main.solved() &&
+                    (
+                        main.count.disks === 1 ||
+                        !main.shuffle
+                    )
+                )
+            );
+            // Add the disk.
+            disk.tower = index;
+            tower.disks.push(disk);
         }
     }
     if (main.shuffle) {
-        if (same) {
-            if (main.restriction === 'same') {
-                alert('DOK');
-            }
-            if (main.restriction === 'group') {
-                alert('DNOK');
-            }
-        }
         if (main.solved()) {
             towers = [];
             for (i = 0; i < main.count.towers; i++) {
@@ -1090,27 +1096,6 @@ main.setup = function()
             disks.splice(disk, 1);
         }
     }
-    /*
-    if (main.alternate && main.change) {
-        // Cycle the colors of each stack.
-        for (i = 0; i < main.count.towers; i++) {
-            for (
-                j = 0;
-                j <= main.towers[i].disks.length - main.count.shades;
-                j++
-            ) {
-                colors = [];
-                for (k = j; k < j + main.count.shades; k++) {
-                    current = main.towers[i].disks[k];
-                    while (colors.index(current.color) !== - 1) {
-                        current.color = main.color(current);
-                    }
-                    colors.push(current.color);
-                }
-            }
-        }
-    }
-    */
     i = 0;
     // Initially hide all of the towers and disks.
     while ($('#tower' + i).length !== 0) {
