@@ -40,7 +40,6 @@ from markupsafe import Markup
 from mercurial import ui, hg
 import suit
 from rulebox import templating
-templating.var.source = open('index.py').read()
 repo = hg.repository(ui.ui(), '.')
 templating.var.repo = []
 for index, rev in enumerate(repo):

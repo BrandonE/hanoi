@@ -3385,7 +3385,7 @@ solve.start = function()
     var minus;
     var s;
     var stacks = [];
-    var star;
+    var star = false;
     var using;
     var to = main.count.per - 1;
     var towers = [];
