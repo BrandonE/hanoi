@@ -7,12 +7,14 @@ var solve = {
         'more': {},
         'seq': {
             'clock': {
-                'longer': [0, 2, 10],
-                'shorter': [0, 2, 7]
+                'longer': [],
+                'shorter': [],
+                'using': []
             },
             'counter': {
-                'longer': [0, 1, 5],
-                'shorter': [0, 1, 5]
+                'longer': [],
+                'shorter': [],
+                'using': []
             }
         },
         'three': {}
@@ -186,28 +188,63 @@ solve.cyclic.more.counter = function(disks, from, to, towers)
     ];
 };
 
-solve.cyclic.moves = function(disks, counter, longer)
+solve.cyclic.moves = function(disks, towers, counter, longer, using)
 {
     var i;
     var item;
+    var offset = 0;
+    var one;
     var seq = solve.cyclic.seq.clock;
     if (counter) {
         seq = solve.cyclic.seq.counter;
     }
-    if (longer) {
+    if (using) {
+        seq = seq.using;
+    }
+    else if (longer) {
         seq = seq.longer;
     } else {
         seq = seq.shorter;
     }
+    for (i = seq.length; i < towers + 1; i++) {
+        one = i - 1;
+        if (counter) {
+            one = 1;
+            if (using) {
+                one = i - 2;
+            }
+        }
+        else if (using) {
+            one = 2;
+        }
+        seq.push([0, one]);
+    }
+    seq = seq[towers];
     for (i = seq.length; i < disks + 1; i++) {
         if (longer) {
-            item = (4 * seq[i - 1]) + 1;
+            if (counter) {
+                offset = (towers - 3) * (i - 2);
+            }
+            if (offset < 0) {
+                offset = 0;
+            }
+            item = (4 * seq[i - 1]) - offset + 1;
             if (!counter) {
                 item++;
             }
             seq.push(item);
         } else {
-            seq.push((3 * seq[i - 1]) - (2 * seq[i - 3]));
+            offset = (towers - 3) * (i - 2);
+            if (offset < 0) {
+                offset = 0;
+            }
+            if (counter || using) {
+                offset = -offset;
+            }
+            if (using) {
+                offset *= 2;
+            }
+            seq.push((2 * seq[i - 1]) + (2 * seq[i - 2]) + towers - offset);
         }
     }
     return seq[disks];
@@ -3418,22 +3455,20 @@ solve.start = function()
             group = solve.cyclic;
             if (main.count.stacks === 1) {
                 stacks = [group.more.clock(disks, 0, to)];
-                if (main.count.per === 3) {
-                    main.minimum = solve.cyclic.moves(disks);
-                }
+                main.minimum = solve.cyclic.moves(disks, main.count.per);
             } else {
                 stacks = [
                     solve.none.more.first(group.more.counter)
                 ].concat(
                     solve.multi.more(group.more.clock, 0, to, solve.towers())
                 );
-                if (main.count.per === 3) {
-                    main.minimum = (group.moves(disks, true, true) * 2) + (
-                        group.moves(disks, false, true) * (
-                            main.count.stacks - 1
-                        )
-                    );
-                }
+                main.minimum = group.moves(
+                    disks, main.count.per, true, true
+                ) + group.moves(disks, main.count.per, true, true, true) + (
+                    group.moves(disks, main.count.per, false, true) * (
+                        main.count.stacks - 1
+                    )
+                );
             }
             main.generator = solve.pick(stacks);
             return;
@@ -3445,20 +3480,20 @@ solve.start = function()
             group = solve.cyclic;
             if (main.count.stacks === 1) {
                 stacks = [group.more.counter(disks, 0, to)];
-                if (main.count.per === 3) {
-                    main.minimum = solve.cyclic.moves(disks, true);
-                }
+                main.minimum = solve.cyclic.moves(disks, main.count.per, true);
             } else {
                 stacks = [
                     solve.none.more.first(group.more.clock)
                 ].concat(
                     solve.multi.more(group.more.counter, 0, to, solve.towers())
                 );
-                if (main.count.per === 3) {
-                    main.minimum = (group.moves(disks) * 2) + (
-                        group.moves(disks, true) * (main.count.stacks - 1)
-                    );
-                }
+                main.minimum = group.moves(
+                    disks, main.count.per, false, false, true
+                ) + group.moves(disks, main.count.per) + (
+                    group.moves(disks, main.count.per, true) * (
+                        main.count.stacks - 1
+                    )
+                );
             }
             main.generator = solve.pick(stacks);
             return;
@@ -3540,15 +3575,15 @@ solve.start = function()
                     if (main.top === '2') {
                         main.generator = group.home.light(disks, 0, 1, to);
                         main.minimum = solve.cyclic.moves(
-                            disks - 1
-                        ) + solve.cyclic.moves(disks - 1) + 4;
+                            disks - 1, 3
+                        ) + solve.cyclic.moves(disks - 1, 3) + 4;
                     }
                     if (main.top === '3') {
                         main.generator = group.home.dark(disks, 0, 1, to);
                         main.minimum = solve.cyclic.moves(
-                            disks - 1, true
+                            disks - 1, 3, true
                         ) + solve.cyclic.moves(
-                            disks - 1, true
+                            disks - 1, 3, true
                         ) + 2;
                     }
                     return;
@@ -3564,8 +3599,8 @@ solve.start = function()
                     }
                     main.generator = group.medium.clock(disks, 0, 1, to);
                     main.minimum = solve.cyclic.moves(
-                        disks - 1
-                    ) + solve.cyclic.moves(disks - 1, true) + 3;
+                        disks - 1, 3
+                    ) + solve.cyclic.moves(disks - 1, 3, true) + 3;
                 }
                 if (main.top === '2') {
                     if (main.count.stacks !== 1) {
@@ -3574,7 +3609,7 @@ solve.start = function()
                     main.generator = solve.cyclic.three.counter(
                         disks, 0, 1, to
                     );
-                    main.minimum = solve.cyclic.moves(disks, true);
+                    main.minimum = solve.cyclic.moves(disks, 3, true);
                 }
                 if (
                     main.top === '3' ||
@@ -3585,15 +3620,17 @@ solve.start = function()
                     group = solve.cyclic;
                     if (main.count.stacks === 1) {
                         stacks = [group.three.clock(disks, 0, 1, to)];
-                        main.minimum = group.moves(disks);
+                        main.minimum = group.moves(disks, 3);
                     } else {
                         stacks = [
                             solve.none.three.first(group.three.counter)
                         ].concat(
                             solve.multi.three(group.three.clock, 0, 1, to)
                         );
-                        main.minimum = (group.moves(disks, true, true) * 2) + (
-                            group.moves(disks, false, true) * (
+                        main.minimum = (
+                            group.moves(disks, 3, true, true) * 2
+                        ) + (
+                            group.moves(disks, 3, false, true) * (
                                 main.count.stacks - 1
                             )
                         );

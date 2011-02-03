@@ -547,6 +547,7 @@ main.move = function(tower, undo, redo, restoring)
     if ($(show).text()) {
         $(show).text(disk + 1);
     }
+    $(show).attr('title', 'Disk ' + (disk + 1));
     $(hide).css('visibility', 'hidden');
     // If this is not a manual move, store the current number of moves.
     if (main.running) {
@@ -1143,7 +1144,8 @@ main.setup = function()
             $(
                 '<div />', {
                     'class': 'tower',
-                    'id': 'tower' + i
+                    'id': 'tower' + i,
+                    'title': 'Tower ' + (i + 1)
                 }
             ).appendTo('#towers');
             $(
@@ -1235,6 +1237,7 @@ main.setup = function()
                     90 - (scale * (main.count.disks - disk.size - 1)) + '%'
                 );
                 $(element).text(disk.size + 1);
+                $(element).attr('title', 'Disk ' + (disk.size + 1));
             }
             // Show the number of each disk if possible.
             if (height - 3 < 1) {

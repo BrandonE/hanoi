@@ -313,7 +313,8 @@ variations, solution, solutions, disk, disks, stack, stacks" />
         two categories: manual and automatic ones. You can play manually by
         clicking a tower to take off the top disk and clicking another tower to
         place it. In addition, you can do the same thing by using the number
-        keys to indicate the tower you want to move to or from.
+        keys to indicate the tower you want to move to or from, although this
+        doesn't work for towers greater than 9.
     </p>
     <p>
         For the automatic methods, depending on what options you have provided,
