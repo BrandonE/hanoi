@@ -20,9 +20,6 @@ import os
 import sys
 import time
 from webob import Request, Response
-sys.path.reverse()
-sys.path.append('/home/brandon/lib/python2.6')
-sys.path.reverse()
 print 'Content-Type: text/html\n'
 cgitb.enable()
 environ = dict(os.environ.items())
